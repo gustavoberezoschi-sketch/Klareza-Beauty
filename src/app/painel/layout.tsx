@@ -32,7 +32,7 @@ export default async function PainelLayout({ children }: { children: React.React
             mensalidade for regularizada.
           </p>
           {suporte && (
-            <a href={linkWhatsApp(suporte, `Olá! Sou da ${salao?.nome} e quero regularizar a mensalidade do Klareza Beauty.`)} target="_blank" className="btn-destaque mt-5">
+            <a href={linkWhatsApp(suporte, `Olá! Sou do ${salao?.nome} e quero regularizar a mensalidade do Klareza Beauty.`)} target="_blank" className="btn-destaque mt-5">
               Falar com o Klareza Beauty
             </a>
           )}

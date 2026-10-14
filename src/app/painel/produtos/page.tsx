@@ -103,7 +103,7 @@ export default async function Produtos() {
             </div>
             <div>
               <label className="label" htmlFor="categoria">Categoria</label>
-              <input id="categoria" name="categoria" className="input" list="categorias-produto" placeholder="Cabelo, Barba, Bebidas..." />
+              <input id="categoria" name="categoria" className="input" list="categorias-produto" placeholder="Cabelo, Unhas, Cílios..." />
               <datalist id="categorias-produto">{categorias.map((c) => <option key={c} value={c} />)}</datalist>
             </div>
             <div className="grid grid-cols-2 gap-3">

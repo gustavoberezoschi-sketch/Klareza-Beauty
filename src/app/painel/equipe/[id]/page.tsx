@@ -51,7 +51,7 @@ export default async function Profissional({ params }: { params: Promise<{ id: s
               <input type="hidden" name="filialId" value={b?.filialId ?? filiais[0]?.id} />
             )}
             <div><label className="label" htmlFor="telefone">WhatsApp</label><input id="telefone" name="telefone" defaultValue={b?.telefone ? formatarTelefone(b.telefone) : ""} className="input" inputMode="tel" /></div>
-            <div><label className="label" htmlFor="bio">Apresentação curta</label><input id="bio" name="bio" defaultValue={b?.bio ?? ""} className="input" placeholder="Ex.: especialista em degradê e barba" /></div>
+            <div><label className="label" htmlFor="bio">Apresentação curta</label><input id="bio" name="bio" defaultValue={b?.bio ?? ""} className="input" placeholder="Ex.: especialista em cílios fio a fio e volume russo" /></div>
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" name="destaque" defaultChecked={b?.destaque} className="mt-0.5" />
               <span><span className="font-medium">Destaque</span><span className="block text-xs text-couro-400">Mostra o selo "Destaque" e coloca primeiro na lista do cliente.</span></span>
@@ -60,11 +60,12 @@ export default async function Profissional({ params }: { params: Promise<{ id: s
         </Secao>
         <div className="space-y-4">
           <Secao titulo="Comissões">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div><label className="label" htmlFor="comissao">Serviços (%)</label><input id="comissao" name="comissao" type="number" min={0} max={100} defaultValue={b?.comissaoPct ?? 50} className="input" required /></div>
               <div><label className="label" htmlFor="comissaoProduto">Produtos (%)</label><input id="comissaoProduto" name="comissaoProduto" type="number" min={0} max={100} defaultValue={b?.comissaoProdutoPct ?? 10} className="input" required /></div>
+              <div><label className="label" htmlFor="comissaoAuxiliar">Como auxiliar (%)</label><input id="comissaoAuxiliar" name="comissaoAuxiliar" type="number" min={0} max={100} defaultValue={b?.comissaoAuxiliarPct ?? 10} className="input" required /></div>
             </div>
-            <p className="mt-2 text-xs text-couro-400">Um serviço com comissão específica usa a dele no lugar desta.</p>
+            <p className="mt-2 text-xs text-couro-400">Um serviço com comissão específica usa a dele no lugar desta. “Como auxiliar” é o que ela ganha ao ajudar no serviço de outra profissional.</p>
           </Secao>
           <Secao titulo="Acesso ao sistema">
             <p className="mb-3 text-sm text-couro-400">

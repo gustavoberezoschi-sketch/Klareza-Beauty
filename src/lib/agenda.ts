@@ -37,7 +37,7 @@ export async function profissionaisQueFazem(
 
 /**
  * Lista os horários livres de um dia, numa unidade, para um ou mais serviços feitos em sequência.
- * Se barbeiroId for null, considera qualquer profissional da unidade que faça os serviços ("sem preferência").
+ * Se profissionalId for null, considera qualquer profissional da unidade que faça os serviços ("sem preferência").
  */
 export async function horariosDisponiveis(
   params: { salaoId: string; filialId: string; servicoIds: string[]; profissionalId: string | null; dia: string },

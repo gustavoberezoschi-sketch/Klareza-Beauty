@@ -55,6 +55,12 @@ export default async function Privacidade() {
           <li>E-mail, data de nascimento e observações, quando informados pelo salão ou pelo cliente.</li>
           <li>CPF, somente para quem assina o clube com pagamento online.</li>
           <li>Histórico de agendamentos, serviços, compras, assinaturas, pagamentos e saldo de cashback.</li>
+          <li>
+            Ficha de anamnese (alergias, gestação, uso de lentes, condições de pele e saúde, medicamentos e procedimentos recentes) e fotos de
+            antes e depois, quando o salão as registra. São dados de saúde e imagem, tratados só para a segurança do procedimento (tutela da
+            saúde) e com o consentimento do cliente, registrado na ficha. Ficam visíveis apenas para o dono e os gerentes do salão.
+          </li>
+          <li>Pacotes de sessões comprados e as sessões já usadas.</li>
         </ul>
         <h3>Visitantes do site</h3>
         <ul>

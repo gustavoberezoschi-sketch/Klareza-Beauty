@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Crown, MessageCircle, Package, Scissors, Trash2 } from "lucide-react";
+import { AlertTriangle, Crown, MessageCircle, Package, Scissors, Ticket, Trash2 } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Secao } from "@/components/ui";
+import { alertasDaAnamnese, lerAnamnese } from "@/lib/anamnese";
 import { exigirSessao } from "@/lib/auth";
 import { assinaturaVigente, subtotalDosItens } from "@/lib/comandas";
 import { db } from "@/lib/db";
 import { estoquePorProduto } from "@/lib/estoque";
+import { pacotesDaCliente } from "@/lib/pacotes";
 import { FORMAS_PAGAMENTO, NOME_FORMA, formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { formatarDataHora } from "@/lib/tempo";
-import { estornarComanda, estornarFechada, excluirItem, finalizarComanda, incluirProduto, incluirServico, relancarExtra } from "../actions";
+import { estornarComanda, estornarFechada, excluirItem, finalizarComanda, incluirPacote, incluirProduto, incluirServico, relancarExtra } from "../actions";
 
 export const metadata: Metadata = { title: "Comanda" };
 export const dynamic = "force-dynamic";
@@ -19,18 +21,22 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
   const sessao = await exigirSessao();
   const comanda = await db.comanda.findFirst({
     where: { id: (await params).id, salaoId: sessao.salaoId, ...(sessao.profissionalId ? { profissionalId: sessao.profissionalId } : {}) },
-    include: { cliente: true, profissional: true, itens: { include: { profissional: true }, orderBy: { id: "asc" } }, salao: true, agendamento: true },
+    include: { cliente: true, profissional: true, itens: { include: { profissional: true, auxiliar: true }, orderBy: { id: "asc" } }, salao: true, agendamento: true },
   });
   if (!comanda) notFound();
 
   const aberta = comanda.status === "ABERTA";
   const extra = await db.extraFatura.findUnique({ where: { comandaId: comanda.id } });
-  const [servicos, produtos, profissionais, assinatura] = await Promise.all([
+  const [servicos, produtos, profissionais, assinatura, pacotes, pacotesCliente] = await Promise.all([
     db.servico.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: [{ categoria: "asc" }, { nome: "asc" }] }),
     db.produto.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: { nome: "asc" } }),
     db.profissional.findMany({ where: { salaoId: sessao.salaoId, filialId: comanda.filialId, ativo: true }, orderBy: { nome: "asc" } }),
     comanda.clienteId ? assinaturaVigente(comanda.clienteId) : null,
+    db.pacote.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: { nome: "asc" } }),
+    comanda.clienteId ? pacotesDaCliente(comanda.clienteId) : [],
   ]);
+  const comSaldo = pacotesCliente.filter((p) => p.disponivel);
+  const alertas = comanda.cliente ? alertasDaAnamnese(lerAnamnese(comanda.cliente.anamnese)) : [];
   const estoque = await estoquePorProduto(sessao.salaoId, comanda.filialId);
   const subtotal = subtotalDosItens(comanda.itens);
   const bruto = comanda.itens.reduce((s, i) => s + i.quantidade * i.precoUnitCentavos, 0);
@@ -38,12 +44,12 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
 
   const recibo = [
     `*${comanda.salao.nome}* · Comanda #${comanda.numero}`,
-    ...comanda.itens.map((i) => `${i.quantidade}x ${i.descricao}: ${i.cobertoPorPlano ? "incluso no plano" : formatarDinheiro(i.quantidade * i.precoUnitCentavos)}`),
+    ...comanda.itens.map((i) => `${i.quantidade}x ${i.descricao}: ${i.cobertoPorPlano ? "incluso no plano" : i.pacoteClienteId ? "sessão do pacote" : formatarDinheiro(i.quantidade * i.precoUnitCentavos)}`),
     comanda.descontoCentavos ? `Desconto: -${formatarDinheiro(comanda.descontoCentavos)}` : "",
     comanda.cashbackUsadoCentavos ? `Cashback usado: -${formatarDinheiro(comanda.cashbackUsadoCentavos)}` : "",
     `*Total: ${formatarDinheiro(comanda.totalCentavos)}* (${NOME_FORMA[comanda.formaPagamento ?? ""] ?? ""})`,
     comanda.cashbackGeradoCentavos ? `Você ganhou ${formatarDinheiro(comanda.cashbackGeradoCentavos)} de cashback para a próxima visita!` : "",
-    "Obrigado pela preferência! ✂️",
+    "Obrigado pela preferência! ✨",
   ].filter(Boolean).join("\n");
 
   const podeFatura = !!assinatura?.asaasId && !assinatura.canceladaEm && comanda.salao.cobrancaOnlineClube && !!comanda.salao.asaasApiKey;
@@ -70,6 +76,29 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
         </div>
       )}
 
+      {alertas.length > 0 && (
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-poste-vermelho/30 bg-poste-vermelho/5 px-4 py-3 text-sm">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-poste-vermelho" />
+          <span><strong>Ficha do cliente:</strong> {alertas.join(" · ")}</span>
+        </div>
+      )}
+
+      {comSaldo.length > 0 && (
+        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-black/10 bg-fundo px-4 py-3 text-sm">
+          <Ticket className="size-5 text-latao-600" />
+          <span>
+            Pacotes do cliente:{" "}
+            {comSaldo.map((p, n) => (
+              <span key={p.id}>
+                {n > 0 && " · "}
+                <strong>{p.pacote.nome}</strong> ({p.restantes} de {p.sessoes} sessões)
+              </span>
+            ))}
+            . O serviço do pacote entra sem cobrança.
+          </span>
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
           <Secao titulo="Itens">
@@ -80,18 +109,25 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                 {comanda.itens.map((i) => (
                   <li key={i.id} className="flex items-center gap-3 py-3">
                     <span className="grid size-9 shrink-0 place-items-center rounded-full bg-fundo text-couro-700">
-                      {i.tipo === "SERVICO" ? <Scissors className="size-4" /> : <Package className="size-4" />}
+                      {i.tipo === "SERVICO" ? <Scissors className="size-4" /> : i.tipo === "PACOTE" ? <Ticket className="size-4" /> : <Package className="size-4" />}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">
                         {i.quantidade > 1 && `${i.quantidade}× `}{i.descricao}
                       </p>
                       <p className="text-xs text-couro-400">
-                        {i.profissional?.nome ?? "Sem profissional"} · comissão {i.comissaoPct}%
+                        {i.tipo === "PACOTE"
+                          ? "Sessões liberadas ao fechar a comanda"
+                          : <>
+                              {i.profissional?.nome ?? "Sem profissional"} · comissão {i.comissaoPct}%
+                              {i.auxiliar && ` · auxiliar ${i.auxiliar.nome} (${i.comissaoAuxiliarPct}%)`}
+                            </>}
                       </p>
                     </div>
                     {i.cobertoPorPlano ? (
                       <Etiqueta tom="latao">Incluso no plano</Etiqueta>
+                    ) : i.pacoteClienteId ? (
+                      <Etiqueta tom="azul">Sessão do pacote</Etiqueta>
                     ) : (
                       <span className="font-semibold tabular-nums">{formatarDinheiro(i.quantidade * i.precoUnitCentavos)}</span>
                     )}
@@ -122,6 +158,12 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                     <select name="profissionalId" className="input" defaultValue={comanda.profissionalId ?? ""} aria-label="Profissional">
                       <option value="">Sem profissional</option>
                       {profissionais.map((b) => <option key={b.id} value={b.id}>{b.nome}</option>)}
+                    </select>
+                  )}
+                  {profissionais.length > 1 && (
+                    <select name="auxiliarId" className="input" defaultValue="" aria-label="Auxiliar">
+                      <option value="">Sem auxiliar</option>
+                      {profissionais.map((b) => <option key={b.id} value={b.id}>Auxiliar: {b.nome} ({b.comissaoAuxiliarPct}%)</option>)}
                     </select>
                   )}
                   <button className="btn-secundario"><Scissors className="size-4" /> Adicionar serviço</button>
@@ -155,6 +197,21 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                   </FormAcao>
                 )}
               </Secao>
+              {pacotes.length > 0 && (
+                <Secao titulo="Vender pacote">
+                  {comanda.clienteId ? (
+                    <FormAcao acao={incluirPacote} className="grid gap-3">
+                      <input type="hidden" name="comandaId" value={comanda.id} />
+                      <select name="pacoteId" className="input" required aria-label="Pacote">
+                        {pacotes.map((p) => <option key={p.id} value={p.id}>{p.nome} · {p.sessoes} sessões · {formatarDinheiro(p.precoCentavos)}</option>)}
+                      </select>
+                      <button className="btn-secundario"><Ticket className="size-4" /> Adicionar pacote</button>
+                    </FormAcao>
+                  ) : (
+                    <p className="text-sm text-couro-400">Para vender um pacote, abra a comanda com o cliente escolhido.</p>
+                  )}
+                </Secao>
+              )}
             </div>
           )}
         </div>
@@ -165,7 +222,7 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between"><dt className="text-couro-400">Itens</dt><dd className="tabular-nums">{formatarDinheiro(bruto)}</dd></div>
                 {bruto !== subtotal && (
-                  <div className="flex justify-between"><dt className="text-couro-400">Incluso no plano</dt><dd className="tabular-nums">-{formatarDinheiro(bruto - subtotal)}</dd></div>
+                  <div className="flex justify-between"><dt className="text-couro-400">Plano e pacotes</dt><dd className="tabular-nums">-{formatarDinheiro(bruto - subtotal)}</dd></div>
                 )}
                 <div className="flex justify-between border-t border-black/[0.06] pt-2 text-base font-semibold"><dt>A cobrar</dt><dd className="numero">{formatarDinheiro(subtotal)}</dd></div>
               </dl>
@@ -209,7 +266,7 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
             <Secao titulo="Resumo">
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between"><dt className="text-couro-400">Itens</dt><dd className="tabular-nums">{formatarDinheiro(bruto)}</dd></div>
-                {bruto !== subtotal && <div className="flex justify-between"><dt className="text-couro-400">Incluso no plano</dt><dd>-{formatarDinheiro(bruto - subtotal)}</dd></div>}
+                {bruto !== subtotal && <div className="flex justify-between"><dt className="text-couro-400">Plano e pacotes</dt><dd>-{formatarDinheiro(bruto - subtotal)}</dd></div>}
                 {comanda.descontoCentavos > 0 && <div className="flex justify-between"><dt className="text-couro-400">Desconto</dt><dd>-{formatarDinheiro(comanda.descontoCentavos)}</dd></div>}
                 {comanda.cashbackUsadoCentavos > 0 && <div className="flex justify-between"><dt className="text-couro-400">Cashback usado</dt><dd>-{formatarDinheiro(comanda.cashbackUsadoCentavos)}</dd></div>}
                 <div className="flex justify-between border-t border-black/[0.06] pt-2 text-base font-semibold"><dt>Total pago</dt><dd className="numero">{formatarDinheiro(comanda.totalCentavos)}</dd></div>

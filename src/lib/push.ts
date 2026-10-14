@@ -72,7 +72,7 @@ export async function enviarLembretesDeAmanha() {
     const doGrupo = a.grupo ? agendamentos.filter((x) => x.grupo === a.grupo) : [a];
     const servicos = doGrupo.map((x) => x.servico.nome).join(" + ");
     const ok = await notificarCliente(a.clienteId, {
-      titulo: `Amanhã às ${horaLocal(a.inicio)} na ${a.salao.nome}`,
+      titulo: `Amanhã às ${horaLocal(a.inicio)} no ${a.salao.nome}`,
       texto: `${servicos} com ${a.profissional.nome.split(" ")[0]}. Toque para confirmar ou remarcar.`,
       url: `/b/${a.salao.slug}/agendamento/${a.token}`,
       icone: `/b/${a.salao.slug}/icone/192`,

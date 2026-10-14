@@ -17,7 +17,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const b = await db.salao.findUnique({ where: { slug: (await params).slug }, select: { nome: true, descricao: true } });
   return b
-    ? { title: { absolute: `${b.nome} · Agende seu horário` }, description: b.descricao ?? `Agende seu horário na ${b.nome}.` }
+    ? { title: { absolute: `${b.nome} · Agende seu horário` }, description: b.descricao ?? `Agende seu horário no ${b.nome}.` }
     : { title: "Salão não encontrada" };
 }
 
@@ -178,7 +178,7 @@ export default async function PaginaPublica({ params }: Props) {
                   <p className="mt-2 text-sm text-couro-700">{p.descricao ?? p.servicos.map((s) => s.nome).join(", ")}</p>
                   <p className="mt-1 text-xs text-couro-400">{p.usosPorMes ? `Até ${p.usosPorMes} vez(es) por mês` : "Uso ilimitado"}</p>
                   {b.telefone && (
-                    <a href={linkWhatsApp(b.telefone, `Olá! Quero assinar o plano ${p.nome} da ${b.nome}.`)} target="_blank" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[var(--cor)] px-4 py-2.5 text-sm font-semibold text-[var(--cor-texto)]">
+                    <a href={linkWhatsApp(b.telefone, `Olá! Quero assinar o plano ${p.nome} do ${b.nome}.`)} target="_blank" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[var(--cor)] px-4 py-2.5 text-sm font-semibold text-[var(--cor-texto)]">
                       Quero assinar
                     </a>
                   )}

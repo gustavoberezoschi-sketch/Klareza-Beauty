@@ -2,10 +2,10 @@ import { linkWhatsApp } from "./formato";
 import { diaLocal, formatarDiaExtenso, horaLocal, somarDias } from "./tempo";
 
 export const MSG_CONFIRMACAO_PADRAO =
-  "Olá, {nome}! Seu horário na {salão} está agendado ✂️\n\n📅 {data} às {hora}\n💈 {servico} com {profissional}\n📍 {endereco}\n\nPara confirmar ou cancelar: {link}";
+  "Olá, {nome}! Seu horário no {salão} está agendado ✨\n\n📅 {data} às {hora}\n💖 {servico} com {profissional}\n📍 {endereco}\n\nPara confirmar ou cancelar: {link}";
 
 export const MSG_LEMBRETE_PADRAO =
-  "Oi, {nome}! Passando para lembrar do seu horário na {salão} {quando} às {hora} ✂️\n\n💈 {servico} com {profissional}\n📍 {endereco}\n\nConfirme sua presença aqui: {link}\nTe esperamos!";
+  "Oi, {nome}! Passando para lembrar do seu horário no {salão} {quando} às {hora} ✨\n\n💖 {servico} com {profissional}\n📍 {endereco}\n\nConfirme sua presença aqui: {link}\nTe esperamos!";
 
 export const VARIAVEIS = [
   ["{nome}", "primeiro nome do cliente"],
@@ -49,7 +49,7 @@ export function preencherMensagem(modelo: string, d: DadosMensagem) {
     "{link}": d.link,
   };
   return modelo
-    .replace(/\{(nome|barbearia|data|quando|hora|servico|barbeiro|unidade|endereco|link)\}/g, (v) => valores[v] ?? v)
+    .replace(/\{(nome|salão|salao|data|quando|hora|servico|profissional|unidade|endereco|link)\}/g, (v) => valores[v] ?? valores[v.replace("salao", "salão")] ?? v)
     .split("\n")
     .filter((linha) => !/^📍\s*$/.test(linha.trim())) // some a linha do endereço se não tiver endereço
     .join("\n");

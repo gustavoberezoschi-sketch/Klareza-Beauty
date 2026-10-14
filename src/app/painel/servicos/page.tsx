@@ -31,7 +31,7 @@ export default async function Servicos() {
         acoes={<Link href="/painel/servicos/novo" className="btn-destaque"><Plus className="size-4" /> Novo serviço</Link>}
       />
       {servicos.length === 0 && (
-        <Vazio icone={Scissors} titulo="Nenhum serviço cadastrado" texto="Comece pelos mais pedidos: corte, barba e o combo." acao={<Link href="/painel/servicos/novo" className="btn-primario">Cadastrar serviço</Link>} />
+        <Vazio icone={Scissors} titulo="Nenhum serviço cadastrado" texto="Comece pelos mais pedidos: manicure, design de sobrancelha e cílios." acao={<Link href="/painel/servicos/novo" className="btn-primario">Cadastrar serviço</Link>} />
       )}
 
       {categorias.map((cat) => (
@@ -54,6 +54,7 @@ export default async function Servicos() {
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-couro-400">
                     <Clock className="size-3" /> {s.duracaoMin} min · {s._count.agendamentos} agendamento(s)
                     {s.comissaoPct !== null && ` · comissão ${s.comissaoPct}%`}
+                    {s.retornoDias && ` · retorno em ${s.retornoDias} dias`}
                   </p>
                   {s.descricao && <p className="mt-1.5 line-clamp-2 text-sm text-couro-700">{s.descricao}</p>}
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">

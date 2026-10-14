@@ -8,7 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL") // conexão direta (usada nas migrações)
 }
 
-// Cada salao cliente do sistema. Todos os outros dados pertencem a uma salao.
+// Cado salão cliente do sistema. Todos os outros dados pertencem a umo salão.
 model Salao {
   id                String  @id @default(cuid())
   nome              String
@@ -29,13 +29,13 @@ model Salao {
   msgConfirmacao String?
   msgLembrete    String?
 
-  // Assinatura do KlarezaBeauty (o que a salao paga para usar o sistema)
+  // Assinatura do KlarezaBeauty (o que o salão paga para usar o sistema)
   plano    String  @default("BAIRRO") // BAIRRO | CIDADE | NACIONAL
   ciclo    String  @default("MENSAL") // MENSAL | ANUAL
   pagoAte  String? // "2026-11-10"; vazio = sem vencimento controlado
   suspensa Boolean @default(false) // sem pagamento: painel e agendamento bloqueados
 
-  // Asaas: subconta de recebimento da salao (dinheiro dos clientes)
+  // Asaas: subconta de recebimento do salão (dinheiro dos clientes)
   asaasContaId           String?
   asaasWalletId          String?
   asaasApiKey            String? // criptografada
@@ -54,7 +54,7 @@ model Salao {
 
   usuarios          Usuario[]
   filiais           Filial[]
-  profissionais         Profissional[]
+  profissionais     Profissional[]
   servicos          Servico[]
   clientes          Cliente[]
   agendamentos      Agendamento[]
@@ -71,29 +71,32 @@ model Salao {
   extrasFatura      ExtraFatura[]
   inscricoesPush    PushInscricao[]
   saques            Saque[]
+  pacotes           Pacote[]
+  pacotesClientes   PacoteCliente[]
+  fotosClientes     FotoCliente[]
 }
 
-// Unidade (filial) da salao: endereço, expediente, equipe, agenda e caixa próprios.
+// Unidade (filial) do salão: endereço, expediente, equipe, agenda e caixa próprios.
 // Clientes, serviços, planos, banners e parceiros são compartilhados por todas as unidades.
 model Filial {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  nome        String
-  endereco    String?
-  telefone    String?
-  ativo       Boolean   @default(true)
-  ordem       Int       @default(0)
-  criadoEm    DateTime  @default(now())
+  id       String   @id @default(cuid())
+  salaoId  String
+  salao    Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  nome     String
+  endereco String?
+  telefone String?
+  ativo    Boolean  @default(true)
+  ordem    Int      @default(0)
+  criadoEm DateTime @default(now())
 
-  horarios     HorarioFuncionamento[]
-  profissionais    Profissional[]
-  agendamentos Agendamento[]
-  comandas     Comanda[]
-  caixas       Caixa[]
-  bloqueios    Bloqueio[]
-  estoques     EstoqueFilial[]
-  movimentos   MovimentoEstoque[]
+  horarios      HorarioFuncionamento[]
+  profissionais Profissional[]
+  agendamentos  Agendamento[]
+  comandas      Comanda[]
+  caixas        Caixa[]
+  bloqueios     Bloqueio[]
+  estoques      EstoqueFilial[]
+  movimentos    MovimentoEstoque[]
 
   @@index([salaoId])
 }
@@ -111,68 +114,72 @@ model HorarioFuncionamento {
 
 // Login do painel administrativo.
 model Usuario {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  nome        String
-  email       String    @unique
-  senhaHash   String
-  papel       String    @default("DONO") // DONO | GERENTE | PROFISSIONAL
-  profissionalId  String?   @unique // login do próprio profissional (vê só a agenda e comissões dele)
-  profissional    Profissional? @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
-  criadoEm    DateTime  @default(now())
+  id             String        @id @default(cuid())
+  salaoId        String
+  salao          Salao         @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  nome           String
+  email          String        @unique
+  senhaHash      String
+  papel          String        @default("DONO") // DONO | GERENTE | PROFISSIONAL
+  profissionalId String?       @unique // login do próprio profissional (vê só a agenda e comissões dele)
+  profissional   Profissional? @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
+  criadoEm       DateTime      @default(now())
 }
 
 model Profissional {
-  id                 String    @id @default(cuid())
-  salaoId        String
-  salao          Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  filialId           String
-  filial             Filial    @relation(fields: [filialId], references: [id], onDelete: NoAction)
-  nome               String
-  telefone           String?
-  foto               String?
-  comissaoPct        Int       @default(50) // comissão padrão nos serviços
-  comissaoProdutoPct Int       @default(10) // comissão nas vendas de produtos
-  destaque           Boolean   @default(false) // selo "Destaque" na página do cliente
-  bio                String?
-  ativo              Boolean   @default(true)
-  criadoEm           DateTime  @default(now())
+  id                  String   @id @default(cuid())
+  salaoId             String
+  salao               Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  filialId            String
+  filial              Filial   @relation(fields: [filialId], references: [id], onDelete: NoAction)
+  nome                String
+  telefone            String?
+  foto                String?
+  comissaoPct         Int      @default(50) // comissão padrão nos serviços
+  comissaoProdutoPct  Int      @default(10) // comissão nas vendas de produtos
+  comissaoAuxiliarPct Int      @default(10) // comissão quando ajuda outra profissional (auxiliar)
+  destaque            Boolean  @default(false) // selo "Destaque" na página do cliente
+  bio                 String?
+  ativo               Boolean  @default(true)
+  criadoEm            DateTime @default(now())
 
-  servicos     Servico[] // serviços que ele faz (vazio = todos)
-  agendamentos Agendamento[]
-  bloqueios    Bloqueio[]
-  comandas     Comanda[]
-  itens        ComandaItem[]
-  usuario      Usuario?
+  servicos      Servico[] // serviços que ele faz (vazio = todos)
+  agendamentos  Agendamento[]
+  bloqueios     Bloqueio[]
+  comandas      Comanda[]
+  itens         ComandaItem[] @relation("ItemProfissional")
+  itensAuxiliar ComandaItem[] @relation("ItemAuxiliar")
+  usuario       Usuario?
 }
 
 model Servico {
-  id            String    @id @default(cuid())
-  salaoId   String
-  salao     Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  salaoId       String
+  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   nome          String
-  categoria     String    @default("Cabelo")
+  categoria     String   @default("Cabelo")
   descricao     String?
   foto          String?
   precoCentavos Int
   duracaoMin    Int
   comissaoPct   Int? // se preenchido, substitui a comissão padrão do profissional
-  exibirOnline  Boolean   @default(true)
-  ativo         Boolean   @default(true)
-  ordem         Int       @default(0)
-  criadoEm      DateTime  @default(now())
+  retornoDias   Int? // manutenção: avisar a cliente para voltar depois de X dias (ex.: cílios 15–20)
+  exibirOnline  Boolean  @default(true)
+  ativo         Boolean  @default(true)
+  ordem         Int      @default(0)
+  criadoEm      DateTime @default(now())
 
-  profissionais    Profissional[]
-  agendamentos Agendamento[]
-  planos       Plano[]
-  itens        ComandaItem[]
+  profissionais Profissional[]
+  agendamentos  Agendamento[]
+  planos        Plano[]
+  itens         ComandaItem[]
+  pacotes       Pacote[]
 }
 
 model Cliente {
   id                    String    @id @default(cuid())
-  salaoId           String
-  salao             Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  salaoId               String
+  salao                 Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   nome                  String
   telefone              String // só dígitos
   email                 String?
@@ -183,8 +190,13 @@ model Cliente {
   aceiteTermosEm        DateTime? // quando aceitou os Termos de Uso e a Política de Privacidade
   cpf                   String? // exigido para pagar online
   asaasClienteId        String?
+  anamnese              Json? // ficha de anamnese (alergias, cuidados, observações)
+  anamneseEm            DateTime? // quando a cliente confirmou a ficha e autorizou o atendimento
+  retornoLembradoEm     DateTime? // último aviso de manutenção enviado pelo WhatsApp
   criadoEm              DateTime  @default(now())
 
+  fotos          FotoCliente[]
+  pacotes        PacoteCliente[]
   agendamentos   Agendamento[]
   comandas       Comanda[]
   assinaturas    Assinatura[]
@@ -194,31 +206,31 @@ model Cliente {
 }
 
 model Agendamento {
-  id                   String    @id @default(cuid())
-  salaoId          String
-  salao            Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id                   String       @id @default(cuid())
+  salaoId              String
+  salao                Salao        @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   filialId             String
-  filial               Filial    @relation(fields: [filialId], references: [id], onDelete: NoAction)
-  profissionalId           String
-  profissional             Profissional  @relation(fields: [profissionalId], references: [id])
+  filial               Filial       @relation(fields: [filialId], references: [id], onDelete: NoAction)
+  profissionalId       String
+  profissional         Profissional @relation(fields: [profissionalId], references: [id])
   servicoId            String
-  servico              Servico   @relation(fields: [servicoId], references: [id])
+  servico              Servico      @relation(fields: [servicoId], references: [id])
   clienteId            String
-  cliente              Cliente   @relation(fields: [clienteId], references: [id])
+  cliente              Cliente      @relation(fields: [clienteId], references: [id])
   inicio               DateTime
   fim                  DateTime
   precoCentavos        Int // preço no momento do agendamento
-  status               String    @default("AGENDADO") // AGENDADO | CONFIRMADO | CONCLUIDO | CANCELADO | FALTOU
-  origem               String    @default("ONLINE") // ONLINE | PAINEL
+  status               String       @default("AGENDADO") // AGENDADO | CONFIRMADO | CONCLUIDO | CANCELADO | FALTOU
+  origem               String       @default("ONLINE") // ONLINE | PAINEL
   formaPagamento       String?
   observacao           String?
-  token                String    @unique @default(uuid()) // link para o cliente ver/cancelar (uuid v4: 122 bits aleatórios)
+  token                String       @unique @default(uuid()) // link para o cliente ver/cancelar (uuid v4: 122 bits aleatórios)
   grupo                String? // agendamentos de vários serviços em sequência compartilham o grupo
   confirmacaoEnviadaEm DateTime?
   lembreteEnviadoEm    DateTime?
   pushLembreteEm       DateTime? // lembrete enviado como notificação no app
   checkinAutoEm        DateTime? // concluído sozinho ao passar o horário (sem comanda fechada)
-  criadoEm             DateTime  @default(now())
+  criadoEm             DateTime     @default(now())
 
   comanda Comanda?
 
@@ -229,31 +241,31 @@ model Agendamento {
 
 // Folgas, almoço, férias: horários em que não se pode agendar.
 model Bloqueio {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  profissionalId  String? // vazio = a unidade inteira (ou todas, se filialId também estiver vazio)
-  profissional    Profissional? @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
-  filialId    String?
-  filial      Filial?   @relation(fields: [filialId], references: [id], onDelete: Cascade)
-  inicio      DateTime
-  fim         DateTime
-  motivo      String?
-  criadoEm    DateTime  @default(now())
+  id             String        @id @default(cuid())
+  salaoId        String
+  salao          Salao         @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  profissionalId String? // vazio = a unidade inteira (ou todas, se filialId também estiver vazio)
+  profissional   Profissional? @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
+  filialId       String?
+  filial         Filial?       @relation(fields: [filialId], references: [id], onDelete: Cascade)
+  inicio         DateTime
+  fim            DateTime
+  motivo         String?
+  criadoEm       DateTime      @default(now())
 
   @@index([salaoId, inicio])
 }
 
 model Produto {
-  id            String    @id @default(cuid())
-  salaoId   String
-  salao     Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  salaoId       String
+  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   nome          String
-  categoria     String    @default("Geral")
+  categoria     String   @default("Geral")
   precoCentavos Int
-  custoCentavos Int       @default(0)
-  ativo         Boolean   @default(true)
-  criadoEm      DateTime  @default(now())
+  custoCentavos Int      @default(0)
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
 
   estoques   EstoqueFilial[]
   movimentos MovimentoEstoque[]
@@ -287,27 +299,27 @@ model MovimentoEstoque {
 
 // Conta do atendimento: serviços + produtos, desconto e forma de pagamento.
 model Comanda {
-  id                     String       @id @default(cuid())
-  numero                 Int          @default(autoincrement())
-  salaoId            String
-  salao              Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id                     String        @id @default(cuid())
+  numero                 Int           @default(autoincrement())
+  salaoId                String
+  salao                  Salao         @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   filialId               String
-  filial                 Filial       @relation(fields: [filialId], references: [id], onDelete: NoAction)
+  filial                 Filial        @relation(fields: [filialId], references: [id], onDelete: NoAction)
   clienteId              String?
-  cliente                Cliente?     @relation(fields: [clienteId], references: [id])
-  profissionalId             String?
-  profissional               Profissional?    @relation(fields: [profissionalId], references: [id])
-  agendamentoId          String?      @unique
-  agendamento            Agendamento? @relation(fields: [agendamentoId], references: [id])
+  cliente                Cliente?      @relation(fields: [clienteId], references: [id])
+  profissionalId         String?
+  profissional           Profissional? @relation(fields: [profissionalId], references: [id])
+  agendamentoId          String?       @unique
+  agendamento            Agendamento?  @relation(fields: [agendamentoId], references: [id])
   caixaId                String?
-  caixa                  Caixa?       @relation(fields: [caixaId], references: [id])
-  status                 String       @default("ABERTA") // ABERTA | FECHADA | CANCELADA
-  descontoCentavos       Int          @default(0)
-  cashbackUsadoCentavos  Int          @default(0)
-  cashbackGeradoCentavos Int          @default(0)
-  totalCentavos          Int          @default(0) // valor efetivamente pago
+  caixa                  Caixa?        @relation(fields: [caixaId], references: [id])
+  status                 String        @default("ABERTA") // ABERTA | FECHADA | CANCELADA
+  descontoCentavos       Int           @default(0)
+  cashbackUsadoCentavos  Int           @default(0)
+  cashbackGeradoCentavos Int           @default(0)
+  totalCentavos          Int           @default(0) // valor efetivamente pago
   formaPagamento         String?
-  abertaEm               DateTime     @default(now())
+  abertaEm               DateTime      @default(now())
   fechadaEm              DateTime?
 
   itens       ComandaItem[]
@@ -317,27 +329,38 @@ model Comanda {
 }
 
 model ComandaItem {
-  id                String    @id @default(cuid())
-  comandaId         String
-  comanda           Comanda   @relation(fields: [comandaId], references: [id], onDelete: Cascade)
-  tipo              String // SERVICO | PRODUTO
-  servicoId         String?
-  servico           Servico?  @relation(fields: [servicoId], references: [id])
-  produtoId         String?
-  produto           Produto?  @relation(fields: [produtoId], references: [id])
-  profissionalId        String?
-  profissional          Profissional? @relation(fields: [profissionalId], references: [id])
-  descricao         String
-  quantidade        Int       @default(1)
-  precoUnitCentavos Int
-  comissaoPct       Int       @default(0)
-  cobertoPorPlano   Boolean   @default(false) // serviço incluso na assinatura do cliente (não cobra)
+  id                  String         @id @default(cuid())
+  comandaId           String
+  comanda             Comanda        @relation(fields: [comandaId], references: [id], onDelete: Cascade)
+  tipo                String // SERVICO | PRODUTO | PACOTE
+  servicoId           String?
+  servico             Servico?       @relation(fields: [servicoId], references: [id])
+  produtoId           String?
+  produto             Produto?       @relation(fields: [produtoId], references: [id])
+  profissionalId      String?
+  profissional        Profissional?  @relation("ItemProfissional", fields: [profissionalId], references: [id])
+  auxiliarId          String? // quem ajudou no serviço (ganha comissão própria)
+  auxiliar            Profissional?  @relation("ItemAuxiliar", fields: [auxiliarId], references: [id], onDelete: SetNull)
+  comissaoAuxiliarPct Int            @default(0)
+  pacoteId            String? // venda de um pacote (tipo PACOTE)
+  pacote              Pacote?        @relation(fields: [pacoteId], references: [id])
+  pacoteClienteId     String? // sessão abatida de um pacote da cliente (não cobra)
+  pacoteCliente       PacoteCliente? @relation("SessaoDoPacote", fields: [pacoteClienteId], references: [id], onDelete: SetNull)
+  descricao           String
+  quantidade          Int            @default(1)
+  precoUnitCentavos   Int
+  comissaoPct         Int            @default(0)
+  cobertoPorPlano     Boolean        @default(false) // serviço incluso na assinatura do cliente (não cobra)
+
+  pacoteVendido PacoteCliente? @relation("VendaDoPacote")
+
+  @@index([pacoteClienteId])
 }
 
 model Caixa {
   id                      String    @id @default(cuid())
-  salaoId             String
-  salao               Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  salaoId                 String
+  salao                   Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   filialId                String
   filial                  Filial    @relation(fields: [filialId], references: [id], onDelete: NoAction)
   abertoEm                DateTime  @default(now())
@@ -363,16 +386,16 @@ model MovimentoCaixa {
 
 // Clube de assinatura (ex.: corte ilimitado por R$ 99/mês).
 model Plano {
-  id            String    @id @default(cuid())
-  salaoId   String
-  salao     Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  salaoId       String
+  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   nome          String
   descricao     String?
   precoCentavos Int
   usosPorMes    Int? // vazio = ilimitado
-  exibirOnline  Boolean   @default(true)
-  ativo         Boolean   @default(true)
-  criadoEm      DateTime  @default(now())
+  exibirOnline  Boolean  @default(true)
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
 
   servicos    Servico[] // serviços incluídos
   assinaturas Assinatura[]
@@ -380,8 +403,8 @@ model Plano {
 
 model Assinatura {
   id            String    @id @default(cuid())
-  salaoId   String
-  salao     Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  salaoId       String
+  salao         Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   clienteId     String
   cliente       Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   planoId       String
@@ -401,8 +424,8 @@ model Assinatura {
 /// Serviço ou produto extra de um assinante lançado na próxima cobrança do clube, em vez de pago na hora.
 model ExtraFatura {
   id               String     @id @default(cuid())
-  salaoId      String
-  salao        Salao  @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  salaoId          String
+  salao            Salao      @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   assinaturaId     String
   assinatura       Assinatura @relation(fields: [assinaturaId], references: [id], onDelete: Cascade)
   comandaId        String     @unique
@@ -432,11 +455,11 @@ model PagamentoAssinatura {
   valorLiquidoCentavos Int? // o que sobra depois da taxa do Asaas
 }
 
-// Despesas da salao (aluguel, luz, fornecedores, comissões pagas...).
+// Despesas do salão (aluguel, luz, fornecedores, comissões pagas...).
 model ContaPagar {
   id             String    @id @default(cuid())
-  salaoId    String
-  salao      Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  salaoId        String
+  salao          Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   descricao      String
   categoria      String    @default("Outros")
   valorCentavos  Int
@@ -450,41 +473,41 @@ model ContaPagar {
 
 // Banners da área do cliente (promoções, avisos, parceiros).
 model Banner {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  imagem      String
-  link        String?
-  ordem       Int       @default(0)
-  criadoEm    DateTime  @default(now())
+  id       String   @id @default(cuid())
+  salaoId  String
+  salao    Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  imagem   String
+  link     String?
+  ordem    Int      @default(0)
+  criadoEm DateTime @default(now())
 }
 
 // Clube de vantagens: parceiros com cupons de desconto para os clientes.
 model Parceiro {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  nome        String
-  descricao   String?
-  cupom       String?
-  imagem      String?
-  link        String?
-  ativo       Boolean   @default(true)
-  criadoEm    DateTime  @default(now())
+  id        String   @id @default(cuid())
+  salaoId   String
+  salao     Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  nome      String
+  descricao String?
+  cupom     String?
+  imagem    String?
+  link      String?
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
 }
 
-// Pagamentos que a salao fez ao KlarezaBeauty.
+// Pagamentos que o salão fez ao KlarezaBeauty.
 model PagamentoSistema {
-  id               String    @id @default(cuid())
-  salaoId      String
-  salao        Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  salaoId          String
+  salao            Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   plano            String
   ciclo            String
   valorCentavos    Int
   referenteAte     String // até quando esse pagamento cobre
   observacao       String?
-  pagoEm           DateTime  @default(now())
-  asaasPagamentoId String?   @unique
+  pagoEm           DateTime @default(now())
+  asaasPagamentoId String?  @unique
 
   @@index([salaoId, pagoEm])
 }
@@ -492,24 +515,24 @@ model PagamentoSistema {
 // Configurações gerais do KlarezaBeauty (uma linha só, id = "geral").
 model ConfigSistema {
   id                String  @id @default("geral")
-  whatsappSuporte   String? // número para as saloes pedirem suporte ou mudança de plano
+  whatsappSuporte   String? // número para os salões pedirem suporte ou mudança de plano
   taxaPlataformaPct Int     @default(0) // % de cada pagamento online que vai para o KlarezaBeauty (split)
   asaasWalletId     String? // carteira da conta principal (destino do split)
   vapidPublica      String? // chaves das notificações do app (Web Push), criadas sozinhas no 1º uso
   vapidPrivada      String?
 }
 
-/// Celular do cliente inscrito para receber notificações do app da salao.
+/// Celular do cliente inscrito para receber notificações do app do salão.
 model PushInscricao {
-  id          String    @id @default(cuid())
-  salaoId String
-  salao   Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  clienteId   String
-  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  endpoint    String    @unique
-  p256dh      String
-  auth        String
-  criadoEm    DateTime  @default(now())
+  id        String   @id @default(cuid())
+  salaoId   String
+  salao     Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  criadoEm  DateTime @default(now())
 
   @@index([clienteId])
 }
@@ -517,20 +540,20 @@ model PushInscricao {
 // Saque por Pix da conta de recebimento (subconta Asaas) para a conta do dono.
 // Criado aqui antes de pedir ao Asaas: a validação de saque só aprova transferências que estão nesta tabela.
 model Saque {
-  id            String    @id @default(cuid())
-  salaoId   String
-  salao     Salao @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  salaoId       String
+  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
   valorCentavos Int
   chavePix      String
   tipoChave     String
-  status        String    @default("CRIANDO") // CRIANDO | PENDING | BANK_PROCESSING | DONE | CANCELLED | FAILED | ERRO
-  asaasId       String?   @unique
+  status        String   @default("CRIANDO") // CRIANDO | PENDING | BANK_PROCESSING | DONE | CANCELLED | FAILED | ERRO
+  asaasId       String?  @unique
   taxaCentavos  Int?
   erro          String?
-  automatico    Boolean   @default(false)
+  automatico    Boolean  @default(false)
   pedidoPor     String? // nome de quem pediu (vazio = automático)
-  criadoEm      DateTime  @default(now())
-  atualizadoEm  DateTime  @updatedAt
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
 
   @@index([salaoId, criadoEm])
 }
@@ -542,4 +565,63 @@ model LimiteTentativa {
   criadoEm DateTime @default(now())
 
   @@index([chave, criadoEm])
+}
+
+// Pacote de sessões vendido antecipado (ex.: 4 manutenções de cílios por R$ 280).
+model Pacote {
+  id            String   @id @default(cuid())
+  salaoId       String
+  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  servicoId     String
+  servico       Servico  @relation(fields: [servicoId], references: [id])
+  nome          String
+  descricao     String?
+  sessoes       Int
+  precoCentavos Int
+  validadeDias  Int? // vazio = não vence
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+
+  itens  ComandaItem[]
+  vendas PacoteCliente[]
+
+  @@index([salaoId])
+}
+
+// Pacote comprado por uma cliente. As sessões usadas são os itens de comanda (não cancelada) ligados a ele.
+model PacoteCliente {
+  id            String       @id @default(cuid())
+  salaoId       String
+  salao         Salao        @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  clienteId     String
+  cliente       Cliente      @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  pacoteId      String
+  pacote        Pacote       @relation(fields: [pacoteId], references: [id])
+  servicoId     String
+  sessoes       Int
+  valorCentavos Int
+  validoAte     String? // "2026-12-31"; vazio = não vence
+  status        String       @default("ATIVO") // ATIVO | CANCELADO
+  itemVendaId   String?      @unique // item da comanda em que foi vendido
+  itemVenda     ComandaItem? @relation("VendaDoPacote", fields: [itemVendaId], references: [id], onDelete: SetNull)
+  criadoEm      DateTime     @default(now())
+
+  sessoesUsadas ComandaItem[] @relation("SessaoDoPacote")
+
+  @@index([clienteId, status])
+}
+
+// Fotos de antes e depois da cliente (ficam só no painel).
+model FotoCliente {
+  id        String   @id @default(cuid())
+  salaoId   String
+  salao     Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  imagem    String // data URL reduzida no navegador
+  tipo      String   @default("ANTES") // ANTES | DEPOIS
+  legenda   String?
+  criadoEm  DateTime @default(now())
+
+  @@index([clienteId, criadoEm])
 }

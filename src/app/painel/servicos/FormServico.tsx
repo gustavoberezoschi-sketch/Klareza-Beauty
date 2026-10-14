@@ -12,6 +12,7 @@ type Servico = {
   precoCentavos: number;
   duracaoMin: number;
   comissaoPct: number | null;
+  retornoDias: number | null;
   exibirOnline: boolean;
   profissionais: { id: string }[];
 };
@@ -32,13 +33,13 @@ export function FormServico({
       <div className="card grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="label" htmlFor="nome">Nome do serviço</label>
-          <input id="nome" name="nome" defaultValue={servico?.nome} className="input" placeholder="Corte degradê" required />
+          <input id="nome" name="nome" defaultValue={servico?.nome} className="input" placeholder="Extensão de cílios fio a fio" required />
         </div>
         <div>
           <label className="label" htmlFor="categoria">Categoria</label>
           <input id="categoria" name="categoria" defaultValue={servico?.categoria ?? "Cabelo"} list="categorias" className="input" />
           <datalist id="categorias">
-            {[...new Set([...categorias, "Cabelo", "Barba", "Combos", "Química", "Estética"])].map((c) => <option key={c} value={c} />)}
+            {[...new Set([...categorias, "Cabelo", "Unhas", "Cílios", "Sobrancelha", "Estética", "Depilação", "Maquiagem", "Combos"])].map((c) => <option key={c} value={c} />)}
           </datalist>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -59,6 +60,11 @@ export function FormServico({
           <label className="label" htmlFor="comissao">Comissão específica (%)</label>
           <input id="comissao" name="comissao" type="number" min={0} max={100} defaultValue={servico?.comissaoPct ?? ""} className="input" placeholder="Usar a de cada profissional" />
           <p className="mt-1 text-xs text-couro-400">Deixe vazio para usar a comissão padrão de cada profissional.</p>
+        </div>
+        <div>
+          <label className="label" htmlFor="retornoDias">Manutenção: lembrar após (dias)</label>
+          <input id="retornoDias" name="retornoDias" type="number" min={1} max={365} defaultValue={servico?.retornoDias ?? ""} className="input" placeholder="Ex.: 15 para cílios, 21 para unhas" />
+          <p className="mt-1 text-xs text-couro-400">O cliente aparece em Lembretes quando chegar a hora de voltar. Vazio = sem lembrete.</p>
         </div>
         <label className="flex items-start gap-2 self-center text-sm">
           <input type="checkbox" name="exibirOnline" defaultChecked={servico?.exibirOnline ?? true} className="mt-0.5" />

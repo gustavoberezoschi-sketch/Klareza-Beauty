@@ -73,7 +73,7 @@ export default async function MeuPlano() {
           )}
           {suporte && (
             <a
-              href={linkWhatsApp(suporte, `Olá! Sou da ${salao.nome} (plano ${uso.plano.nome}) e quero falar sobre a mensalidade do Klareza Beauty.`)}
+              href={linkWhatsApp(suporte, `Olá! Sou do ${salao.nome} (plano ${uso.plano.nome}) e quero falar sobre a mensalidade do Klareza Beauty.`)}
               target="_blank"
               className="btn-secundario btn-pequeno mt-4"
             >
@@ -97,7 +97,7 @@ export default async function MeuPlano() {
             <p className="text-center text-sm font-semibold text-latao-700">Plano atual</p>
           ) : suporte ? (
             <a
-              href={linkWhatsApp(suporte, `Olá! Sou da ${salao.nome} e quero mudar do plano ${uso.plano.nome} para o plano ${PLANOS_SISTEMA[c].nome}.`)}
+              href={linkWhatsApp(suporte, `Olá! Sou do ${salao.nome} e quero mudar do plano ${uso.plano.nome} para o plano ${PLANOS_SISTEMA[c].nome}.`)}
               target="_blank"
               className="btn-primario w-full"
             >

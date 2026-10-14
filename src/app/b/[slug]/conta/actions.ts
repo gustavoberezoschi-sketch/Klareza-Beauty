@@ -156,8 +156,8 @@ export async function salvarInscricaoPush(slug: string, i: { endpoint: string; k
   const b = await db.salao.findUnique({ where: { id: cliente.salaoId }, select: { nome: true } });
   await notificarCliente(cliente.id, {
     endpoint: i.endpoint, // o aviso de teste vai só para o aparelho que acabou de ativar
-    titulo: "Lembretes ativados ✂️",
-    texto: `Pronto, ${cliente.nome.split(" ")[0]}! A ${b?.nome ?? "salão"} vai te avisar aqui um dia antes de cada horário.`,
+    titulo: "Lembretes ativados ✨",
+    texto: `Pronto, ${cliente.nome.split(" ")[0]}! O ${b?.nome ?? "salão"} vai te avisar aqui um dia antes de cada horário.`,
     url: `/b/${slug}/conta`,
     icone: `/b/${slug}/icone/192`,
   });

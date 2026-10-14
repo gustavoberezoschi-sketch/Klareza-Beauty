@@ -20,6 +20,7 @@ import {
   Scissors,
   Settings,
   Store,
+  Ticket,
   Users,
   UsersRound,
   Wallet,
@@ -46,6 +47,7 @@ const GESTOR: Grupo[] = [
     itens: [
       { href: "/painel/clientes", rotulo: "Clientes", icone: Users },
       { href: "/painel/assinaturas", rotulo: "Clube de assinatura", icone: Crown },
+      { href: "/painel/pacotes", rotulo: "Pacotes", icone: Ticket },
       { href: "/painel/vitrine", rotulo: "Página do cliente", icone: Store },
     ],
   },

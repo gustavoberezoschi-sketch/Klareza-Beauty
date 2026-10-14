@@ -6,8 +6,14 @@ import { db } from "@/lib/db";
 import type { Resultado } from "../actions";
 
 /** Marca (ou desmarca) que a mensagem foi enviada pelo WhatsApp. */
-export async function marcarEnviado(ids: string[], tipo: "LEMBRETE" | "CONFIRMACAO", enviado = true) {
+export async function marcarEnviado(ids: string[], tipo: "LEMBRETE" | "CONFIRMACAO" | "RETORNO", enviado = true) {
   const sessao = await exigirSessao();
+  if (tipo === "RETORNO") {
+    // ids = clientes avisados da manutenção
+    await db.cliente.updateMany({ where: { id: { in: ids.slice(0, 10) }, salaoId: sessao.salaoId }, data: { retornoLembradoEm: enviado ? new Date() : null } });
+    revalidatePath("/painel", "layout");
+    return;
+  }
   const campo = tipo === "LEMBRETE" ? "lembreteEnviadoEm" : "confirmacaoEnviadaEm";
   await db.agendamento.updateMany({
     where: { id: { in: ids.slice(0, 10) }, salaoId: sessao.salaoId, ...(sessao.profissionalId ? { profissionalId: sessao.profissionalId } : {}) },

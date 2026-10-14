@@ -58,8 +58,8 @@ export default async function Assinaturas({ searchParams }: { searchParams: Prom
                   const usado = usos.get(a.id) ?? 0;
                   const mensagemLink = a.linkPagamento
                     ? aguardando
-                      ? `Oi, ${a.cliente.nome.split(" ")[0]}! Segue o link para cadastrar seu cartão e ativar o ${a.plano.nome} na ${salao.nome} (${formatarDinheiro(a.plano.precoCentavos)}/mês). Depois disso a mensalidade é debitada sozinha todo mês: ${a.linkPagamento}`
-                      : `Oi, ${a.cliente.nome.split(" ")[0]}! A mensalidade do ${a.plano.nome} na ${salao.nome} não foi aprovada no seu cartão. Atualize o cartão por aqui: ${a.linkPagamento}`
+                      ? `Oi, ${a.cliente.nome.split(" ")[0]}! Segue o link para cadastrar seu cartão e ativar o ${a.plano.nome} no ${salao.nome} (${formatarDinheiro(a.plano.precoCentavos)}/mês). Depois disso a mensalidade é debitada sozinha todo mês: ${a.linkPagamento}`
+                      : `Oi, ${a.cliente.nome.split(" ")[0]}! A mensalidade do ${a.plano.nome} no ${salao.nome} não foi aprovada no seu cartão. Atualize o cartão por aqui: ${a.linkPagamento}`
                     : null;
                   return (
                     <li key={a.id} className="flex flex-wrap items-center gap-3 py-3">
@@ -98,7 +98,7 @@ export default async function Assinaturas({ searchParams }: { searchParams: Prom
                       )}
                       {atrasada && !a.asaasId && (
                         <a
-                          href={linkWhatsApp(a.cliente.telefone, `Oi, ${a.cliente.nome.split(" ")[0]}! A mensalidade do seu plano ${a.plano.nome} na ${salao.nome} (${formatarDinheiro(a.plano.precoCentavos)}) venceu em ${formatarDia(a.pagoAte)}. Pode acertar na sua próxima visita ou via Pix. Valeu!`)}
+                          href={linkWhatsApp(a.cliente.telefone, `Oi, ${a.cliente.nome.split(" ")[0]}! A mensalidade do seu plano ${a.plano.nome} no ${salao.nome} (${formatarDinheiro(a.plano.precoCentavos)}) venceu em ${formatarDia(a.pagoAte)}. Pode acertar na sua próxima visita ou via Pix. Valeu!`)}
                           target="_blank"
                           className="btn-secundario btn-pequeno"
                         >

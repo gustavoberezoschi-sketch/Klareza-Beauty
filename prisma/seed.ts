@@ -3,7 +3,7 @@
 // Logins (senha 123456): dono@flordelotus.com · dono@bellalash.com · carla@flordelotus.com (profissional)
 // Área do cliente: /b/flor-de-lotus/entrar com WhatsApp 11987654321 e senha 123456
 import bcrypt from "bcryptjs";
-import { abrirComanda, adicionarProduto, fecharComanda } from "../src/lib/comandas";
+import { abrirComanda, adicionarPacote, adicionarProduto, adicionarServico, fecharComanda } from "../src/lib/comandas";
 import { db } from "../src/lib/db";
 import { criarDataHora, diaDaSemana, diaLocal, somarDias, somarMeses } from "../src/lib/tempo";
 
@@ -32,9 +32,9 @@ const SERVICOS = [
   { nome: "Manicure", categoria: "Unhas", precoCentavos: 4000, duracaoMin: 45, descricao: "Cutilagem, esmaltação e hidratação." },
   { nome: "Mãos e pés", categoria: "Combos", precoCentavos: 7500, duracaoMin: 90, descricao: "Manicure e pedicure no mesmo horário." },
   { nome: "Pedicure", categoria: "Unhas", precoCentavos: 4500, duracaoMin: 50, descricao: null },
-  { nome: "Design de sobrancelha", categoria: "Sobrancelha", precoCentavos: 4500, duracaoMin: 30, descricao: "Design com pinça e henna opcional." },
-  { nome: "Extensão de cílios", categoria: "Cílios", precoCentavos: 16000, duracaoMin: 120, descricao: "Fio a fio, com manutenção a cada 15 a 20 dias." },
-  { nome: "Alongamento de unhas em gel", categoria: "Unhas", precoCentavos: 14000, duracaoMin: 150, descricao: "Aplicação em gel com acabamento e esmaltação." },
+  { nome: "Design de sobrancelha", categoria: "Sobrancelha", precoCentavos: 4500, duracaoMin: 30, descricao: "Design com pinça e henna opcional.", retornoDias: 20 },
+  { nome: "Extensão de cílios", categoria: "Cílios", precoCentavos: 16000, duracaoMin: 120, descricao: "Fio a fio, com manutenção a cada 15 a 20 dias.", retornoDias: 18 },
+  { nome: "Alongamento de unhas em gel", categoria: "Unhas", precoCentavos: 14000, duracaoMin: 150, descricao: "Aplicação em gel com acabamento e esmaltação.", retornoDias: 21 },
 ];
 
 const PRODUTOS = [
@@ -61,6 +61,8 @@ async function main() {
       await db.comanda.deleteMany({ where: { salaoId: antiga.id } });
       await db.assinatura.deleteMany({ where: { salaoId: antiga.id } });
       await db.agendamento.deleteMany({ where: { salaoId: antiga.id } });
+      await db.pacoteCliente.deleteMany({ where: { salaoId: antiga.id } });
+      await db.pacote.deleteMany({ where: { salaoId: antiga.id } });
       await db.salao.delete({ where: { id: antiga.id } });
     }
     const b = await db.salao.create({
@@ -70,7 +72,7 @@ async function main() {
         telefone: "11999990000",
         endereco: "Rua Augusta, 1200 - Consolação, São Paulo",
         instagram: demo.slug.replace(/-/g, ""),
-        descricao: "Salão clássica com atendimento sem pressa, café passado na hora e cerveja gelada.",
+        descricao: "Cílios, unhas, sobrancelhas e cabelo num espaço aconchegante, com café e atendimento sem pressa.",
         corDestaque: demo.cor,
         plano: n === 0 ? "NACIONAL" : "BAIRRO",
         ciclo: n === 0 ? "ANUAL" : "MENSAL",
@@ -94,7 +96,7 @@ async function main() {
         usuarios: { create: { nome: "Renata", email: demo.email, senhaHash } },
         banners: {
           create: [
-            { imagem: bannerSvg("#121211", "#d6d6cf", "Corte + barba", "R$ 75 · toalha quente inclusa"), ordem: 0 },
+            { imagem: bannerSvg("#121211", "#d6d6cf", "Mãos e pés", "R$ 75 · esmaltação em gel inclusa"), ordem: 0 },
             { imagem: bannerSvg("#1f1f1d", "#d6d6cf", "Clube da beleza", "Escova e manicure por R$ 99,90/mês"), ordem: 1 },
           ],
         },
@@ -131,7 +133,7 @@ async function main() {
     const [s] = [b.servicos];
     const porNome = (nome: string) => s.find((x) => x.nome === nome)!;
 
-    // Só o primeiro profissional faz luzes
+    // Só a primeira profissional faz extensão de cílios
     await db.servico.update({ where: { id: porNome("Extensão de cílios").id }, data: { profissionais: { connect: { id: profissionais[0].id } } } });
 
     if (n === 0) {
@@ -189,12 +191,50 @@ async function main() {
         });
         if (!passado || falta) continue;
         const comanda = await abrirComanda({ salaoId: b.id, agendamentoId: ag.id });
+        // de vez em quando, outra profissional ajuda como auxiliar
+        if (k % 6 === 0 && profissionais.length > 1) {
+          const auxiliar = profissionais.find((x) => x.id !== profissional.id)!;
+          await db.comandaItem.updateMany({ where: { comandaId: comanda.id, tipo: "SERVICO" }, data: { auxiliarId: auxiliar.id, comissaoAuxiliarPct: auxiliar.comissaoAuxiliarPct } });
+        }
         if (k % 4 === 0) await adicionarProduto(b.id, comanda.id, b.produtos[k % b.produtos.length].id, 1, profissional.id);
         await fecharComanda(b.id, comanda.id, { formaPagamento: ["PIX", "CARTAO_DEBITO", "DINHEIRO", "CARTAO_CREDITO"][k % 4], descontoCentavos: 0, usarCashback: k % 5 === 0 });
         const fechada = new Date(inicio.getTime() + servico.duracaoMin * 60_000);
         await db.comanda.update({ where: { id: comanda.id }, data: { fechadaEm: fechada, abertaEm: inicio } });
       }
     }
+
+    // Atendimento avulso já fechado (sem agendamento), com data no passado
+    const atender = async (clienteId: string, servicos: string[], diasAtras: number, pacoteId?: string) => {
+      const pro = profissionais[0];
+      const comanda = await abrirComanda({ salaoId: b.id, filialId: pro.filialId, clienteId, profissionalId: pro.id });
+      for (const nome of servicos) await adicionarServico(b.id, comanda.id, porNome(nome).id, pro.id);
+      if (pacoteId) await adicionarPacote(b.id, comanda.id, pacoteId);
+      await fecharComanda(b.id, comanda.id, { formaPagamento: "PIX", descontoCentavos: 0, usarCashback: false });
+      const quando = criarDataHora(somarDias(hoje, -diasAtras), "15:00");
+      await db.comanda.update({ where: { id: comanda.id }, data: { fechadaEm: quando, abertaEm: quando } });
+    };
+
+    // Clientes na hora da manutenção (aparecem em Lembretes → Hora da manutenção)
+    const lash = await db.cliente.create({ data: { salaoId: b.id, nome: "Larissa Campos", telefone: "11912340001" } });
+    await atender(lash.id, ["Extensão de cílios"], 17);
+    const unhas = await db.cliente.create({ data: { salaoId: b.id, nome: "Renata Moura", telefone: "11912340002" } });
+    await atender(unhas.id, ["Alongamento de unhas em gel"], 23);
+
+    // Pacote: vendido há 40 dias, com uma sessão já usada
+    const pacote = await db.pacote.create({
+      data: { salaoId: b.id, servicoId: porNome("Extensão de cílios").id, nome: "Manutenção de cílios ×4", descricao: "Quatro manutenções com preço especial.", sessoes: 4, precoCentavos: 52000, validadeDias: 120 },
+    });
+    await db.pacote.create({ data: { salaoId: b.id, servicoId: porNome("Manicure").id, nome: "Manicure ×5", sessoes: 5, precoCentavos: 17500, validadeDias: 60 } });
+    const aline = porNomeCliente("Aline Costa");
+    await atender(aline.id, [], 40, pacote.id);
+    await atender(aline.id, ["Extensão de cílios"], 20);
+
+    // Ficha de anamnese com ponto de atenção
+    await db.cliente.update({
+      where: { id: porNomeCliente("Joana Silva").id },
+      data: { anamnese: { alergias: "Cola de cílios com cianoacrilato", lentes: true, gestante: false, observacoes: "Prefere curvatura C." }, anamneseEm: criarDataHora(somarDias(hoje, -30), "10:00") },
+    });
+
     console.log(`✅ ${demo.nome}: login ${demo.email} / 123456 · link /b/${demo.slug}`);
   }
   await db.configSistema.upsert({ where: { id: "geral" }, update: { whatsappSuporte: "41999998888" }, create: { id: "geral", whatsappSuporte: "41999998888" } });

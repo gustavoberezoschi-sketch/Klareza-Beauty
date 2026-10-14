@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { itemSemCobranca } from "./pacotes";
 import { criarDataHora, somarDias } from "./tempo";
 
 /** Números de um período (dias inclusivos) a partir das comandas fechadas. */
@@ -8,7 +9,7 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
   const [comandas, pagamentosPlano, despesasCaixa, contasPagas, agendamentos, novosClientes] = await Promise.all([
     db.comanda.findMany({
       where: { salaoId, ...naUnidade, status: "FECHADA", fechadaEm: intervalo },
-      include: { itens: { include: { profissional: true } }, filial: { select: { nome: true } } },
+      include: { itens: { include: { profissional: true, auxiliar: true } }, filial: { select: { nome: true } } },
     }),
     db.pagamentoAssinatura.findMany({
       where: { assinatura: { salaoId }, pagoEm: intervalo, ...(filialId ? { caixa: { filialId } } : {}) },
@@ -22,8 +23,11 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
 
   const itens = comandas.flatMap((c) => c.itens.map((i) => ({ ...i, fechadaEm: c.fechadaEm! })));
   const meusItens = profissionalId ? itens.filter((i) => i.profissionalId === profissionalId) : itens;
+  // serviços em que a profissional ajudou como auxiliar (só a comissão dela conta)
+  const comoAuxiliar = itens.filter((i) => i.auxiliarId && (!profissionalId || i.auxiliarId === profissionalId));
   const valorItem = (i: { quantidade: number; precoUnitCentavos: number }) => i.quantidade * i.precoUnitCentavos;
   const comissaoItem = (i: { quantidade: number; precoUnitCentavos: number; comissaoPct: number }) => Math.round((valorItem(i) * i.comissaoPct) / 100);
+  const comissaoAuxiliar = (i: { quantidade: number; precoUnitCentavos: number; comissaoAuxiliarPct: number }) => Math.round((valorItem(i) * i.comissaoAuxiliarPct) / 100);
 
   const porProfissional = new Map<string, { nome: string; servicos: number; qtdServicos: number; produtos: number; comissao: number }>();
   for (const i of meusItens) {
@@ -36,13 +40,19 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
     b.comissao += comissaoItem(i);
     porProfissional.set(i.profissionalId, b);
   }
+  for (const i of comoAuxiliar) {
+    if (!i.auxiliarId || !i.auxiliar) continue;
+    const b = porProfissional.get(i.auxiliarId) ?? { nome: i.auxiliar.nome, servicos: 0, qtdServicos: 0, produtos: 0, comissao: 0 };
+    b.comissao += comissaoAuxiliar(i);
+    porProfissional.set(i.auxiliarId, b);
+  }
 
   const agrupar = (tipo: string) => {
     const m = new Map<string, { qtd: number; valor: number }>();
     for (const i of meusItens.filter((x) => x.tipo === tipo)) {
       const v = m.get(i.descricao) ?? { qtd: 0, valor: 0 };
       v.qtd += i.quantidade;
-      v.valor += i.cobertoPorPlano ? 0 : valorItem(i);
+      v.valor += itemSemCobranca(i) ? 0 : valorItem(i);
       m.set(i.descricao, v);
     }
     return [...m.entries()].map(([nome, v]) => ({ nome, ...v })).sort((a, b) => b.qtd - a.qtd);
@@ -88,6 +98,7 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
     porProfissional: [...porProfissional.entries()].map(([id, v]) => ({ id, ...v })).sort((a, b) => b.servicos + b.produtos - (a.servicos + a.produtos)),
     servicos: agrupar("SERVICO"),
     produtos: agrupar("PRODUTO"),
+    pacotes: agrupar("PACOTE"),
     porForma,
     porDia,
     porFilial: [...porFilial.values()].sort((a, b) => b.vendas - a.vendas),

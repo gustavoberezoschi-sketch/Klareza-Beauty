@@ -125,12 +125,13 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
             )}
           </table>
         </div>
-        <p className="mt-3 text-xs text-couro-400">Serviços inclusos em assinatura contam pelo preço de tabela para a comissão.</p>
+        <p className="mt-3 text-xs text-couro-400">Serviços inclusos em assinatura ou pacote contam pelo preço de tabela para a comissão. A comissão de auxiliar entra para quem ajudou.</p>
       </Secao>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Ranking titulo="Serviços mais feitos" itens={n.servicos} />
         <Ranking titulo="Produtos mais vendidos" itens={n.produtos} vazio="Nenhum produto vendido." />
+        {n.pacotes.length > 0 && <Ranking titulo="Pacotes vendidos" itens={n.pacotes} />}
         {!profissional && (
           <Secao titulo="Formas de pagamento">
             {totalFormas === 0 ? (

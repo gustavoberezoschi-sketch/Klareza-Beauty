@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { CalendarCheck, MessageCircle } from "lucide-react";
+import { CalendarCheck, MessageCircle, RefreshCw } from "lucide-react";
 import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Secao, Vazio } from "@/components/ui";
 import { exigirSessao } from "@/lib/auth";
 import { filialDoPainel } from "@/lib/filial";
 import { formatarTelefone } from "@/lib/formato";
-import { type ItemLembrete, listaDeLembretes } from "@/lib/lembretes";
+import { type ItemLembrete, type ItemRetorno, listaDeLembretes, listaDeRetornos } from "@/lib/lembretes";
 import { MSG_CONFIRMACAO_PADRAO, MSG_LEMBRETE_PADRAO, VARIAVEIS } from "@/lib/mensagens";
 import { enderecoDoSite } from "@/lib/site";
 import { formatarDia, diaLocal, horaLocal } from "@/lib/tempo";
@@ -19,7 +19,8 @@ export default async function Lembretes() {
   const sessao = await exigirSessao();
   const ctx = await filialDoPainel(sessao);
   const varias = ctx.filiais.filter((f) => f.ativo).length > 1;
-  const { salao, hoje, amanha, novos } = await listaDeLembretes(sessao, ctx, await enderecoDoSite());
+  const site = await enderecoDoSite();
+  const [{ salao, hoje, amanha, novos }, retornos] = await Promise.all([listaDeLembretes(sessao, ctx, site), listaDeRetornos(sessao, ctx, site)]);
   const faltam = (l: ItemLembrete[]) => l.filter((i) => !i.lembreteEnviadoEm).length;
 
   return (
@@ -32,6 +33,7 @@ export default async function Lembretes() {
         <Etiqueta tom={faltam(amanha) ? "latao" : "verde"}>Amanhã: {faltam(amanha)} para enviar</Etiqueta>
         <Etiqueta tom={faltam(hoje) ? "latao" : "verde"}>Hoje: {faltam(hoje)} para enviar</Etiqueta>
         <Etiqueta tom={novos.length ? "azul" : "verde"}>Novos pelo site: {novos.length}</Etiqueta>
+        <Etiqueta tom={retornos.some((r) => !r.lembradoEm) ? "latao" : "verde"}>Manutenção: {retornos.filter((r) => !r.lembradoEm).length} para avisar</Etiqueta>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_400px]">
@@ -46,6 +48,7 @@ export default async function Lembretes() {
             varias={varias}
             vazio="Nenhum agendamento novo esperando confirmação."
           />
+          <Retornos itens={retornos} />
         </div>
 
         {!sessao.profissionalId && (
@@ -121,6 +124,40 @@ function Lista({
                 enviadoEm={tipo === "LEMBRETE" ? i.lembreteEnviadoEm : i.confirmacaoEnviadaEm}
                 rotulo={tipo === "LEMBRETE" ? "Lembrar" : "Confirmar"}
               />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Secao>
+  );
+}
+
+function Retornos({ itens }: { itens: ItemRetorno[] }) {
+  const hoje = diaLocal();
+  return (
+    <Secao titulo="Hora da manutenção">
+      <p className="-mt-2 mb-3 text-sm text-couro-400">
+        Clientes cujo serviço (cílios, unhas...) está vencendo e que ainda não marcaram horário. Defina o prazo em Serviços → “Manutenção: lembrar após”.
+      </p>
+      {itens.length === 0 ? (
+        <Vazio icone={RefreshCw} titulo="Ninguém precisando de manutenção agora." />
+      ) : (
+        <ul className="divide-y divide-black/[0.06]">
+          {itens.map((i) => (
+            <li key={i.clienteId} className="flex flex-wrap items-center gap-3 py-3">
+              <span className="w-16 text-sm">
+                <span className="numero block text-lg">{i.dias}d</span>
+                <span className="text-xs text-couro-400">desde a última</span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">
+                  {i.cliente} {i.vence < hoje ? <Etiqueta tom="vermelho">Venceu {formatarDia(i.vence).slice(0, 5)}</Etiqueta> : <Etiqueta tom="latao">Vence {formatarDia(i.vence).slice(0, 5)}</Etiqueta>}
+                </p>
+                <p className="truncate text-sm text-couro-400">
+                  {i.servico} em {formatarDia(i.ultimaVez).slice(0, 5)} · {formatarTelefone(i.telefone)}
+                </p>
+              </div>
+              <BotaoWhatsApp href={i.link} ids={[i.clienteId]} tipo="RETORNO" enviadoEm={i.lembradoEm} rotulo="Avisar" />
             </li>
           ))}
         </ul>

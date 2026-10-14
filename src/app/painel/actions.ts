@@ -30,6 +30,7 @@ export async function salvarServico(_: Resultado, form: FormData): Promise<Resul
   const precoCentavos = lerDinheiro(texto(form, "preco"));
   const duracaoMin = Number(texto(form, "duracao"));
   const comissaoPct = inteiro(form, "comissao");
+  const retornoDias = inteiro(form, "retornoDias");
   const profissionalIds = form.getAll("profissionais").map(String);
 
   if (!nome) return { erro: "Informe o nome do serviço." };
@@ -38,6 +39,8 @@ export async function salvarServico(_: Resultado, form: FormData): Promise<Resul
     return { erro: "A duração deve ficar entre 5 e 480 minutos." };
   if (comissaoPct !== null && (!Number.isInteger(comissaoPct) || comissaoPct < 0 || comissaoPct > 100))
     return { erro: "A comissão deve ficar entre 0 e 100%." };
+  if (retornoDias !== null && (!Number.isInteger(retornoDias) || retornoDias < 1 || retornoDias > 365))
+    return { erro: "O retorno deve ficar entre 1 e 365 dias." };
 
   const validos = await db.profissional.findMany({ where: { salaoId, id: { in: profissionalIds } }, select: { id: true } });
   const dados = {
@@ -48,6 +51,7 @@ export async function salvarServico(_: Resultado, form: FormData): Promise<Resul
     precoCentavos,
     duracaoMin,
     comissaoPct,
+    retornoDias,
     exibirOnline: form.get("exibirOnline") === "on",
   };
 
@@ -77,11 +81,12 @@ export async function salvarProfissional(_: Resultado, form: FormData): Promise<
   const nome = texto(form, "nome");
   const comissaoPct = Number(texto(form, "comissao"));
   const comissaoProdutoPct = Number(texto(form, "comissaoProduto"));
+  const comissaoAuxiliarPct = Number(texto(form, "comissaoAuxiliar") || 10);
   const email = texto(form, "email").toLowerCase();
   const senha = texto(form, "senha");
 
   if (!nome) return { erro: "Informe o nome." };
-  for (const pct of [comissaoPct, comissaoProdutoPct])
+  for (const pct of [comissaoPct, comissaoProdutoPct, comissaoAuxiliarPct])
     if (!Number.isInteger(pct) || pct < 0 || pct > 100) return { erro: "As comissões devem ficar entre 0 e 100%." };
   if (email && !/^\S+@\S+\.\S+$/.test(email)) return { erro: "E-mail de acesso inválido." };
 
@@ -94,6 +99,7 @@ export async function salvarProfissional(_: Resultado, form: FormData): Promise<
     foto: imagem(form, "foto"),
     comissaoPct,
     comissaoProdutoPct,
+    comissaoAuxiliarPct,
     destaque: form.get("destaque") === "on",
     bio: texto(form, "bio") || null,
   };

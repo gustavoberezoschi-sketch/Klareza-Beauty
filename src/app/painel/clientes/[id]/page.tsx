@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarDays, Crown, Gift, MessageCircle, ReceiptText } from "lucide-react";
+import { AlertTriangle, CalendarDays, ClipboardList, Crown, Gift, ImageIcon, MessageCircle, ReceiptText, Ticket, Trash2 } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
+import { FotoUpload } from "@/components/FotoUpload";
 import { Cabecalho, Etiqueta, Indicador, Secao } from "@/components/ui";
+import { PERGUNTAS_SIM_NAO, PERGUNTAS_TEXTO, alertasDaAnamnese, lerAnamnese } from "@/lib/anamnese";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { NOME_FORMA, formatarDinheiro, formatarTelefone, linkWhatsApp } from "@/lib/formato";
 import { filialDoPainel } from "@/lib/filial";
+import { pacotesDaCliente } from "@/lib/pacotes";
 import { enderecoDoSite } from "@/lib/site";
 import { diaLocal, formatarDataHora, formatarDia } from "@/lib/tempo";
 import { definirSenhaDoApp, salvarCliente } from "../../actions";
 import { novaComanda } from "../../comandas/actions";
+import { adicionarFoto, excluirFoto, salvarAnamnese } from "../actions";
 
 export const metadata: Metadata = { title: "Cliente" };
 export const dynamic = "force-dynamic";
@@ -37,9 +41,13 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
       comandas: { where: { status: "FECHADA" }, include: { itens: true }, orderBy: { fechadaEm: "desc" } },
       assinaturas: { include: { plano: true }, orderBy: { criadoEm: "desc" } },
       salao: { select: { nome: true, slug: true } },
+      fotos: { orderBy: { criadoEm: "desc" } },
     },
   });
   if (!c) notFound();
+  const pacotes = await pacotesDaCliente(c.id);
+  const anamnese = lerAnamnese(c.anamnese);
+  const alertas = alertasDaAnamnese(anamnese);
   const site = await enderecoDoSite();
   const ctx = await filialDoPainel(sessao);
 
@@ -61,12 +69,13 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
           <span className="flex flex-wrap items-center gap-2">
             {c.nome}
             {ativa && <Etiqueta tom="latao"><Crown className="mr-1 size-3" /> {ativa.plano.nome}</Etiqueta>}
+            {alertas.length > 0 && <Etiqueta tom="vermelho"><AlertTriangle className="mr-1 size-3" /> Atenção na ficha</Etiqueta>}
           </span>
         }
         descricao={`${formatarTelefone(c.telefone)} · cliente desde ${formatarDia(diaLocal(c.criadoEm))}`}
         acoes={
           <>
-            <a href={linkWhatsApp(c.telefone, `Olá, ${c.nome.split(" ")[0]}! Que tal agendar seu próximo horário na ${c.salao.nome}? ${site}/b/${c.salao.slug}`)} target="_blank" className="btn-secundario">
+            <a href={linkWhatsApp(c.telefone, `Olá, ${c.nome.split(" ")[0]}! Que tal agendar seu próximo horário no ${c.salao.nome}? ${site}/b/${c.salao.slug}`)} target="_blank" className="btn-secundario">
               <MessageCircle className="size-4 text-emerald-600" /> WhatsApp
             </a>
             <FormAcao acao={novaComanda}>
@@ -78,6 +87,13 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
           </>
         }
       />
+
+      {alertas.length > 0 && (
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-poste-vermelho/30 bg-poste-vermelho/5 px-4 py-3 text-sm">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-poste-vermelho" />
+          <span><strong>Atenção antes do atendimento:</strong> {alertas.join(" · ")}</span>
+        </div>
+      )}
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Indicador rotulo="Visitas" valor={visitas} />
@@ -124,6 +140,77 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
               </ul>
             )}
           </Secao>
+          <Secao titulo="Antes e depois">
+            {c.fotos.length === 0 ? (
+              <p className="mb-4 text-sm text-couro-400">Nenhuma foto ainda. As fotos ficam só no painel, o cliente não vê.</p>
+            ) : (
+              <ul className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {c.fotos.map((f) => (
+                  <li key={f.id} className="group relative overflow-hidden rounded-xl border border-black/10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={f.imagem} alt={f.legenda ?? (f.tipo === "DEPOIS" ? "Depois" : "Antes")} className="aspect-square w-full object-cover" />
+                    <div className="flex items-center justify-between gap-1 px-2 py-1.5 text-xs">
+                      <span className="min-w-0 truncate">
+                        <strong>{f.tipo === "DEPOIS" ? "Depois" : "Antes"}</strong> · {formatarDia(diaLocal(f.criadoEm)).slice(0, 5)}
+                        {f.legenda && ` · ${f.legenda}`}
+                      </span>
+                      <form action={excluirFoto}>
+                        <input type="hidden" name="id" value={f.id} />
+                        <button className="rounded p-1 text-couro-300 hover:text-poste-vermelho" aria-label="Apagar foto"><Trash2 className="size-3.5" /></button>
+                      </form>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <FormAcao acao={adicionarFoto} limparAoSalvar className="grid gap-3 sm:grid-cols-[auto_1fr] sm:items-end">
+              <input type="hidden" name="clienteId" value={c.id} />
+              <FotoUpload nome="imagem" rotulo="Nova foto" tamanho={900} />
+              <div className="grid gap-2">
+                <div className="grid grid-cols-[120px_1fr] gap-2">
+                  <select name="tipo" className="input" aria-label="Antes ou depois">
+                    <option value="ANTES">Antes</option>
+                    <option value="DEPOIS">Depois</option>
+                  </select>
+                  <input name="legenda" className="input" placeholder="Legenda (opcional)" maxLength={120} />
+                </div>
+                <button className="btn-secundario"><ImageIcon className="size-4" /> Guardar foto</button>
+              </div>
+            </FormAcao>
+          </Secao>
+          <Secao titulo={<span className="flex items-center gap-2"><ClipboardList className="size-4" /> Ficha de anamnese</span>}>
+            <FormAcao acao={salvarAnamnese} className="grid gap-4">
+              <input type="hidden" name="clienteId" value={c.id} />
+              <div className="grid gap-2">
+                {PERGUNTAS_SIM_NAO.map(([campo, pergunta]) => (
+                  <fieldset key={campo} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-fundo px-3 py-2 text-sm">
+                    <legend className="sr-only">{pergunta}</legend>
+                    <span>{pergunta}</span>
+                    <span className="flex gap-3">
+                      <label className="flex items-center gap-1"><input type="radio" name={campo} value="nao" defaultChecked={!anamnese[campo]} /> Não</label>
+                      <label className="flex items-center gap-1"><input type="radio" name={campo} value="sim" defaultChecked={!!anamnese[campo]} /> Sim</label>
+                    </span>
+                  </fieldset>
+                ))}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {PERGUNTAS_TEXTO.map(([campo, rotulo]) => (
+                  <div key={campo}>
+                    <label className="label" htmlFor={`an-${campo}`}>{rotulo}</label>
+                    <textarea id={`an-${campo}`} name={campo} rows={2} maxLength={500} defaultValue={anamnese[campo] ?? ""} className="input" />
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" name="autorizou" defaultChecked={!!c.anamneseEm} className="mt-0.5" />
+                <span>
+                  O cliente confirmou essas informações e autorizou o atendimento.
+                  {c.anamneseEm && <span className="block text-xs text-couro-400">Confirmado em {formatarDataHora(c.anamneseEm)}</span>}
+                </span>
+              </label>
+              <button className="btn-primario">Salvar ficha</button>
+            </FormAcao>
+          </Secao>
         </div>
         <div className="space-y-4">
           <Secao titulo="Dados do cliente">
@@ -138,6 +225,25 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
               <input name="senha" className="input" placeholder="Nova senha" minLength={6} required aria-label="Nova senha do cliente" />
               <button className="btn-secundario">Definir</button>
             </FormAcao>
+          </Secao>
+          <Secao titulo={<span className="flex items-center gap-2"><Ticket className="size-4" /> Pacotes</span>}>
+            {pacotes.length === 0 ? (
+              <p className="text-sm text-couro-400">Nenhum pacote. Venda pela comanda, em “Vender pacote”.</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {pacotes.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-2">
+                    <span className="min-w-0">
+                      <strong>{p.pacote.nome}</strong>
+                      <span className="block text-xs text-couro-400">
+                        {p.usadas} de {p.sessoes} sessões usadas{p.validoAte && ` · vale até ${formatarDia(p.validoAte)}`}
+                      </span>
+                    </span>
+                    {p.vencido ? <Etiqueta tom="vermelho">Vencido</Etiqueta> : p.restantes === 0 ? <Etiqueta>Concluído</Etiqueta> : <Etiqueta tom="verde">{p.restantes} restante(s)</Etiqueta>}
+                  </li>
+                ))}
+              </ul>
+            )}
           </Secao>
           <Secao titulo="Clube de assinatura">
             {ativa ? (
@@ -170,7 +276,7 @@ function FormCampos({ c }: { c?: DadosCliente }) {
         <div><label className="label" htmlFor="nascimento">Aniversário</label><input id="nascimento" name="nascimento" type="date" defaultValue={c?.nascimento ?? ""} className="input" /></div>
         <div><label className="label" htmlFor="email">E-mail</label><input id="email" name="email" type="email" defaultValue={c?.email ?? ""} className="input" /></div>
       </div>
-      <div><label className="label" htmlFor="observacao">Preferências e observações</label><textarea id="observacao" name="observacao" rows={3} defaultValue={c?.observacao ?? ""} className="input" placeholder="Ex.: degradê na 0, alergia a determinado produto..." /></div>
+      <div><label className="label" htmlFor="observacao">Preferências e observações</label><textarea id="observacao" name="observacao" rows={3} defaultValue={c?.observacao ?? ""} className="input" placeholder="Ex.: prefere esmalte nude, curvatura C nos cílios..." /></div>
       <button className="btn-primario">{c ? "Salvar" : "Cadastrar cliente"}</button>
     </FormAcao>
   );

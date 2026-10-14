@@ -22,14 +22,16 @@ export default async function Equipe() {
       where: {
         comanda: { salaoId, status: "FECHADA", fechadaEm: { gte: criarDataHora(mes.inicio, "00:00"), lt: criarDataHora(somarDias(mes.fim, 1), "00:00") } },
       },
-      select: { profissionalId: true, quantidade: true, precoUnitCentavos: true, comissaoPct: true, tipo: true },
+      select: { profissionalId: true, auxiliarId: true, quantidade: true, precoUnitCentavos: true, comissaoPct: true, comissaoAuxiliarPct: true, tipo: true },
     }),
   ]);
   const doMes = (id: string) => {
     const meus = itens.filter((i) => i.profissionalId === id);
     return {
       atendimentos: meus.filter((i) => i.tipo === "SERVICO").length,
-      comissao: meus.reduce((s, i) => s + Math.round((i.quantidade * i.precoUnitCentavos * i.comissaoPct) / 100), 0),
+      comissao:
+        meus.reduce((s, i) => s + Math.round((i.quantidade * i.precoUnitCentavos * i.comissaoPct) / 100), 0) +
+        itens.filter((i) => i.auxiliarId === id).reduce((s, i) => s + Math.round((i.quantidade * i.precoUnitCentavos * i.comissaoAuxiliarPct) / 100), 0),
     };
   };
 

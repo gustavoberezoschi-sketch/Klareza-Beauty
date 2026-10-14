@@ -6,6 +6,7 @@ import { exigirSessao, type Sessao } from "@/lib/auth";
 import {
   ErroComanda,
   abrirComanda,
+  adicionarPacote,
   adicionarProduto,
   adicionarServico,
   cancelarComanda,
@@ -60,7 +61,21 @@ export async function incluirServico(_: Resultado, form: FormData): Promise<Resu
   const sessao = await exigirSessao();
   return tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
-    await adicionarServico(sessao.salaoId, c.id, texto(form, "servicoId"), sessao.profissionalId ?? (texto(form, "profissionalId") || null));
+    await adicionarServico(
+      sessao.salaoId,
+      c.id,
+      texto(form, "servicoId"),
+      sessao.profissionalId ?? (texto(form, "profissionalId") || null),
+      texto(form, "auxiliarId") || null,
+    );
+  });
+}
+
+export async function incluirPacote(_: Resultado, form: FormData): Promise<Resultado> {
+  const sessao = await exigirSessao();
+  return tentar(async () => {
+    const c = await conferir(sessao, texto(form, "comandaId"));
+    await adicionarPacote(sessao.salaoId, c.id, texto(form, "pacoteId"));
   });
 }
 

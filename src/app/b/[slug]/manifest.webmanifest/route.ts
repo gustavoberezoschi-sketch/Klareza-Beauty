@@ -11,7 +11,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ slug: stri
       id: `/b/${slug}/`,
       name: b.nome,
       short_name: b.nome.length > 14 ? b.nome.replace(/^(salão|salao|studio|estúdio)\s+/i, "").slice(0, 14) : b.nome,
-      description: b.descricao ?? `Agende seu horário na ${b.nome}.`,
+      description: b.descricao ?? `Agende seu horário no ${b.nome}.`,
       start_url: `/b/${slug}/conta?app=1`,
       scope: `/b/${slug}/`,
       display: "standalone",

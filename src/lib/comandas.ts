@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 import { movimentarEstoque } from "./estoque";
+import { itemSemCobranca, pacoteParaServico } from "./pacotes";
 import { diaLocal, limitesDoMes, criarDataHora, somarDias } from "./tempo";
 
 type Tx = Prisma.TransactionClient;
@@ -52,12 +53,23 @@ export async function usosDoPlanoNoMes(clienteId: string, tx: Tx | typeof db = d
   return itens + agendamentos.filter((a) => !ids.has(a.id) && !(a.grupo && grupos.has(a.grupo))).length;
 }
 
-/** Monta o item de serviço já com comissão e cobertura do plano do cliente. */
-async function montarItemServico(tx: Tx, salaoId: string, comandaId: string, servicoId: string, profissionalId: string | null, clienteId: string | null) {
+/** Monta o item de serviço já com comissão (e auxiliar) e cobertura do plano ou de um pacote do cliente. */
+async function montarItemServico(
+  tx: Tx,
+  salaoId: string,
+  comandaId: string,
+  servicoId: string,
+  profissionalId: string | null,
+  clienteId: string | null,
+  auxiliarId: string | null = null,
+) {
   const servico = await tx.servico.findFirstOrThrow({ where: { id: servicoId, salaoId } });
   // profissional sempre do mesmo salão (o id vem do formulário)
   const profissional = profissionalId ? await tx.profissional.findFirst({ where: { id: profissionalId, salaoId } }) : null;
   if (profissionalId && !profissional) throw new ErroComanda("Profissional não encontrado.");
+  const auxiliar = auxiliarId ? await tx.profissional.findFirst({ where: { id: auxiliarId, salaoId } }) : null;
+  if (auxiliarId && !auxiliar) throw new ErroComanda("Auxiliar não encontrada.");
+  if (auxiliar && auxiliar.id === profissionalId) throw new ErroComanda("A auxiliar precisa ser outra pessoa.");
 
   let cobertoPorPlano = false;
   if (clienteId) {
@@ -67,6 +79,8 @@ async function montarItemServico(tx: Tx, salaoId: string, comandaId: string, ser
       cobertoPorPlano = limite === null || (await usosDoPlanoNoMes(clienteId, tx)) < limite;
     }
   }
+  // Sem plano cobrindo: usa uma sessão de pacote, se a cliente tiver
+  const pacote = clienteId && !cobertoPorPlano ? await pacoteParaServico(tx, clienteId, servicoId) : null;
 
   return tx.comandaItem.create({
     data: {
@@ -77,7 +91,10 @@ async function montarItemServico(tx: Tx, salaoId: string, comandaId: string, ser
       descricao: servico.nome,
       precoUnitCentavos: servico.precoCentavos,
       comissaoPct: servico.comissaoPct ?? profissional?.comissaoPct ?? 0,
+      auxiliarId: auxiliar?.id ?? null,
+      comissaoAuxiliarPct: auxiliar?.comissaoAuxiliarPct ?? 0,
       cobertoPorPlano,
+      pacoteClienteId: pacote?.id ?? null,
     },
   });
 }
@@ -140,12 +157,32 @@ async function comandaAberta(tx: Tx, salaoId: string, comandaId: string) {
   return comanda;
 }
 
-export async function adicionarServico(salaoId: string, comandaId: string, servicoId: string, profissionalId: string | null) {
+export async function adicionarServico(salaoId: string, comandaId: string, servicoId: string, profissionalId: string | null, auxiliarId: string | null = null) {
   return db.$transaction(async (tx) => {
     const comanda = await comandaAberta(tx, salaoId, comandaId);
     const servico = await tx.servico.findFirst({ where: { id: servicoId, salaoId } });
     if (!servico) throw new ErroComanda("Serviço não encontrado.");
-    return montarItemServico(tx, salaoId, comanda.id, servicoId, profissionalId ?? comanda.profissionalId, comanda.clienteId);
+    return montarItemServico(tx, salaoId, comanda.id, servicoId, profissionalId ?? comanda.profissionalId, comanda.clienteId, auxiliarId);
+  });
+}
+
+/** Vende um pacote de sessões na comanda. As sessões ficam disponíveis quando a comanda é fechada. */
+export async function adicionarPacote(salaoId: string, comandaId: string, pacoteId: string) {
+  return db.$transaction(async (tx) => {
+    const comanda = await comandaAberta(tx, salaoId, comandaId);
+    if (!comanda.clienteId) throw new ErroComanda("Escolha o cliente da comanda para vender um pacote.");
+    const pacote = await tx.pacote.findFirst({ where: { id: pacoteId, salaoId, ativo: true } });
+    if (!pacote) throw new ErroComanda("Pacote não encontrado.");
+    return tx.comandaItem.create({
+      data: {
+        comandaId,
+        tipo: "PACOTE",
+        pacoteId: pacote.id,
+        descricao: `Pacote ${pacote.nome} (${pacote.sessoes} sessões)`,
+        precoUnitCentavos: pacote.precoCentavos,
+        comissaoPct: 0,
+      },
+    });
   });
 }
 
@@ -195,8 +232,8 @@ async function filtroDoAtendimento(tx: Tx, agendamentoId: string) {
   return ag.grupo ? { grupo: ag.grupo, status: { not: "CANCELADO" } } : { id: ag.id };
 }
 
-export function subtotalDosItens(itens: { quantidade: number; precoUnitCentavos: number; cobertoPorPlano: boolean }[]) {
-  return itens.reduce((s, i) => s + (i.cobertoPorPlano ? 0 : i.quantidade * i.precoUnitCentavos), 0);
+export function subtotalDosItens(itens: { quantidade: number; precoUnitCentavos: number; cobertoPorPlano: boolean; pacoteClienteId?: string | null }[]) {
+  return itens.reduce((s, i) => s + (itemSemCobranca(i) ? 0 : i.quantidade * i.precoUnitCentavos), 0);
 }
 
 /** Fecha a comanda: aplica desconto e cashback, baixa estoque e conclui o agendamento. */
@@ -238,6 +275,23 @@ export async function fecharComanda(
         observacao: `Comanda #${comanda.numero}`,
       });
     }
+    // Pacotes vendidos nesta comanda: libera as sessões para o cliente
+    for (const item of itens) {
+      if (item.tipo !== "PACOTE" || !item.pacoteId || !comanda.clienteId) continue;
+      const pacote = await tx.pacote.findUniqueOrThrow({ where: { id: item.pacoteId } });
+      await tx.pacoteCliente.create({
+        data: {
+          salaoId,
+          clienteId: comanda.clienteId,
+          pacoteId: pacote.id,
+          servicoId: pacote.servicoId,
+          sessoes: pacote.sessoes * item.quantidade,
+          valorCentavos: item.quantidade * item.precoUnitCentavos,
+          validoAte: pacote.validadeDias ? somarDias(diaLocal(), pacote.validadeDias) : null,
+          itemVendaId: item.id,
+        },
+      });
+    }
     if (cliente && (cashbackUsado || cashbackGerado)) {
       // só desconta se o saldo ainda cobre (dois fechamentos ao mesmo tempo não usam o mesmo crédito duas vezes)
       const r = await tx.cliente.updateMany({
@@ -255,7 +309,7 @@ export async function fecharComanda(
     if (naFatura && total <= 0) throw new ErroComanda("Não há valor para lançar na fatura.");
     const caixa = await tx.caixa.findFirst({ where: { filialId: comanda.filialId, fechadoEm: null } });
     if (assinaturaFatura) {
-      const nomes = itens.filter((i) => !i.cobertoPorPlano).map((i) => (i.quantidade > 1 ? `${i.quantidade}x ${i.descricao}` : i.descricao));
+      const nomes = itens.filter((i) => !itemSemCobranca(i)).map((i) => (i.quantidade > 1 ? `${i.quantidade}x ${i.descricao}` : i.descricao));
       await tx.extraFatura.create({
         data: { salaoId, assinaturaId: assinaturaFatura.id, comandaId, valorCentavos: total, descricao: `Comanda #${comanda.numero}: ${nomes.join(", ")}`.slice(0, 200) },
       });
@@ -283,6 +337,14 @@ export async function cancelarComanda(salaoId: string, comandaId: string) {
     if (!comanda || comanda.status === "CANCELADA") throw new ErroComanda("Comanda não encontrada.");
 
     if (comanda.status === "FECHADA") {
+      // Pacote vendido nesta comanda: só dá para estornar se nenhuma sessão foi usada
+      const vendidos = await tx.pacoteCliente.findMany({
+        where: { itemVendaId: { in: comanda.itens.map((i) => i.id) } },
+        include: { _count: { select: { sessoesUsadas: { where: { comanda: { status: { not: "CANCELADA" } } } } } } },
+      });
+      if (vendidos.some((p) => p._count.sessoesUsadas > 0))
+        throw new ErroComanda("O pacote vendido nesta comanda já teve sessões usadas. Cancele primeiro as comandas dessas sessões.");
+      await tx.pacoteCliente.updateMany({ where: { id: { in: vendidos.map((p) => p.id) } }, data: { status: "CANCELADO" } });
       for (const item of comanda.itens) {
         if (item.tipo !== "PRODUTO" || !item.produtoId) continue;
         await movimentarEstoque(tx, {

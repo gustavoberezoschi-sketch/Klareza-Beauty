@@ -7,6 +7,13 @@ os próprios dados e o próprio link de agendamento.
 
 ## Funções
 
+**Feito para salão de beleza**
+- **Manutenção e retorno:** cada serviço pode ter "lembrar após X dias" (ex.: cílios 18, unhas em gel 21). Em Lembretes, a lista "Hora da manutenção" mostra quem está vencendo e ainda não marcou, com a mensagem pronta no WhatsApp
+- **Ficha de anamnese:** alergias, gestação, lentes, condições de pele e saúde, medicamentos e procedimentos recentes, com registro do consentimento. Os pontos de atenção aparecem em destaque na ficha e na comanda
+- **Fotos de antes e depois** na ficha do cliente (visíveis só no painel)
+- **Pacotes de sessões:** cadastre pacotes (ex.: 4 manutenções de cílios), venda na comanda e cada sessão é abatida sozinha nas próximas comandas, com validade opcional
+- **Auxiliar na comissão:** cada serviço da comanda pode ter uma auxiliar, que ganha a própria % (definida na Equipe) além da comissão da profissional principal
+
 **Dia a dia**
 - **Início:** faturamento do dia e do mês (com comparação), gráfico de 14 dias, próximos atendimentos, avisos (estoque baixo, contas vencendo, mensalidades atrasadas) e aniversariantes
 - **Agenda em grade:** uma coluna por profissional, clique num horário vazio para agendar, encaixe, remarcação, confirmação/lembrete por WhatsApp, falta e cancelamento

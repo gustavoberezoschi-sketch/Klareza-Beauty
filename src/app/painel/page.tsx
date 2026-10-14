@@ -95,7 +95,7 @@ export default async function Inicio() {
     <div>
       <Cabecalho
         titulo={`${saudacao}, ${sessao.nome.split(" ")[0]}`}
-        descricao={`Resumo ${ctx.atual && ativas.length > 1 ? `da unidade ${ctx.atual.nome}` : ativas.length > 1 ? "de todas as unidades" : `da ${salao.nome}`} hoje`}
+        descricao={`Resumo ${ctx.atual && ativas.length > 1 ? `da unidade ${ctx.atual.nome}` : ativas.length > 1 ? "de todas as unidades" : `do ${salao.nome}`} hoje`}
         acoes={
           <>
             <Link href="/painel/comandas/nova" className="btn-secundario">
@@ -223,7 +223,7 @@ export default async function Inicio() {
                       <span className="text-couro-400">{formatarDia(`2000-${c.nascimento!.slice(5)}`).slice(0, 5)}</span>
                     </Link>
                     <a
-                      href={linkWhatsApp(c.telefone, `Feliz aniversário, ${c.nome.split(" ")[0]}! 🎉 A equipe da ${salao.nome} te deseja um ótimo dia. Passa aqui pra ficar na régua!`)}
+                      href={linkWhatsApp(c.telefone, `Feliz aniversário, ${c.nome.split(" ")[0]}! 🎉 A equipe do ${salao.nome} te deseja um ótimo dia. Passa aqui pra ficar na régua!`)}
                       target="_blank"
                       className="text-xs font-semibold text-emerald-700 hover:underline"
                     >
