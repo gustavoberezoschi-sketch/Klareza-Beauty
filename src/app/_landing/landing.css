@@ -1,0 +1,101 @@
+/* Landing page do KlarezaBeauty: branco, preto e um verde. */
+
+.lp {
+  --lp-tinta: #0f0f0e;
+  --lp-cinza: #6b6b66;
+  --lp-linha: #e7e6e1;
+  --lp-suave: #f6f6f3;
+  --lp-verde: #145c3c;
+  --lp-verde-escuro: #0d4029;
+  --lp-verde-claro: #e3efe8;
+  background: #fff;
+  color: var(--lp-tinta);
+}
+.lp ::selection { background: var(--lp-verde); color: #fff; }
+
+.lp-titulo { font-family: var(--lp-fonte-titulo), var(--fonte-texto), sans-serif; letter-spacing: -0.045em; line-height: 0.95; font-weight: 600; }
+.lp-serifa { font-family: var(--lp-fonte-serifa), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.02em; }
+
+/* Botões */
+.lp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  border-radius: 999px; padding: 0.95rem 1.6rem; font-weight: 600; font-size: 0.95rem;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s, color 0.2s;
+}
+.lp-btn:active { transform: scale(0.97); }
+.lp-btn-verde { background: var(--lp-verde); color: #fff; }
+.lp-btn-verde:hover { background: var(--lp-verde-escuro); }
+.lp-btn-linha { border: 1px solid var(--lp-linha); color: var(--lp-tinta); }
+.lp-btn-linha:hover { border-color: var(--lp-tinta); }
+.lp-seta { transition: transform 0.25s; }
+.lp-btn:hover .lp-seta, a:hover > .lp-seta { transform: translateX(4px); }
+
+/* Título revelado linha a linha */
+.lp-linha-mascara { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.lp-linha-mascara > span { display: block; transform: translateY(105%); animation: lp-sobe-linha 1s cubic-bezier(0.19, 1, 0.22, 1) forwards; animation-delay: var(--d, 0s); }
+@keyframes lp-sobe-linha { to { transform: none; } }
+
+.lp-surge { opacity: 0; transform: translateY(16px); animation: lp-surge 0.9s cubic-bezier(0.19, 1, 0.22, 1) forwards; animation-delay: var(--d, 0s); }
+@keyframes lp-surge { to { opacity: 1; transform: none; } }
+
+/* Revelar ao rolar */
+[data-revela] { opacity: 0; transform: translateY(40px); transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1), transform 1s cubic-bezier(0.19, 1, 0.22, 1); transition-delay: var(--d, 0s); }
+[data-revela].lp-visivel { opacity: 1; transform: none; }
+
+/* Print do painel inclinado que se endireita com a rolagem (--p de 0 a 1) */
+.lp-palco { perspective: 1600px; }
+.lp-inclina {
+  --p: 0;
+  transform: rotateX(calc((1 - var(--p)) * 22deg)) scale(calc(0.9 + var(--p) * 0.1)) translateY(calc((1 - var(--p)) * -20px));
+  transform-origin: 50% 0%;
+  will-change: transform;
+}
+.lp-paralaxe { transform: translateY(calc(var(--y, 0) * 1px)); will-change: transform; }
+
+.lp-janela { border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid var(--lp-linha); box-shadow: 0 50px 100px -40px rgba(15, 15, 14, 0.35), 0 20px 40px -30px rgba(15, 15, 14, 0.3); }
+.lp-janela-barra { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--lp-linha); background: #fafaf8; }
+.lp-janela-barra i { width: 9px; height: 9px; border-radius: 999px; background: #dcdbd5; }
+.lp-celular { border-radius: 34px; overflow: hidden; border: 7px solid var(--lp-tinta); background: var(--lp-tinta); box-shadow: 0 40px 80px -30px rgba(15, 15, 14, 0.5); }
+
+/* Faixa correndo */
+.lp-faixa { display: flex; width: max-content; animation: lp-corre 38s linear infinite; }
+.lp-faixa-wrap:hover .lp-faixa { animation-play-state: paused; }
+@keyframes lp-corre { to { transform: translateX(-50%); } }
+.lp-contorno { color: transparent; -webkit-text-stroke: 1.5px var(--lp-tinta); }
+
+/* Frase que acende palavra por palavra (--p de 0 a 1 no contêiner) */
+.lp-palavras { --p: 0; }
+.lp-palavras span { opacity: clamp(0.14, calc(var(--p) * var(--n) * 1.15 - var(--i) + 1), 1); transition: opacity 0.15s linear; }
+
+/* História com tela grudada */
+.lp-tela { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.96) translateY(20px); transition: opacity 0.6s, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1); }
+.lp-tela.lp-ativa { opacity: 1; transform: none; }
+.lp-passo { transition: opacity 0.4s; }
+.lp-passo:not(.lp-ativo) { opacity: 0.28; }
+
+/* Lista de recursos */
+.lp-recurso { position: relative; transition: color 0.3s; }
+.lp-recurso::before { content: ""; position: absolute; inset: 0; background: var(--lp-verde); transform: scaleY(0); transform-origin: bottom; transition: transform 0.45s cubic-bezier(0.19, 1, 0.22, 1); z-index: 0; }
+.lp-recurso > * { position: relative; z-index: 1; }
+@media (hover: hover) {
+  .lp-recurso:hover { color: #fff; }
+  .lp-recurso:hover::before { transform: scaleY(1); }
+  .lp-recurso:hover .lp-recurso-desc { color: rgba(255, 255, 255, 0.8); }
+}
+
+/* Faixa de rolagem no topo */
+.lp-progresso { transform-origin: left; transform: scaleX(var(--rolagem, 0)); }
+
+.lp details summary::-webkit-details-marker { display: none; }
+.lp details[open] .lp-mais { transform: rotate(45deg); }
+.lp-mais { transition: transform 0.3s; }
+
+.lp input[type="range"] { accent-color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-linha-mascara > span, .lp-surge { animation: none; transform: none; opacity: 1; }
+  [data-revela] { opacity: 1; transform: none; transition: none; }
+  .lp-inclina, .lp-paralaxe { transform: none; }
+  .lp-faixa { animation: none; }
+  .lp-palavras span { opacity: 1; }
+}

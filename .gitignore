@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+prisma/*.db
+prisma/*.db-journal
+
+# vídeos gerados da apresentação
+*.mp4
+/Klaro-voz-*.mp3
+/KlarezaBarber-*.png

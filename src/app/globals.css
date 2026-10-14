@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--fonte-titulo), var(--fonte-texto), ui-sans-serif, sans-serif;
+
+  /* Paleta KlarezaBeauty: preto, branco e verde.
+     Os nomes antigos (couro = tons neutros escuros, latão = verde de destaque) foram mantidos. */
+  --color-couro-950: #0b0b0a;
+  --color-couro-900: #121211;
+  --color-couro-800: #1f1f1d;
+  --color-couro-700: #3a3a36;
+  --color-couro-400: #77776f;
+  --color-couro-300: #b3b3ab;
+  --color-latao-700: #0d4029;
+  --color-latao-600: #114d33;
+  --color-latao-500: #145c3c;
+  --color-latao-100: #e3efe8;
+  --color-latao-50: #f2f7f4;
+  --color-verde-claro: #7fc4a0;
+  --color-fundo: #f6f6f3;
+  --color-tinta: #0f0f0e;
+  --color-poste-vermelho: #c2412d;
+  --color-poste-azul: #2f5d8a;
+}
+
+@layer base {
+  body {
+    @apply bg-fundo font-sans text-tinta antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-latao-500;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply accent-couro-900;
+  }
+  /* Barras de rolagem finas e discretas */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(20 16 14 / 0.28) transparent;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(20 16 14 / 0.22) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: rgb(20 16 14 / 0.22) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(20 16 14 / 0.4);
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  .rolagem-escura {
+    scrollbar-color: rgb(255 255 255 / 0.16) transparent;
+  }
+  .rolagem-escura::-webkit-scrollbar-thumb {
+    background-color: rgb(255 255 255 / 0.16);
+  }
+  .rolagem-escura::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(255 255 255 / 0.32);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility card {
+  @apply rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_1px_2px_rgba(20,16,14,0.04)];
+}
+@utility input {
+  @apply w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm text-tinta outline-none transition placeholder:text-couro-300 focus:border-latao-500 focus:ring-4 focus:ring-latao-500/15;
+}
+@utility label {
+  @apply mb-1.5 block text-[13px] font-semibold text-couro-700;
+}
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primario {
+  @apply btn bg-couro-900 text-white shadow-sm hover:bg-couro-700;
+}
+@utility btn-destaque {
+  @apply btn bg-latao-500 text-white shadow-sm hover:bg-latao-700;
+}
+@utility btn-secundario {
+  @apply btn border border-black/10 bg-white text-tinta hover:border-black/20 hover:bg-black/[0.02];
+}
+@utility btn-perigo {
+  @apply btn border border-poste-vermelho/25 bg-white text-poste-vermelho hover:bg-poste-vermelho/5;
+}
+@utility btn-pequeno {
+  @apply px-3 py-1.5 text-xs;
+}
+@utility titulo {
+  @apply font-display text-[28px] leading-tight font-bold tracking-tight;
+}
+@utility numero {
+  @apply font-display font-bold tabular-nums tracking-tight;
+}
+@utility rotulo {
+  @apply text-[11px] font-semibold tracking-[0.08em] text-couro-400 uppercase;
+}
+
+/* Assinatura visual: listras do poste de salao */
+@utility poste {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-poste-vermelho) 0 6px,
+    #fff 6px 10px,
+    var(--color-poste-azul) 10px 16px,
+    #fff 16px 20px
+  );
+  background-size: 28px 28px;
+  animation: girar-poste 1.6s linear infinite;
+}
+@keyframes girar-poste {
+  to {
+    background-position: 28px 0;
+  }
+}
