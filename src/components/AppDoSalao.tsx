@@ -56,7 +56,7 @@ export function InstalarApp({ slug, nome }: { slug: string; nome: string }) {
   return (
     <div className="relative rounded-2xl border border-black/[0.06] bg-white p-4 shadow-sm" role="region" aria-label="Instalar o app">
       <button onClick={fechar} aria-label="Agora não" className="absolute top-3 right-3 text-couro-400 hover:text-tinta"><X className="size-4" /></button>
-      <p className="flex items-center gap-2 pr-6 font-semibold"><Download className="size-5 text-[var(--cor)]" /> Instale o app da {nome}</p>
+      <p className="flex items-center gap-2 pr-6 font-semibold"><Download className="size-5 text-[var(--cor)]" /> Instale o app do {nome}</p>
       {modo === "android" ? (
         <>
           <p className="mt-1 text-sm text-couro-700">Fica na tela inicial do celular, abre direto na sua conta e avisa dos seus horários.</p>

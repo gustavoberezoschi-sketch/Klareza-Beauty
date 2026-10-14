@@ -19,7 +19,7 @@ model Salao {
   descricao         String?
   logo              String? // imagem (data URL) redimensionada no navegador
   capa              String?
-  corDestaque       String  @default("#145c3c")
+  corDestaque       String  @default("#7a2e52")
   intervaloMin      Int     @default(30) // de quanto em quanto tempo os horários são oferecidos
   antecedenciaDias  Int     @default(30) // até quantos dias à frente o cliente pode agendar
   cancelamentoHoras Int     @default(2) // até quantas horas antes o cliente pode cancelar pelo link

@@ -48,7 +48,7 @@ export default function Marca() {
       <section id="familia" className="quadro claro largo alto">
         <div className="familia">
           {[
-            ["beauty", "#145c3c", "#23a06a"],
+            ["barber", "#145c3c", "#23a06a"],
             ["contábil", "#1f3f73", "#3a6fc4"],
             ["beauty", "#7a2e52", "#c4588a"],
           ].map(([ramo, a, b]) => (

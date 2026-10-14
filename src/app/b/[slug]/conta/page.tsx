@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { formatarDinheiro } from "@/lib/formato";
 import { planoDoCliente } from "@/lib/publico";
 import { CartaoAgendamento } from "./CartaoAgendamento";
-import { InstalarApp, LembretesNoCelular } from "@/components/AppDaSalao";
+import { InstalarApp, LembretesNoCelular } from "@/components/AppDoSalao";
 import { chavesVapid } from "@/lib/push";
 import { removerInscricaoPush, salvarInscricaoPush } from "./actions";
 
@@ -50,7 +50,7 @@ export default async function InicioCliente({ params }: { params: Promise<{ slug
       {b._count.parceiros > 0 && (
         <Link href={`/b/${slug}/conta/vantagens`} className="flex items-center justify-between gap-3 rounded-2xl bg-[var(--cor)] p-5 text-[var(--cor-texto)] shadow-sm" style={{ backgroundImage: "linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.25))" }}>
           <span>
-            <span className="flex items-center gap-2 font-bold"><Gift className="size-5" /> Conheça o Clube de vantagens da {b.nome}</span>
+            <span className="flex items-center gap-2 font-bold"><Gift className="size-5" /> Conheça o Clube de vantagens do {b.nome}</span>
             <span className="text-sm opacity-90">e pegue seus cupons de desconto com os parceiros</span>
           </span>
           <ArrowRight className="size-5 shrink-0" />

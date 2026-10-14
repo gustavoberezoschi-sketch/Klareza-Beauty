@@ -30,7 +30,7 @@ export default async function Entrar({ params, searchParams }: { params: Promise
           ) : (
             <span className="grid size-20 place-items-center rounded-2xl font-display text-3xl font-bold shadow-md" style={{ background: b.corDestaque, color: corDoTexto(b.corDestaque) }}>{b.nome[0]}</span>
           )}
-          <h1 className="mt-4 font-display text-2xl font-bold">Sua conta na {b.nome}</h1>
+          <h1 className="mt-4 font-display text-2xl font-bold">Sua conta no {b.nome}</h1>
           <p className="mt-1 text-sm text-couro-400">Acompanhe seus agendamentos, seu plano e as vantagens do clube.</p>
         </div>
         <Acesso slug={slug} abaInicial={(await searchParams).aba === "criar" ? "criar" : "entrar"} />

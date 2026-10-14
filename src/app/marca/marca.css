@@ -3,14 +3,14 @@
 .quadro.sq { width: 1080px; height: 1080px; }
 .quadro.largo { width: 1600px; height: 600px; }
 .quadro.alto { height: 700px; }
-.quadro.claro { background: #f6f6f3; }
-.quadro.escuro { background: radial-gradient(900px 700px at 50% 0%, #133524, #0b0b0a 70%); }
+.quadro.claro { background: #f7f4f3; }
+.quadro.escuro { background: radial-gradient(900px 700px at 50% 0%, #3a1528, #0f0b0d 70%); }
 .assinatura { display: flex; align-items: center; gap: 56px; }
 .assinatura.col { flex-direction: column; gap: 40px; }
 .nome { font-size: 150px; font-weight: 700; letter-spacing: -0.055em; color: #fff; line-height: 1; }
-.nome b { font-weight: 700; color: #7fc4a0; }
+.nome b { font-weight: 700; color: #e7a3c3; }
 .nome.tinta { color: #0f0f0e; }
-.nome.tinta b { color: #145c3c; }
+.nome.tinta b { color: #7a2e52; }
 .col .nome { font-size: 120px; }
 .slogan { font-family: var(--lp-fonte-serifa), serif; font-style: italic; font-size: 54px; color: rgba(255, 255, 255, 0.7); margin-top: -12px; }
 .familia { display: flex; flex-direction: column; gap: 48px; }

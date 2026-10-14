@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CalendarCheck, Clock, Crown, Instagram, MapPin, MessageCircle, Star, UserRound } from "lucide-react";
-import { InstalarApp } from "@/components/AppDaSalao";
+import { InstalarApp } from "@/components/AppDoSalao";
 import { Carrossel } from "@/components/Carrossel";
 import { clienteLogado } from "@/lib/clienteAuth";
 import { db } from "@/lib/db";

@@ -14,14 +14,14 @@ function bannerSvg(fundo: string, destaque: string, titulo: string, sub: string)
 
 const DEMOS = [
   {
-    nome: "Studio Flor de Lótus", slug: "flor-de-lotus", email: "dono@flordelotus.com", cor: "#145c3c",
+    nome: "Studio Flor de Lótus", slug: "flor-de-lotus", email: "dono@flordelotus.com", cor: "#7a2e52",
     filiais: [
       { nome: "Centro", endereco: "Rua Augusta, 1200 - Consolação, São Paulo", profissionais: ["Carla Mendes", "Rafaela Lima"] },
       { nome: "Shopping Norte", endereco: "Av. Otto Baumgart, 500 - Loja 210, São Paulo", profissionais: ["Diana Souza"] },
     ],
   },
   {
-    nome: "Bella Lash & Nails", slug: "bella-lash", email: "dono@bellalash.com", cor: "#2f5d8a",
+    nome: "Bella Lash & Nails", slug: "bella-lash", email: "dono@bellalash.com", cor: "#6b4c9a",
     filiais: [{ nome: "Unidade principal", endereco: "Rua XV de Novembro, 300 - Centro", profissionais: ["Lúcia Prado", "Marta Rocha"] }],
   },
 ];
@@ -96,8 +96,8 @@ async function main() {
         usuarios: { create: { nome: "Renata", email: demo.email, senhaHash } },
         banners: {
           create: [
-            { imagem: bannerSvg("#121211", "#d6d6cf", "Mãos e pés", "R$ 75 · esmaltação em gel inclusa"), ordem: 0 },
-            { imagem: bannerSvg("#1f1f1d", "#d6d6cf", "Clube da beleza", "Escova e manicure por R$ 99,90/mês"), ordem: 1 },
+            { imagem: bannerSvg("#5e2140", "#f2b8cf", "Mãos e pés", "R$ 75 · esmaltação em gel inclusa"), ordem: 0 },
+            { imagem: bannerSvg("#2a1820", "#e7a3c3", "Clube da beleza", "Escova e manicure por R$ 99,90/mês"), ordem: 1 },
           ],
         },
         parceiros: {

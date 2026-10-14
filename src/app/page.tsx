@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Agendamento online, clube de assinatura com cobrança automática, comandas, caixa, estoque, financeiro e lembretes por WhatsApp. Tudo para o seu salão num lugar só.",
   openGraph: {
     title: "Klareza Beauty · Sistema para salões",
-    description: "O salão organizada de verdade: agenda online, clube de assinatura e o caixa batendo.",
+    description: "O salão organizado de verdade: agenda online, clube de assinatura e o caixa batendo.",
     type: "website",
     locale: "pt_BR",
     images: ["/landing/agenda.webp"],
@@ -98,7 +98,7 @@ export default async function Landing() {
         <p className="lp-surge font-mono text-xs tracking-wide text-[var(--lp-cinza)] uppercase" style={atraso(0)}>Sistema de gestão para salões</p>
         <h1 className="lp-titulo mt-6 text-[13vw] sm:text-[88px] lg:text-[112px]">
           <span className="lp-linha-mascara"><span style={atraso(0.05)}>O salão</span></span>
-          <span className="lp-linha-mascara"><span style={atraso(0.15)}>organizada</span></span>
+          <span className="lp-linha-mascara"><span style={atraso(0.15)}>organizado</span></span>
           <span className="lp-linha-mascara"><span style={atraso(0.25)}><span className="lp-serifa text-[var(--lp-verde)]">de verdade.</span></span></span>
         </h1>
         <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -285,11 +285,11 @@ export default async function Landing() {
       <section className="bg-[var(--lp-tinta)] text-white">
         <div className="mx-auto max-w-7xl px-5 py-24 sm:py-36">
           <h2 data-revela className="lp-titulo text-[14vw] sm:text-[120px] lg:text-[150px]">
-            Bora <span className="lp-serifa text-[#7fc4a0]">conversar?</span>
+            Bora <span className="lp-serifa text-[#e7a3c3]">conversar?</span>
           </h2>
           <div data-revela style={atraso(0.15)} className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-md text-lg text-white/70">A gente mostra o sistema funcionando com os serviços e os preços do seu salão.</p>
-            <a href={demo} {...alvo} className="lp-btn bg-white px-8 py-4 text-base text-[var(--lp-tinta)] hover:bg-[#7fc4a0]">
+            <a href={demo} {...alvo} className="lp-btn bg-white px-8 py-4 text-base text-[var(--lp-tinta)] hover:bg-[#e7a3c3]">
               Falar no WhatsApp <ArrowUpRight className="size-5" />
             </a>
           </div>

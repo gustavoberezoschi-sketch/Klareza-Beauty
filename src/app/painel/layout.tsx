@@ -1,4 +1,4 @@
-import { RegistrarApp } from "@/components/AppDaSalao";
+import { RegistrarApp } from "@/components/AppDoSalao";
 import { checkinAutomatico } from "@/lib/agenda";
 import { Menu } from "@/components/Menu";
 import { exigirSessao } from "@/lib/auth";
@@ -28,7 +28,7 @@ export default async function PainelLayout({ children }: { children: React.React
         <div className="card max-w-md text-center">
           <p className="font-display text-2xl font-bold">Acesso suspenso</p>
           <p className="mt-2 text-couro-700">
-            O acesso da {salao?.nome} ao Klareza Beauty está suspenso por falta de pagamento. Os dados estão guardados e voltam assim que a
+            O acesso do {salao?.nome} ao Klareza Beauty está suspenso por falta de pagamento. Os dados estão guardados e voltam assim que a
             mensalidade for regularizada.
           </p>
           {suporte && (

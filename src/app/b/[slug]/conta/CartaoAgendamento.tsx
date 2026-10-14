@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, MapPin, Scissors, UserRound } from "lucide-react";
+import { Clock, MapPin, Sparkles, UserRound } from "lucide-react";
 import { formatarDinheiro } from "@/lib/formato";
 import { diaLocal, formatarDiaExtenso, horaLocal } from "@/lib/tempo";
 
@@ -33,7 +33,7 @@ export function CartaoAgendamento({ a, slug }: { a: Atendimento; slug: string })
         </p>
         <span className={`text-xs font-semibold ${st.c}`}>{st.r}</span>
       </div>
-      <p className="mt-3 flex items-center gap-2 text-sm"><Scissors className="size-4 text-[var(--cor)]" /> {a.servicos.join(" + ")}</p>
+      <p className="mt-3 flex items-center gap-2 text-sm"><Sparkles className="size-4 text-[var(--cor)]" /> {a.servicos.join(" + ")}</p>
       <p className="mt-1.5 flex items-center gap-2 text-sm"><UserRound className="size-4 text-[var(--cor)]" /> {a.profissional}</p>
       {a.unidade && <p className="mt-1.5 flex items-center gap-2 text-sm"><MapPin className="size-4 text-[var(--cor)]" /> {a.unidade}</p>}
       <p className="mt-3 text-sm font-semibold">Total: {formatarDinheiro(a.total)}</p>

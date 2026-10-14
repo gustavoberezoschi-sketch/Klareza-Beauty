@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, EyeOff, Plus, Scissors } from "lucide-react";
+import { Clock, EyeOff, Plus, Sparkles } from "lucide-react";
 import { Avatar, Cabecalho, Etiqueta, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -31,7 +31,7 @@ export default async function Servicos() {
         acoes={<Link href="/painel/servicos/novo" className="btn-destaque"><Plus className="size-4" /> Novo serviço</Link>}
       />
       {servicos.length === 0 && (
-        <Vazio icone={Scissors} titulo="Nenhum serviço cadastrado" texto="Comece pelos mais pedidos: manicure, design de sobrancelha e cílios." acao={<Link href="/painel/servicos/novo" className="btn-primario">Cadastrar serviço</Link>} />
+        <Vazio icone={Sparkles} titulo="Nenhum serviço cadastrado" texto="Comece pelos mais pedidos: manicure, design de sobrancelha e cílios." acao={<Link href="/painel/servicos/novo" className="btn-primario">Cadastrar serviço</Link>} />
       )}
 
       {categorias.map((cat) => (
@@ -44,7 +44,7 @@ export default async function Servicos() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={s.foto} alt="" className="size-20 shrink-0 rounded-xl object-cover" />
                 ) : (
-                  <span className="grid size-20 shrink-0 place-items-center rounded-xl bg-latao-50 text-latao-600"><Scissors className="size-7" /></span>
+                  <span className="grid size-20 shrink-0 place-items-center rounded-xl bg-latao-50 text-latao-600"><Sparkles className="size-7" /></span>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">

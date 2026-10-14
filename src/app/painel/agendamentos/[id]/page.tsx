@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Ban, CalendarCheck, Check, Clock, MessageCircle, ReceiptText, Scissors, UserRound } from "lucide-react";
+import { Ban, CalendarCheck, Check, Clock, MessageCircle, ReceiptText, Sparkles, UserRound } from "lucide-react";
 import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { FormAcao } from "@/components/FormAcao";
 import { Avatar, Cabecalho, Etiqueta, Secao } from "@/components/ui";
@@ -88,7 +88,7 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
         <div className="space-y-4">
           <Secao titulo="Detalhes">
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
-              <Info icone={Scissors} rotulo="Serviço" valor={`${ag.servico.nome} · ${formatarDinheiro(ag.precoCentavos)}`} />
+              <Info icone={Sparkles} rotulo="Serviço" valor={`${ag.servico.nome} · ${formatarDinheiro(ag.precoCentavos)}`} />
               <Info icone={Clock} rotulo="Horário" valor={`${horaLocal(ag.inicio)} às ${horaLocal(ag.fim)}`} />
               <div className="flex items-center gap-3">
                 <Avatar nome={ag.profissional.nome} foto={ag.profissional.foto} tamanho={36} />

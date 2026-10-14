@@ -219,7 +219,7 @@ export default async function Agenda({ searchParams }: { searchParams: Promise<{
               </div>
             ))}
 
-            {/* Linha do "agora", listrada como o poste de salão */}
+            {/* Linha do "agora", com a faixa de brilho da marca */}
             {agoraMin !== null && agoraMin >= abre && agoraMin <= fecha && (
               <div
                 className="pointer-events-none absolute right-0 left-0 z-30 flex items-center"

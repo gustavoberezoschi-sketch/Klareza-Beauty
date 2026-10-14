@@ -17,7 +17,7 @@ import {
   MessageCircle,
   Package,
   ReceiptText,
-  Scissors,
+  Sparkles,
   Settings,
   Store,
   Ticket,
@@ -54,7 +54,7 @@ const GESTOR: Grupo[] = [
   {
     titulo: "Cadastros",
     itens: [
-      { href: "/painel/servicos", rotulo: "Serviços", icone: Scissors },
+      { href: "/painel/servicos", rotulo: "Serviços", icone: Sparkles },
       { href: "/painel/produtos", rotulo: "Produtos e estoque", icone: Package },
       { href: "/painel/equipe", rotulo: "Equipe", icone: UsersRound },
     ],
@@ -118,7 +118,7 @@ export function Menu({
           <img src={logo} alt="" className="size-10 rounded-xl object-cover" />
         ) : (
           <span className="grid size-10 place-items-center rounded-xl bg-latao-500 text-white">
-            <Scissors className="size-5" aria-hidden />
+            <Sparkles className="size-5" aria-hidden />
           </span>
         )}
         <div className="min-w-0">

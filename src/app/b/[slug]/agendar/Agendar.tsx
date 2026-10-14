@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { CalendarCheck, CalendarPlus, Check, ChevronDown, Clock, MapPin, Scissors, Star, Store, UserRound } from "lucide-react";
+import { CalendarCheck, CalendarPlus, Check, ChevronDown, Clock, MapPin, Sparkles, Star, Store, UserRound } from "lucide-react";
 import { formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { FUSO, criarDataHora } from "@/lib/tempo";
 import { type Confirmacao, agendar, buscarHorarios } from "../actions";
@@ -229,7 +229,7 @@ export function Agendar({
         </div>
       </Etapa>
 
-      <Etapa n={2} aberta={aberta === 2} feita={escolhidos.length > 0} bloqueada={profissionalId === null} icone={Scissors} titulo="Selecione os serviços" resumo={selecionados.length ? selecionados.map((s) => s.nome).join(", ") : null} abrir={() => profissionalId !== null && setAberta(2)}>
+      <Etapa n={2} aberta={aberta === 2} feita={escolhidos.length > 0} bloqueada={profissionalId === null} icone={Sparkles} titulo="Selecione os serviços" resumo={selecionados.length ? selecionados.map((s) => s.nome).join(", ") : null} abrir={() => profissionalId !== null && setAberta(2)}>
         <div className="space-y-2">
           {disponiveis.map((s) => {
             const marcado = escolhidos.includes(s.id);
@@ -370,7 +370,7 @@ export function Agendar({
 function Etapa({
   n, aberta, feita, bloqueada, icone: Icone, titulo, resumo, abrir, children,
 }: {
-  n: number; aberta: boolean; feita: boolean; bloqueada?: boolean; icone: typeof Scissors; titulo: string; resumo: string | null; abrir: () => void; children: React.ReactNode;
+  n: number; aberta: boolean; feita: boolean; bloqueada?: boolean; icone: typeof Sparkles; titulo: string; resumo: string | null; abrir: () => void; children: React.ReactNode;
 }) {
   return (
     <section className={`overflow-hidden rounded-2xl bg-white shadow-sm transition ${bloqueada ? "opacity-60" : ""}`}>
@@ -399,7 +399,7 @@ function CartaoProfissional({ nome, foto, destaque, selecionado, onClick }: { no
           <img src={foto} alt="" className="size-full object-cover" />
         ) : (
           <span className="grid size-full place-items-center bg-fundo text-couro-300">
-            {nome === "Sem preferência" ? <Scissors className="size-8" /> : <UserRound className="size-10" />}
+            {nome === "Sem preferência" ? <Sparkles className="size-8" /> : <UserRound className="size-10" />}
           </span>
         )}
         {destaque && (

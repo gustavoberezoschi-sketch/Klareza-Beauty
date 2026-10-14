@@ -4,10 +4,10 @@
   --lp-tinta: #0f0f0e;
   --lp-cinza: #6b6b66;
   --lp-linha: #e7e6e1;
-  --lp-suave: #f6f6f3;
-  --lp-verde: #145c3c;
-  --lp-verde-escuro: #0d4029;
-  --lp-verde-claro: #e3efe8;
+  --lp-suave: #f7f4f3;
+  --lp-verde: #7a2e52;
+  --lp-verde-escuro: #5e2140;
+  --lp-verde-claro: #f6e3ec;
   background: #fff;
   color: var(--lp-tinta);
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, Crown, MessageCircle, Package, Scissors, Ticket, Trash2 } from "lucide-react";
+import { AlertTriangle, Crown, MessageCircle, Package, Sparkles, Ticket, Trash2 } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Secao } from "@/components/ui";
 import { alertasDaAnamnese, lerAnamnese } from "@/lib/anamnese";
@@ -109,7 +109,7 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                 {comanda.itens.map((i) => (
                   <li key={i.id} className="flex items-center gap-3 py-3">
                     <span className="grid size-9 shrink-0 place-items-center rounded-full bg-fundo text-couro-700">
-                      {i.tipo === "SERVICO" ? <Scissors className="size-4" /> : i.tipo === "PACOTE" ? <Ticket className="size-4" /> : <Package className="size-4" />}
+                      {i.tipo === "SERVICO" ? <Sparkles className="size-4" /> : i.tipo === "PACOTE" ? <Ticket className="size-4" /> : <Package className="size-4" />}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">
@@ -166,7 +166,7 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                       {profissionais.map((b) => <option key={b.id} value={b.id}>Auxiliar: {b.nome} ({b.comissaoAuxiliarPct}%)</option>)}
                     </select>
                   )}
-                  <button className="btn-secundario"><Scissors className="size-4" /> Adicionar serviço</button>
+                  <button className="btn-secundario"><Sparkles className="size-4" /> Adicionar serviço</button>
                 </FormAcao>
               </Secao>
               <Secao titulo="Adicionar produto">

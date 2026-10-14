@@ -4,21 +4,21 @@
   --font-sans: var(--fonte-texto), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--fonte-titulo), var(--fonte-texto), ui-sans-serif, sans-serif;
 
-  /* Paleta KlarezaBeauty: preto, branco e verde.
-     Os nomes antigos (couro = tons neutros escuros, latão = verde de destaque) foram mantidos. */
+  /* Paleta Klareza Beauty: preto, branco e vinho rosé.
+     Os nomes antigos (couro = tons neutros escuros, latão = cor de destaque, verde-claro = destaque sobre fundo escuro) foram mantidos. */
   --color-couro-950: #0b0b0a;
   --color-couro-900: #121211;
   --color-couro-800: #1f1f1d;
   --color-couro-700: #3a3a36;
   --color-couro-400: #77776f;
   --color-couro-300: #b3b3ab;
-  --color-latao-700: #0d4029;
-  --color-latao-600: #114d33;
-  --color-latao-500: #145c3c;
-  --color-latao-100: #e3efe8;
-  --color-latao-50: #f2f7f4;
-  --color-verde-claro: #7fc4a0;
-  --color-fundo: #f6f6f3;
+  --color-latao-700: #5e2140;
+  --color-latao-600: #6d2849;
+  --color-latao-500: #7a2e52;
+  --color-latao-100: #f6e3ec;
+  --color-latao-50: #fbf2f6;
+  --color-verde-claro: #e7a3c3;
+  --color-fundo: #f7f4f3;
   --color-tinta: #0f0f0e;
   --color-poste-vermelho: #c2412d;
   --color-poste-azul: #2f5d8a;
@@ -119,20 +119,17 @@
   @apply text-[11px] font-semibold tracking-[0.08em] text-couro-400 uppercase;
 }
 
-/* Assinatura visual: listras do poste de salao */
+/* Assinatura visual: faixa de brilho rosé (o nome "poste" ficou do KlarezaBarber) */
 @utility poste {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--color-poste-vermelho) 0 6px,
-    #fff 6px 10px,
-    var(--color-poste-azul) 10px 16px,
-    #fff 16px 20px
-  );
-  background-size: 28px 28px;
-  animation: girar-poste 1.6s linear infinite;
+  background-image: linear-gradient(-45deg, #7a2e52, #c4588a, #f2c4d6, #c4588a, #7a2e52);
+  background-size: 300% 300%;
+  animation: girar-poste 4s ease-in-out infinite alternate;
 }
 @keyframes girar-poste {
+  from {
+    background-position: 0% 50%;
+  }
   to {
-    background-position: 28px 0;
+    background-position: 100% 50%;
   }
 }
