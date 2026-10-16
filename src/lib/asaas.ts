@@ -214,6 +214,19 @@ export async function criarCobranca(dados: { customer: string; value: number; du
   return chamar<Cobranca>("/payments", { chave: daSubconta(apiKeyCifrada), metodo: "POST", corpo: { ...dados, billingType: "UNDEFINED" } });
 }
 
+/** Cobrança por Pix (sinal do agendamento) na subconta do salão. */
+export async function criarCobrancaPix(
+  dados: { customer: string; value: number; dueDate: string; description: string; externalReference: string; split?: { walletId: string; percentualValue: number }[] },
+  apiKeyCifrada: string,
+) {
+  return chamar<Cobranca & { invoiceUrl?: string }>("/payments", { chave: daSubconta(apiKeyCifrada), metodo: "POST", corpo: { ...dados, billingType: "PIX" } });
+}
+
+/** QR Code e "copia e cola" de uma cobrança Pix. */
+export async function qrCodePix(id: string, apiKeyCifrada: string) {
+  return chamar<{ encodedImage?: string; payload?: string; expirationDate?: string }>(`/payments/${encodeURIComponent(id)}/pixQrCode`, { chave: daSubconta(apiKeyCifrada) });
+}
+
 export async function excluirCobranca(id: string, apiKeyCifrada: string) {
   return chamar(`/payments/${id}`, { chave: daSubconta(apiKeyCifrada), metodo: "DELETE" });
 }

@@ -1,11 +1,13 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { criarSessao, exigirGestor, exigirSessao } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lerDinheiro, somenteDigitos } from "@/lib/formato";
+import { LimiteDoPlano, garantirVagaDeProfissional } from "@/lib/planosSistema";
 import { bloqueioDeLogin, falhaDeLogin, sucessoDeLogin } from "@/lib/limite";
 import { problemaNaSenha } from "@/lib/senha";
 
@@ -42,6 +44,39 @@ export async function salvarServico(_: Resultado, form: FormData): Promise<Resul
   if (retornoDias !== null && (!Number.isInteger(retornoDias) || retornoDias < 1 || retornoDias > 365))
     return { erro: "O retorno deve ficar entre 1 e 365 dias." };
 
+  // Variações, adicionais, faixas da manutenção e material (vêm em JSON dos campos dinâmicos)
+  const json = (campo: string) => {
+    try {
+      const v = JSON.parse(texto(form, campo) || "[]");
+      return Array.isArray(v) ? v : null;
+    } catch {
+      return null;
+    }
+  };
+  const opcoes = json("opcoesJson");
+  const faixas = json("faixasJson");
+  const insumos = json("insumosJson") ?? [];
+  if (!opcoes || opcoes.length > 30) return { erro: "Confira as variações e os adicionais." };
+  for (const o of opcoes) {
+    if (!["VARIACAO", "ADICIONAL"].includes(o.tipo) || typeof o.nome !== "string" || !o.nome.trim()) return { erro: "Toda variação e adicional precisa de nome." };
+    if (!Number.isInteger(o.precoCentavos) || o.precoCentavos < 0) return { erro: `Preço inválido em "${o.nome}". Exemplo: 35,00` };
+    const minimo = o.tipo === "VARIACAO" ? 5 : 0;
+    if (!Number.isInteger(o.duracaoMin) || o.duracaoMin < minimo || o.duracaoMin > 480) return { erro: `Duração inválida em "${o.nome}".` };
+  }
+  if (!faixas || faixas.length > 6) return { erro: "Confira as faixas da manutenção." };
+  for (const f of faixas)
+    if (!Number.isInteger(f.ateDias) || f.ateDias < 1 || f.ateDias > 365 || !Number.isInteger(f.precoCentavos) || f.precoCentavos < 0)
+      return { erro: "Cada faixa da manutenção precisa de dias (1 a 365) e preço." };
+  if (new Set(faixas.map((f: { ateDias: number }) => f.ateDias)).size !== faixas.length) return { erro: "Há duas faixas com o mesmo número de dias." };
+  const manutencaoDeId = texto(form, "manutencaoDeId") || null;
+  if (manutencaoDeId && (manutencaoDeId === id || !(await db.servico.findFirst({ where: { id: manutencaoDeId, salaoId } }))))
+    return { erro: "Escolha a aplicação de que este serviço é manutenção." };
+  if (faixas.length && !manutencaoDeId) return { erro: "Para usar as faixas de preço, escolha de qual aplicação este serviço é a manutenção." };
+  const produtosValidos = await db.produto.findMany({ where: { salaoId, id: { in: insumos.map((i: { produtoId: string }) => String(i.produtoId)) } }, select: { id: true } });
+  const material = insumos
+    .filter((i: { produtoId: string; quantidade: number }) => produtosValidos.some((p) => p.id === i.produtoId) && typeof i.quantidade === "number" && i.quantidade > 0 && i.quantidade <= 1000)
+    .map((i: { produtoId: string; quantidade: number }) => ({ produtoId: i.produtoId, quantidade: i.quantidade }));
+
   const validos = await db.profissional.findMany({ where: { salaoId, id: { in: profissionalIds } }, select: { id: true } });
   const dados = {
     nome,
@@ -53,15 +88,32 @@ export async function salvarServico(_: Resultado, form: FormData): Promise<Resul
     comissaoPct,
     retornoDias,
     exibirOnline: form.get("exibirOnline") === "on",
+    cuidados: texto(form, "cuidados").slice(0, 1500) || null,
+    manutencaoDeId,
+    faixasManutencao: faixas.length ? [...faixas].sort((a: { ateDias: number }, b: { ateDias: number }) => a.ateDias - b.ateDias) : Prisma.DbNull,
   };
 
+  let servicoId = id;
   if (id) {
     const existe = await db.servico.findFirst({ where: { id, salaoId } });
     if (!existe) return { erro: "Serviço não encontrado." };
     await db.servico.update({ where: { id }, data: { ...dados, profissionais: { set: validos } } });
   } else {
-    await db.servico.create({ data: { ...dados, salaoId, profissionais: { connect: validos } } });
+    servicoId = (await db.servico.create({ data: { ...dados, salaoId, profissionais: { connect: validos } } })).id;
   }
+  // opções: atualiza as que continuam, cria as novas e desativa as removidas (agendamentos guardam cópia)
+  const atuais = await db.servicoOpcao.findMany({ where: { servicoId }, select: { id: true } });
+  const mantidas = new Set(opcoes.filter((o: { id?: string }) => o.id && atuais.some((a) => a.id === o.id)).map((o: { id: string }) => o.id));
+  await db.$transaction([
+    db.servicoOpcao.updateMany({ where: { servicoId, id: { notIn: [...mantidas] as string[] } }, data: { ativo: false } }),
+    ...opcoes.map((o: { id?: string; tipo: string; nome: string; precoCentavos: number; duracaoMin: number }, ordem: number) =>
+      o.id && mantidas.has(o.id)
+        ? db.servicoOpcao.update({ where: { id: o.id }, data: { tipo: o.tipo, nome: o.nome.trim().slice(0, 60), precoCentavos: o.precoCentavos, duracaoMin: o.duracaoMin, ordem, ativo: true } })
+        : db.servicoOpcao.create({ data: { servicoId, tipo: o.tipo, nome: o.nome.trim().slice(0, 60), precoCentavos: o.precoCentavos, duracaoMin: o.duracaoMin, ordem } }),
+    ),
+    db.servicoInsumo.deleteMany({ where: { servicoId } }),
+    db.servicoInsumo.createMany({ data: material.map((m: { produtoId: string; quantidade: number }) => ({ ...m, servicoId })), skipDuplicates: true }),
+  ]);
   revalidatePath("/painel", "layout");
   redirect("/painel/servicos");
 }
@@ -110,6 +162,12 @@ export async function salvarProfissional(_: Resultado, form: FormData): Promise<
     if (!existe) return { erro: "Profissional não encontrado." };
     await db.profissional.update({ where: { id }, data: dados });
   } else {
+    try {
+      await garantirVagaDeProfissional(salaoId);
+    } catch (e) {
+      if (e instanceof LimiteDoPlano) return { erro: e.message };
+      throw e;
+    }
     profissionalId = (await db.profissional.create({ data: { ...dados, salaoId } })).id;
   }
 
@@ -144,7 +202,17 @@ export async function salvarProfissional(_: Resultado, form: FormData): Promise<
 export async function alternarProfissional(form: FormData) {
   const { salaoId } = await exigirGestor();
   const profissional = await db.profissional.findFirst({ where: { id: texto(form, "id"), salaoId } });
-  if (profissional) await db.profissional.update({ where: { id: profissional.id }, data: { ativo: !profissional.ativo } });
+  if (!profissional) return;
+  // reativar conta no limite do plano (Solo = 1 profissional ativa)
+  if (!profissional.ativo) {
+    try {
+      await garantirVagaDeProfissional(salaoId);
+    } catch (e) {
+      if (e instanceof LimiteDoPlano) return;
+      throw e;
+    }
+  }
+  await db.profissional.update({ where: { id: profissional.id }, data: { ativo: !profissional.ativo } });
   revalidatePath("/painel", "layout");
 }
 
@@ -192,6 +260,9 @@ export async function salvarConfiguracoes(_: Resultado, form: FormData): Promise
   const antecedenciaDias = Number(texto(form, "antecedencia"));
   const cancelamentoHoras = Number(texto(form, "cancelamento"));
   const cashbackPct = Number(texto(form, "cashback"));
+  const sinalPct = Number(texto(form, "sinal") || 0);
+  const indicacao = texto(form, "indicacao") ? lerDinheiro(texto(form, "indicacao")) : 0;
+  const linkAvaliacao = texto(form, "avaliacao");
   const cor = texto(form, "cor");
 
   if (!nome) return { erro: "Informe o nome do salão." };
@@ -202,6 +273,9 @@ export async function salvarConfiguracoes(_: Resultado, form: FormData): Promise
     return { erro: "O prazo de cancelamento deve ficar entre 0 e 72 horas." };
   if (!Number.isInteger(cashbackPct) || cashbackPct < 0 || cashbackPct > 50)
     return { erro: "O cashback deve ficar entre 0 e 50%." };
+  if (!Number.isInteger(sinalPct) || sinalPct < 0 || sinalPct > 100) return { erro: "O sinal deve ficar entre 0 e 100%." };
+  if (indicacao === null || indicacao > 100_000) return { erro: "Crédito por indicação inválido. Exemplo: 20,00" };
+  if (linkAvaliacao && !/^https:\/\/\S+$/.test(linkAvaliacao)) return { erro: "O link de avaliação deve começar com https://" };
 
   await db.$transaction([
     db.salao.update({
@@ -219,6 +293,10 @@ export async function salvarConfiguracoes(_: Resultado, form: FormData): Promise
         antecedenciaDias,
         cancelamentoHoras,
         cashbackPct,
+        sinalPct,
+        indicacaoCreditoCentavos: indicacao,
+        linkAvaliacao: linkAvaliacao || null,
+        termoConsentimento: texto(form, "termo").slice(0, 2000) || null,
       },
     }),
   ]);

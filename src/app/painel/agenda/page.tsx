@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarOff, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Avatar, Cabecalho, Vazio } from "@/components/ui";
+import { expirarSinais } from "@/lib/agenda";
 import { exigirSessao } from "@/lib/auth";
+import { descreverItem, lerOpcoes } from "@/lib/pedido";
 import { db } from "@/lib/db";
 import { filialDoPainel, naFilial } from "@/lib/filial";
 import { formatarDinheiro } from "@/lib/formato";
@@ -24,12 +26,14 @@ export const dynamic = "force-dynamic";
 const PX_POR_MIN = 1.7;
 
 const ESTILO_STATUS: Record<string, string> = {
+  AGUARDANDO_SINAL: "border-l-latao-500 border-dashed bg-latao-50/60",
   AGENDADO: "border-l-latao-500 bg-white",
   CONFIRMADO: "border-l-poste-azul bg-[#eef3f8]",
   CONCLUIDO: "border-l-emerald-600 bg-emerald-50",
   FALTOU: "border-l-poste-vermelho bg-poste-vermelho/[0.06] opacity-70",
 };
 const ROTULO_STATUS: Record<string, string> = {
+  AGUARDANDO_SINAL: "Aguardando sinal",
   AGENDADO: "Agendado",
   CONFIRMADO: "Confirmado",
   CONCLUIDO: "Concluído",
@@ -46,6 +50,7 @@ export default async function Agenda({ searchParams }: { searchParams: Promise<{
   const soMeu = sessao.papel === "PROFISSIONAL" && sessao.profissionalId ? { id: sessao.profissionalId } : {};
   const ctx = await filialDoPainel(sessao);
   const varias = ctx.filiais.filter((f) => f.ativo).length > 1;
+  await expirarSinais();
 
   const [horariosDoDia, profissionais, agendamentos, bloqueios] = await Promise.all([
     db.horarioFuncionamento.findMany({
@@ -206,7 +211,7 @@ export default async function Agenda({ searchParams }: { searchParams: Promise<{
                         <p className="truncate font-semibold text-tinta">
                           <span className="tabular-nums">{horaLocal(a.inicio)}</span> · {a.cliente.nome}
                         </p>
-                        {pos.height > 34 && <p className="truncate text-couro-700">{a.servico.nome}</p>}
+                        {pos.height > 34 && <p className="truncate text-couro-700">{descreverItem(a.servico.nome, lerOpcoes(a.opcoes))}</p>}
                         {pos.height > 54 && (
                           <p className="truncate text-couro-400">
                             {ROTULO_STATUS[a.status]}

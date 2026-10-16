@@ -6,7 +6,9 @@ import { FotoUpload } from "@/components/FotoUpload";
 import { Cabecalho, Secao } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatarTelefone } from "@/lib/formato";
+import { TERMO_PADRAO } from "@/lib/anamnese";
+import { formatarDinheiro, formatarTelefone } from "@/lib/formato";
+import { sinalAtivo } from "@/lib/sinal";
 import { enderecoDoSite } from "@/lib/site";
 import { alterarMinhaSenha, salvarConfiguracoes } from "../actions";
 
@@ -39,10 +41,10 @@ export default async function Configuracoes() {
               <FotoUpload nome="capa" inicial={b.capa} rotulo="Foto de capa" formato="largo" tamanho={480} />
             </div>
             <div><label className="label" htmlFor="nome">Nome do salão</label><input id="nome" name="nome" defaultValue={b.nome} className="input" required /></div>
-            <div><label className="label" htmlFor="descricao">Apresentação</label><textarea id="descricao" name="descricao" defaultValue={b.descricao ?? ""} rows={3} className="input" placeholder="Ex.: Salão clássica no centro, com cerveja gelada e sinuca enquanto você espera." /></div>
+            <div><label className="label" htmlFor="descricao">Apresentação</label><textarea id="descricao" name="descricao" defaultValue={b.descricao ?? ""} rows={3} className="input" placeholder="Ex.: Estúdio de cílios e unhas no centro, com café e atendimento sem pressa." /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className="label" htmlFor="telefone">WhatsApp</label><input id="telefone" name="telefone" defaultValue={b.telefone ? formatarTelefone(b.telefone) : ""} className="input" inputMode="tel" /></div>
-              <div><label className="label" htmlFor="instagram">Instagram</label><input id="instagram" name="instagram" defaultValue={b.instagram ? `@${b.instagram}` : ""} className="input" placeholder="@suasalao" /></div>
+              <div><label className="label" htmlFor="instagram">Instagram</label><input id="instagram" name="instagram" defaultValue={b.instagram ? `@${b.instagram}` : ""} className="input" placeholder="@seusalao" /></div>
             </div>
             <div><label className="label" htmlFor="endereco">Endereço</label><input id="endereco" name="endereco" defaultValue={b.endereco ?? ""} className="input" /></div>
             <div className="flex items-center gap-3">
@@ -75,6 +77,38 @@ export default async function Configuracoes() {
                 <label className="label" htmlFor="cashback">Cashback (%)</label>
                 <input id="cashback" name="cashback" type="number" min={0} max={50} className="input" defaultValue={b.cashbackPct} />
                 <p className="mt-1 text-xs text-couro-400">Parte do valor pago que vira crédito para a próxima visita. 0 = desligado.</p>
+              </div>
+            </div>
+          </Secao>
+          <Secao titulo="Sinal, indicação e pós-atendimento">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="label" htmlFor="sinal">Sinal no agendamento online (%)</label>
+                <input id="sinal" name="sinal" type="number" min={0} max={100} className="input" defaultValue={b.sinalPct} />
+                <p className="mt-1 text-xs text-couro-400">
+                  {b.asaasApiKey && b.asaasStatus === "APPROVED"
+                    ? sinalAtivo(b)
+                      ? "Ligado: o cliente paga por Pix para garantir o horário. 0 = desligado."
+                      : "O cliente paga essa parte por Pix para garantir o horário. 0 = desligado."
+                    : "Precisa da conta de recebimento aprovada em Pagamentos online."}
+                </p>
+              </div>
+              <div>
+                <label className="label" htmlFor="indicacao">Crédito por indicação (R$)</label>
+                <input id="indicacao" name="indicacao" className="input" inputMode="decimal" defaultValue={b.indicacaoCreditoCentavos ? (b.indicacaoCreditoCentavos / 100).toFixed(2).replace(".", ",") : ""} placeholder="0,00" />
+                <p className="mt-1 text-xs text-couro-400">
+                  {b.indicacaoCreditoCentavos ? `Quem indica e a amiga ganham ${formatarDinheiro(b.indicacaoCreditoCentavos)} cada.` : "Vazio = desligado. As duas ganham o crédito no 1º atendimento pago da amiga."}
+                </p>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label" htmlFor="avaliacao">Link para avaliar o salão (Google)</label>
+                <input id="avaliacao" name="avaliacao" type="url" className="input" defaultValue={b.linkAvaliacao ?? ""} placeholder="https://g.page/r/..." />
+                <p className="mt-1 text-xs text-couro-400">Vai junto com os cuidados pós-atendimento.</p>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label" htmlFor="termo">Termo da ficha de pré-atendimento</label>
+                <textarea id="termo" name="termo" rows={4} className="input" defaultValue={b.termoConsentimento ?? ""} placeholder={TERMO_PADRAO} />
+                <p className="mt-1 text-xs text-couro-400">O cliente assina pelo celular antes de vir. Vazio = texto padrão. Use {"{salão}"} para o nome do salão.</p>
               </div>
             </div>
           </Secao>

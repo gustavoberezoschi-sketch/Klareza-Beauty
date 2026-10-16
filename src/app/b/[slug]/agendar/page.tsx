@@ -5,13 +5,15 @@ import { ArrowLeft } from "lucide-react";
 import { formatarQuando, horarioEmAberto } from "@/lib/agenda";
 import { clienteLogado } from "@/lib/clienteAuth";
 import { dadosDoAgendamento, estiloDaMarca, planoDoCliente } from "@/lib/publico";
+import { sinalAtivo } from "@/lib/sinal";
 import { Agendar } from "./Agendar";
 
 export const metadata: Metadata = { title: "Agendar horário" };
 export const dynamic = "force-dynamic";
 
-export default async function PaginaAgendar({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PaginaAgendar({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ indicacao?: string }> }) {
   const { slug } = await params;
+  const { indicacao } = await searchParams;
   const dados = await dadosDoAgendamento(slug);
   if (!dados) notFound();
   const { salao: b } = dados;
@@ -50,6 +52,9 @@ export default async function PaginaAgendar({ params }: { params: Promise<{ slug
             filiais={dados.filiais}
             cliente={cliente ? { nome: cliente.nome } : null}
             plano={plano ? { nome: plano.nome, servicoIds: plano.servicoIds, restantes: plano.restantes } : null}
+            sinalPct={sinalAtivo(b) ? b.sinalPct : 0}
+            creditoIndicacao={b.indicacaoCreditoCentavos}
+            indicacaoInicial={(indicacao ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 20)}
             horarioAberto={
               aberto
                 ? { token: aberto.token, quando: formatarQuando(aberto.inicio), descricao: `${aberto.servico.nome} com ${aberto.profissional.nome.split(" ")[0]}` }

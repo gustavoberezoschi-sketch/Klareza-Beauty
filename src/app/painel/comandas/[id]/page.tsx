@@ -10,6 +10,7 @@ import { assinaturaVigente, subtotalDosItens } from "@/lib/comandas";
 import { db } from "@/lib/db";
 import { estoquePorProduto } from "@/lib/estoque";
 import { pacotesDaCliente } from "@/lib/pacotes";
+import { agendamentoDoSinal } from "@/lib/sinal";
 import { FORMAS_PAGAMENTO, NOME_FORMA, formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { formatarDataHora } from "@/lib/tempo";
 import { estornarComanda, estornarFechada, excluirItem, finalizarComanda, incluirPacote, incluirProduto, incluirServico, relancarExtra } from "../actions";
@@ -28,8 +29,13 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
   const aberta = comanda.status === "ABERTA";
   const extra = await db.extraFatura.findUnique({ where: { comandaId: comanda.id } });
   const [servicos, produtos, profissionais, assinatura, pacotes, pacotesCliente] = await Promise.all([
-    db.servico.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: [{ categoria: "asc" }, { nome: "asc" }] }),
-    db.produto.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: { nome: "asc" } }),
+    db.servico.findMany({
+      where: { salaoId: sessao.salaoId, ativo: true },
+      include: { opcoes: { where: { ativo: true }, orderBy: [{ ordem: "asc" }, { precoCentavos: "asc" }] } },
+      orderBy: [{ categoria: "asc" }, { nome: "asc" }],
+    }),
+    // material de uso interno (preço zero) não aparece para venda
+    db.produto.findMany({ where: { salaoId: sessao.salaoId, ativo: true, precoCentavos: { gt: 0 } }, orderBy: { nome: "asc" } }),
     db.profissional.findMany({ where: { salaoId: sessao.salaoId, filialId: comanda.filialId, ativo: true }, orderBy: { nome: "asc" } }),
     comanda.clienteId ? assinaturaVigente(comanda.clienteId) : null,
     db.pacote.findMany({ where: { salaoId: sessao.salaoId, ativo: true }, orderBy: { nome: "asc" } }),
@@ -41,11 +47,15 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
   const subtotal = subtotalDosItens(comanda.itens);
   const bruto = comanda.itens.reduce((s, i) => s + i.quantidade * i.precoUnitCentavos, 0);
   const saldo = comanda.cliente?.saldoCashbackCentavos ?? 0;
+  // sinal pago no agendamento online e ainda não usado: abate ao fechar
+  const comSinal = comanda.agendamento ? await agendamentoDoSinal(db, comanda.agendamento) : null;
+  const sinalDisponivel = aberta && comSinal?.sinalPagoEm && !comSinal.sinalDestino ? (comSinal.sinalCentavos ?? 0) : 0;
 
   const recibo = [
     `*${comanda.salao.nome}* · Comanda #${comanda.numero}`,
     ...comanda.itens.map((i) => `${i.quantidade}x ${i.descricao}: ${i.cobertoPorPlano ? "incluso no plano" : i.pacoteClienteId ? "sessão do pacote" : formatarDinheiro(i.quantidade * i.precoUnitCentavos)}`),
     comanda.descontoCentavos ? `Desconto: -${formatarDinheiro(comanda.descontoCentavos)}` : "",
+    comanda.sinalCentavos ? `Sinal pago (Pix): -${formatarDinheiro(comanda.sinalCentavos)}` : "",
     comanda.cashbackUsadoCentavos ? `Cashback usado: -${formatarDinheiro(comanda.cashbackUsadoCentavos)}` : "",
     `*Total: ${formatarDinheiro(comanda.totalCentavos)}* (${NOME_FORMA[comanda.formaPagamento ?? ""] ?? ""})`,
     comanda.cashbackGeradoCentavos ? `Você ganhou ${formatarDinheiro(comanda.cashbackGeradoCentavos)} de cashback para a próxima visita!` : "",
@@ -152,7 +162,19 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                 <FormAcao acao={incluirServico} className="grid gap-3">
                   <input type="hidden" name="comandaId" value={comanda.id} />
                   <select name="servicoId" className="input" required aria-label="Serviço">
-                    {servicos.map((s) => <option key={s.id} value={s.id}>{s.nome} · {formatarDinheiro(s.precoCentavos)}</option>)}
+                    {servicos.map((s) => {
+                      const variacoes = s.opcoes.filter((o) => o.tipo === "VARIACAO");
+                      const adicionais = s.opcoes.filter((o) => o.tipo === "ADICIONAL");
+                      return variacoes.length || adicionais.length ? (
+                        <optgroup key={s.id} label={s.nome}>
+                          {variacoes.length === 0 && <option value={`s:${s.id}`}>{s.nome} · {formatarDinheiro(s.precoCentavos)}</option>}
+                          {variacoes.map((v) => <option key={v.id} value={`v:${s.id}:${v.id}`}>{s.nome} · {v.nome} · {formatarDinheiro(v.precoCentavos)}</option>)}
+                          {adicionais.map((a) => <option key={a.id} value={`a:${s.id}:${a.id}`}>+ {a.nome} (adicional) · {formatarDinheiro(a.precoCentavos)}</option>)}
+                        </optgroup>
+                      ) : (
+                        <option key={s.id} value={`s:${s.id}`}>{s.nome} · {formatarDinheiro(s.precoCentavos)}</option>
+                      );
+                    })}
                   </select>
                   {!sessao.profissionalId && (
                     <select name="profissionalId" className="input" defaultValue={comanda.profissionalId ?? ""} aria-label="Profissional">
@@ -224,7 +246,11 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                 {bruto !== subtotal && (
                   <div className="flex justify-between"><dt className="text-couro-400">Plano e pacotes</dt><dd className="tabular-nums">-{formatarDinheiro(bruto - subtotal)}</dd></div>
                 )}
-                <div className="flex justify-between border-t border-black/[0.06] pt-2 text-base font-semibold"><dt>A cobrar</dt><dd className="numero">{formatarDinheiro(subtotal)}</dd></div>
+                {sinalDisponivel > 0 && (
+                  <div className="flex justify-between"><dt className="text-couro-400">Sinal pago (Pix)</dt><dd className="tabular-nums">-{formatarDinheiro(Math.min(sinalDisponivel, subtotal))}</dd></div>
+                )}
+                <div className="flex justify-between border-t border-black/[0.06] pt-2 text-base font-semibold"><dt>A cobrar</dt><dd className="numero">{formatarDinheiro(Math.max(0, subtotal - sinalDisponivel))}</dd></div>
+                {sinalDisponivel > subtotal && <p className="text-xs text-couro-400">A sobra do sinal ({formatarDinheiro(sinalDisponivel - subtotal)}) vira crédito do cliente.</p>}
               </dl>
               <FormAcao acao={finalizarComanda} className="mt-4 grid gap-4">
                 <input type="hidden" name="comandaId" value={comanda.id} />
@@ -268,6 +294,7 @@ export default async function Comanda({ params }: { params: Promise<{ id: string
                 <div className="flex justify-between"><dt className="text-couro-400">Itens</dt><dd className="tabular-nums">{formatarDinheiro(bruto)}</dd></div>
                 {bruto !== subtotal && <div className="flex justify-between"><dt className="text-couro-400">Plano e pacotes</dt><dd>-{formatarDinheiro(bruto - subtotal)}</dd></div>}
                 {comanda.descontoCentavos > 0 && <div className="flex justify-between"><dt className="text-couro-400">Desconto</dt><dd>-{formatarDinheiro(comanda.descontoCentavos)}</dd></div>}
+                {comanda.sinalCentavos > 0 && <div className="flex justify-between"><dt className="text-couro-400">Sinal pago (Pix)</dt><dd>-{formatarDinheiro(comanda.sinalCentavos)}</dd></div>}
                 {comanda.cashbackUsadoCentavos > 0 && <div className="flex justify-between"><dt className="text-couro-400">Cashback usado</dt><dd>-{formatarDinheiro(comanda.cashbackUsadoCentavos)}</dd></div>}
                 <div className="flex justify-between border-t border-black/[0.06] pt-2 text-base font-semibold"><dt>Total pago</dt><dd className="numero">{formatarDinheiro(comanda.totalCentavos)}</dd></div>
                 <div className="flex justify-between"><dt className="text-couro-400">Pagamento</dt><dd>{NOME_FORMA[comanda.formaPagamento ?? ""] ?? "—"}</dd></div>

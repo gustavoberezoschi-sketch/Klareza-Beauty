@@ -31,7 +31,7 @@ export default async function Comandas({ searchParams }: { searchParams: Promise
       orderBy: { fechadaEm: "desc" },
     }),
   ]);
-  const total = fechadas.filter((c) => c.status === "FECHADA").reduce((s, c) => s + c.totalCentavos, 0);
+  const total = fechadas.filter((c) => c.status === "FECHADA").reduce((s, c) => s + c.totalCentavos + c.sinalCentavos, 0);
 
   return (
     <div>

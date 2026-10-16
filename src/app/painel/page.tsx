@@ -50,7 +50,7 @@ export default async function Inicio() {
       }),
       db.comanda.findMany({
         where: { salaoId, ...filtro, status: "FECHADA", fechadaEm: { gte: de(mesPassado.inicio < iniGrafico ? mesPassado.inicio : iniGrafico), lt: fimHoje } },
-        select: { totalCentavos: true, fechadaEm: true },
+        select: { totalCentavos: true, sinalCentavos: true, fechadaEm: true },
       }),
       db.comanda.count({ where: { salaoId, ...filtro, status: "ABERTA" } }),
       db.caixa.findMany({ where: { salaoId, ...filtro, fechadoEm: null }, include: { filial: true } }),
@@ -68,7 +68,7 @@ export default async function Inicio() {
   const lembretesAmanha = new Set(semLembrete.map((a) => a.grupo ?? a.id)).size;
 
   const somaEntre = (ini: string, fim: string) =>
-    comandasPeriodo.filter((c) => c.fechadaEm && c.fechadaEm >= de(ini) && c.fechadaEm < ate(fim)).reduce((s, c) => s + c.totalCentavos, 0);
+    comandasPeriodo.filter((c) => c.fechadaEm && c.fechadaEm >= de(ini) && c.fechadaEm < ate(fim)).reduce((s, c) => s + c.totalCentavos + c.sinalCentavos, 0);
   const contaEntre = (ini: string, fim: string) => comandasPeriodo.filter((c) => c.fechadaEm && c.fechadaEm >= de(ini) && c.fechadaEm < ate(fim)).length;
   const fatHoje = somaEntre(hoje, hoje);
   const fatMes = somaEntre(mes.inicio, hoje);

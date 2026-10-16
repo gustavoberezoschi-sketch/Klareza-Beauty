@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { comTravaDaAgenda, obterOuCriarCliente, temConflito } from "@/lib/agenda";
 import { type Sessao, exigirSessao } from "@/lib/auth";
 import { abrirComanda } from "@/lib/comandas";
+import { ajustarSinalPeloStatus } from "@/lib/sinal";
 import { db } from "@/lib/db";
 import { somenteDigitos } from "@/lib/formato";
 import { criarDataHora, diaValido } from "@/lib/tempo";
@@ -107,10 +108,16 @@ export async function mudarStatus(form: FormData) {
   const sessao = await exigirSessao();
   const status = texto(form, "status");
   if (!["AGENDADO", "CONFIRMADO", "CANCELADO", "FALTOU"].includes(status)) return;
-  await db.agendamento.updateMany({
-    // concluído por comanda não muda; concluído pelo check-in automático ainda pode virar "faltou"
-    where: { id: texto(form, "id"), salaoId: sessao.salaoId, OR: [{ status: { not: "CONCLUIDO" } }, { checkinAutoEm: { not: null } }], ...escopo(sessao) },
-    data: { status, checkinAutoEm: null },
+  await db.$transaction(async (tx) => {
+    const r = await tx.agendamento.updateMany({
+      // concluído por comanda não muda; concluído pelo check-in automático ainda pode virar "faltou"
+      where: { id: texto(form, "id"), salaoId: sessao.salaoId, OR: [{ status: { not: "CONCLUIDO" } }, { checkinAutoEm: { not: null } }], ...escopo(sessao) },
+      data: { status, checkinAutoEm: null },
+    });
+    if (!r.count) return;
+    // sinal pago: cancelado vira crédito do cliente; faltou, o salão fica com ele
+    const ag = await tx.agendamento.findUniqueOrThrow({ where: { id: texto(form, "id") }, select: { id: true, grupo: true } });
+    await ajustarSinalPeloStatus(tx, ag, status);
   });
   revalidatePath("/painel", "layout");
 }

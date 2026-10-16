@@ -206,7 +206,7 @@ export default async function Landing() {
       {/* Planos */}
       <section id="planos" className="mx-auto max-w-7xl scroll-mt-16 px-5 py-24 sm:py-32">
         <h2 data-revela className="lp-titulo text-5xl sm:text-7xl">Planos</h2>
-        <div className="mt-14 grid gap-4 lg:grid-cols-3">
+        <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {CODIGOS_PLANO.map((c, i) => {
             const p = PLANOS_SISTEMA[c];
             const forte = c === "CIDADE";
@@ -221,7 +221,7 @@ export default async function Landing() {
                   <p className="text-xl font-semibold">{p.nome}</p>
                   {forte && <span className="rounded-full bg-white/10 px-3 py-1 text-xs">Para 2 unidades</span>}
                 </div>
-                <p className="lp-titulo mt-8 text-6xl">
+                <p className="lp-titulo mt-8 text-5xl">
                   {real(p.mensal)}
                   <span className={`ml-1 font-sans text-base font-normal tracking-normal ${forte ? "text-white/60" : "text-[var(--lp-cinza)]"}`}>/mês</span>
                 </p>
@@ -232,7 +232,7 @@ export default async function Landing() {
                   <li>{p.unidades === null ? "Unidades ilimitadas" : p.unidades === 1 ? "1 unidade" : `${p.unidades} unidades`}</li>
                   <li>{p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes no clube`}</li>
                   <li>Todos os recursos inclusos</li>
-                  <li>Equipe ilimitada</li>
+                  <li>{p.profissionais === null ? "Equipe ilimitada" : "1 profissional (autônoma)"}</li>
                   <li className="font-medium">+ Placa de acrílico com QR code (brinde)</li>
                 </ul>
                 <a

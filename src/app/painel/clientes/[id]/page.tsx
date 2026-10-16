@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, CalendarDays, ClipboardList, Crown, Gift, ImageIcon, MessageCircle, ReceiptText, Ticket, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarDays, ClipboardList, Crown, FlaskConical, Gift, ImageIcon, MessageCircle, ReceiptText, Ticket, Trash2, UserPlus } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { FotoUpload } from "@/components/FotoUpload";
 import { Cabecalho, Etiqueta, Indicador, Secao } from "@/components/ui";
@@ -15,12 +15,13 @@ import { enderecoDoSite } from "@/lib/site";
 import { diaLocal, formatarDataHora, formatarDia } from "@/lib/tempo";
 import { definirSenhaDoApp, salvarCliente } from "../../actions";
 import { novaComanda } from "../../comandas/actions";
-import { adicionarFoto, excluirFoto, salvarAnamnese } from "../actions";
+import { adicionarFormula, adicionarFoto, alternarFotoPublica, excluirFormula, excluirFoto, salvarAnamnese } from "../actions";
 
 export const metadata: Metadata = { title: "Cliente" };
 export const dynamic = "force-dynamic";
 
 const STATUS: Record<string, { r: string; t: "latao" | "azul" | "verde" | "neutro" | "vermelho" }> = {
+  AGUARDANDO_SINAL: { r: "Aguardando sinal", t: "latao" },
   AGENDADO: { r: "Agendado", t: "latao" },
   CONFIRMADO: { r: "Confirmado", t: "azul" },
   CONCLUIDO: { r: "Concluído", t: "verde" },
@@ -42,6 +43,9 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
       assinaturas: { include: { plano: true }, orderBy: { criadoEm: "desc" } },
       salao: { select: { nome: true, slug: true } },
       fotos: { orderBy: { criadoEm: "desc" } },
+      formulas: { orderBy: { criadoEm: "desc" } },
+      indicadoPor: { select: { id: true, nome: true } },
+      _count: { select: { indicadas: true } },
     },
   });
   if (!c) notFound();
@@ -51,7 +55,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
   const site = await enderecoDoSite();
   const ctx = await filialDoPainel(sessao);
 
-  const gasto = c.comandas.reduce((s, x) => s + x.totalCentavos, 0);
+  const gasto = c.comandas.reduce((s, x) => s + x.totalCentavos + x.sinalCentavos, 0);
   const visitas = c.comandas.length;
   const datas = c.comandas.map((x) => x.fechadaEm!.getTime()).sort((a, b) => a - b);
   const frequencia = datas.length > 1 ? Math.round((datas[datas.length - 1] - datas[0]) / 864e5 / (datas.length - 1)) : null;
@@ -72,7 +76,17 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
             {alertas.length > 0 && <Etiqueta tom="vermelho"><AlertTriangle className="mr-1 size-3" /> Atenção na ficha</Etiqueta>}
           </span>
         }
-        descricao={`${formatarTelefone(c.telefone)} · cliente desde ${formatarDia(diaLocal(c.criadoEm))}`}
+        descricao={
+          <>
+            {formatarTelefone(c.telefone)} · cliente desde {formatarDia(diaLocal(c.criadoEm))}
+            {c.indicadoPor && (
+              <>
+                {" "}· <UserPlus className="inline size-3.5" /> indicado por <Link href={`/painel/clientes/${c.indicadoPor.id}`} className="underline">{c.indicadoPor.nome}</Link>
+              </>
+            )}
+            {c._count.indicadas > 0 && ` · indicou ${c._count.indicadas} pessoa(s)`}
+          </>
+        }
         acoes={
           <>
             <a href={linkWhatsApp(c.telefone, `Olá, ${c.nome.split(" ")[0]}! Que tal agendar seu próximo horário no ${c.salao.nome}? ${site}/b/${c.salao.slug}`)} target="_blank" className="btn-secundario">
@@ -142,7 +156,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
           </Secao>
           <Secao titulo="Antes e depois">
             {c.fotos.length === 0 ? (
-              <p className="mb-4 text-sm text-couro-400">Nenhuma foto ainda. As fotos ficam só no painel, o cliente não vê.</p>
+              <p className="mb-4 text-sm text-couro-400">Nenhuma foto ainda. As fotos ficam só no painel; com a autorização do cliente, dá para publicar na galeria da página do salão.</p>
             ) : (
               <ul className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {c.fotos.map((f) => (
@@ -154,6 +168,15 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
                         <strong>{f.tipo === "DEPOIS" ? "Depois" : "Antes"}</strong> · {formatarDia(diaLocal(f.criadoEm)).slice(0, 5)}
                         {f.legenda && ` · ${f.legenda}`}
                       </span>
+                      <form action={alternarFotoPublica}>
+                        <input type="hidden" name="id" value={f.id} />
+                        <button
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${f.publica ? "bg-emerald-600/10 text-emerald-700" : "text-couro-400 hover:text-tinta"}`}
+                          title={f.publica ? "Aparece na página do salão. Toque para esconder." : "Mostrar na galeria da página do salão (só com autorização do cliente)"}
+                        >
+                          {f.publica ? "Na galeria" : "Publicar"}
+                        </button>
+                      </form>
                       <form action={excluirFoto}>
                         <input type="hidden" name="id" value={f.id} />
                         <button className="rounded p-1 text-couro-300 hover:text-poste-vermelho" aria-label="Apagar foto"><Trash2 className="size-3.5" /></button>
@@ -176,6 +199,33 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
                 </div>
                 <button className="btn-secundario"><ImageIcon className="size-4" /> Guardar foto</button>
               </div>
+            </FormAcao>
+          </Secao>
+          <Secao titulo={<span className="flex items-center gap-2"><FlaskConical className="size-4" /> Fórmulas e técnicas</span>}>
+            {c.formulas.length === 0 ? (
+              <p className="mb-3 text-sm text-couro-400">Guarde a receita usada (coloração: marcas, tons, proporção e tempo de pausa) para repetir igual na volta.</p>
+            ) : (
+              <ul className="mb-4 space-y-2">
+                {c.formulas.map((f) => (
+                  <li key={f.id} className="rounded-xl bg-fundo p-3 text-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold">{f.titulo}</p>
+                      <form action={excluirFormula}>
+                        <input type="hidden" name="id" value={f.id} />
+                        <button className="rounded p-1 text-couro-300 hover:text-poste-vermelho" aria-label="Apagar fórmula"><Trash2 className="size-3.5" /></button>
+                      </form>
+                    </div>
+                    <p className="mt-1 whitespace-pre-line text-couro-700">{f.formula}</p>
+                    <p className="mt-1 text-xs text-couro-400">{formatarDataHora(f.criadoEm)}{f.autor && ` · ${f.autor}`}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <FormAcao acao={adicionarFormula} limparAoSalvar className="grid gap-2">
+              <input type="hidden" name="clienteId" value={c.id} />
+              <input name="titulo" className="input" placeholder="Serviço (ex.: Coloração raiz)" maxLength={80} aria-label="Serviço" />
+              <textarea name="formula" rows={2} className="input" placeholder="Ex.: 30 g 6.1 + 30 g OX 20 vol · 35 min de pausa" maxLength={2000} aria-label="Fórmula" />
+              <button className="btn-secundario">Guardar fórmula</button>
             </FormAcao>
           </Secao>
           <Secao titulo={<span className="flex items-center gap-2"><ClipboardList className="size-4" /> Ficha de anamnese</span>}>
@@ -210,6 +260,14 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
               </label>
               <button className="btn-primario">Salvar ficha</button>
             </FormAcao>
+            {c.termoAssinatura && c.termoAssinadoEm && (
+              <div className="mt-4 rounded-xl border border-black/10 p-3 text-sm">
+                <p className="font-semibold">Termo assinado pelo cliente</p>
+                <p className="text-xs text-couro-400">{c.termoNome} · {formatarDataHora(c.termoAssinadoEm)}{c.termoIp && ` · IP ${c.termoIp}`}</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={c.termoAssinatura} alt={`Assinatura de ${c.termoNome}`} className="mt-2 h-20 rounded-lg bg-white" />
+              </div>
+            )}
           </Secao>
         </div>
         <div className="space-y-4">

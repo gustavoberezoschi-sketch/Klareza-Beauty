@@ -14,6 +14,7 @@ export type Atendimento = {
 };
 
 const STATUS: Record<string, { r: string; c: string }> = {
+  AGUARDANDO_SINAL: { r: "Aguardando o sinal", c: "text-latao-700" },
   AGENDADO: { r: "Agendado", c: "text-[var(--cor)]" },
   CONFIRMADO: { r: "Confirmado", c: "text-poste-azul" },
   CONCLUIDO: { r: "Concluído", c: "text-emerald-700" },

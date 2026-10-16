@@ -6,17 +6,19 @@ import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { FormAcao } from "@/components/FormAcao";
 import { Avatar, Cabecalho, Etiqueta, Secao } from "@/components/ui";
 import { exigirSessao } from "@/lib/auth";
+import { descreverItem, lerOpcoes } from "@/lib/pedido";
 import { db } from "@/lib/db";
-import { formatarDinheiro, formatarTelefone } from "@/lib/formato";
+import { formatarDinheiro, formatarTelefone, linkWhatsApp } from "@/lib/formato";
 import { MSG_CONFIRMACAO_PADRAO, MSG_LEMBRETE_PADRAO, linkDaMensagem } from "@/lib/mensagens";
 import { enderecoDoSite } from "@/lib/site";
-import { diaLocal, formatarDiaExtenso, horaLocal } from "@/lib/tempo";
+import { diaLocal, formatarDataHora, formatarDiaExtenso, horaLocal } from "@/lib/tempo";
 import { iniciarAtendimento, mudarStatus, remarcarAgendamento } from "../../agenda/actions";
 
 export const metadata: Metadata = { title: "Agendamento" };
 export const dynamic = "force-dynamic";
 
 const STATUS = {
+  AGUARDANDO_SINAL: { rotulo: "Aguardando sinal", tom: "latao" },
   AGENDADO: { rotulo: "Agendado", tom: "latao" },
   CONFIRMADO: { rotulo: "Confirmado", tom: "azul" },
   CONCLUIDO: { rotulo: "Concluído", tom: "verde" },
@@ -50,13 +52,16 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
     cliente: ag.cliente.nome,
     salao: ag.salao.nome,
     inicio: grupo[0].inicio,
-    servicos: grupo.map((g) => g.servico.nome),
+    servicos: grupo.map((g) => descreverItem(g.servico.nome, lerOpcoes(g.opcoes))),
     profissional: ag.profissional.nome,
     unidade: ag.filial.nome,
     endereco: ag.filial.endereco,
     link: `${await enderecoDoSite()}/b/${ag.salao.slug}/agendamento/${grupo[0].token}`,
   };
   const ids = grupo.map((g) => g.id);
+  const comSinal = grupo.find((g) => g.sinalCentavos) ?? null;
+  const SINAL: Record<string, string> = { USADO: "usado na comanda", CREDITO: "devolvido como crédito", RETIDO: "retido (faltou)" };
+  const fichaEmDia = !!ag.cliente.anamneseEm && ag.cliente.anamneseEm > new Date(Date.now() - 365 * 864e5);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -88,7 +93,7 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
         <div className="space-y-4">
           <Secao titulo="Detalhes">
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
-              <Info icone={Sparkles} rotulo="Serviço" valor={`${ag.servico.nome} · ${formatarDinheiro(ag.precoCentavos)}`} />
+              <Info icone={Sparkles} rotulo="Serviço" valor={`${descreverItem(ag.servico.nome, lerOpcoes(ag.opcoes))} · ${formatarDinheiro(ag.precoCentavos)}`} />
               <Info icone={Clock} rotulo="Horário" valor={`${horaLocal(ag.inicio)} às ${horaLocal(ag.fim)}`} />
               <div className="flex items-center gap-3">
                 <Avatar nome={ag.profissional.nome} foto={ag.profissional.foto} tamanho={36} />
@@ -100,6 +105,28 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
               <Info icone={CalendarCheck} rotulo="Origem" valor={ag.origem === "ONLINE" ? "Agendou pelo link" : "Agendado no balcão"} />
             </dl>
             {ag.observacao && <p className="mt-4 rounded-xl bg-fundo p-3 text-sm">{ag.observacao}</p>}
+            {comSinal && (
+              <p className="mt-4 rounded-xl bg-fundo p-3 text-sm">
+                <strong>Sinal de {formatarDinheiro(comSinal.sinalCentavos!)}</strong>:{" "}
+                {comSinal.sinalPagoEm
+                  ? `pago por Pix em ${formatarDataHora(comSinal.sinalPagoEm)}${comSinal.sinalDestino ? ` · ${SINAL[comSinal.sinalDestino] ?? ""}` : " · será descontado na comanda"}`
+                  : "aguardando o Pix do cliente (o horário fica reservado por 30 minutos)"}
+              </p>
+            )}
+            {(aberto || ag.status === "AGUARDANDO_SINAL") && (
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-black/10 p-3 text-sm">
+                <span>{fichaEmDia ? "Ficha de pré-atendimento em dia." : "O cliente ainda não preencheu a ficha de pré-atendimento."}</span>
+                {!fichaEmDia && (
+                  <a
+                    href={linkWhatsApp(ag.cliente.telefone, `Oi, ${ag.cliente.nome.split(" ")[0]}! Antes do seu horário, preencha sua ficha rapidinho (2 min), para o atendimento ser seguro: ${dadosMsg.link}/ficha`)}
+                    target="_blank"
+                    className="btn-secundario btn-pequeno"
+                  >
+                    Enviar ficha pelo WhatsApp
+                  </a>
+                )}
+              </div>
+            )}
           </Secao>
 
           {aberto && (

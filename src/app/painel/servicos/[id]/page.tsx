@@ -13,10 +13,17 @@ export default async function EditarServico({ params }: { params: Promise<{ id: 
   const { salaoId } = await exigirGestor();
   const id = (await params).id;
   const novo = id === "novo";
-  const [servico, profissionais, categorias] = await Promise.all([
-    novo ? null : db.servico.findFirst({ where: { id, salaoId }, include: { profissionais: { select: { id: true } } } }),
+  const [servico, profissionais, categorias, outros, produtos] = await Promise.all([
+    novo
+      ? null
+      : db.servico.findFirst({
+          where: { id, salaoId },
+          include: { profissionais: { select: { id: true } }, opcoes: { orderBy: [{ ordem: "asc" }, { precoCentavos: "asc" }] }, insumos: true },
+        }),
     db.profissional.findMany({ where: { salaoId, ativo: true }, orderBy: { nome: "asc" } }),
     db.servico.findMany({ where: { salaoId }, distinct: ["categoria"], select: { categoria: true } }),
+    db.servico.findMany({ where: { salaoId, ativo: true, ...(novo ? {} : { id: { not: id } }) }, select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
+    db.produto.findMany({ where: { salaoId, ativo: true }, select: { id: true, nome: true, custoCentavos: true }, orderBy: { nome: "asc" } }),
   ]);
   if (!novo && !servico) notFound();
 
@@ -34,7 +41,7 @@ export default async function EditarServico({ params }: { params: Promise<{ id: 
           )
         }
       />
-      <FormServico servico={servico ?? undefined} profissionais={profissionais} categorias={categorias.map((c) => c.categoria)} />
+      <FormServico servico={servico ?? undefined} profissionais={profissionais} categorias={categorias.map((c) => c.categoria)} outrosServicos={outros} produtos={produtos} />
     </div>
   );
 }

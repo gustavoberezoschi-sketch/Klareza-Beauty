@@ -1,7 +1,10 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 import { movimentarEstoque } from "./estoque";
+import { creditarIndicacao } from "./indicacao";
 import { itemSemCobranca, pacoteParaServico } from "./pacotes";
+import { ErroPedido, descreverItem, lerOpcoes, resolverItens } from "./pedido";
+import { agendamentoDoSinal } from "./sinal";
 import { diaLocal, limitesDoMes, criarDataHora, somarDias } from "./tempo";
 
 type Tx = Prisma.TransactionClient;
@@ -62,6 +65,8 @@ async function montarItemServico(
   profissionalId: string | null,
   clienteId: string | null,
   auxiliarId: string | null = null,
+  /** preço e descrição já definidos (agendamento com variação/adicionais, ou adicional avulso) */
+  definido?: { precoCentavos: number; descricao: string; semCobertura?: boolean },
 ) {
   const servico = await tx.servico.findFirstOrThrow({ where: { id: servicoId, salaoId } });
   // profissional sempre do mesmo salão (o id vem do formulário)
@@ -72,7 +77,7 @@ async function montarItemServico(
   if (auxiliar && auxiliar.id === profissionalId) throw new ErroComanda("A auxiliar precisa ser outra pessoa.");
 
   let cobertoPorPlano = false;
-  if (clienteId) {
+  if (clienteId && !definido?.semCobertura) {
     const assinatura = await assinaturaVigente(clienteId, tx);
     if (assinatura && assinatura.plano.servicos.some((s) => s.id === servicoId)) {
       const limite = assinatura.plano.usosPorMes;
@@ -80,7 +85,7 @@ async function montarItemServico(
     }
   }
   // Sem plano cobrindo: usa uma sessão de pacote, se a cliente tiver
-  const pacote = clienteId && !cobertoPorPlano ? await pacoteParaServico(tx, clienteId, servicoId) : null;
+  const pacote = clienteId && !cobertoPorPlano && !definido?.semCobertura ? await pacoteParaServico(tx, clienteId, servicoId) : null;
 
   return tx.comandaItem.create({
     data: {
@@ -88,8 +93,8 @@ async function montarItemServico(
       tipo: "SERVICO",
       servicoId,
       profissionalId,
-      descricao: servico.nome,
-      precoUnitCentavos: servico.precoCentavos,
+      descricao: definido?.descricao ?? servico.nome,
+      precoUnitCentavos: definido?.precoCentavos ?? servico.precoCentavos,
       comissaoPct: servico.comissaoPct ?? profissional?.comissaoPct ?? 0,
       auxiliarId: auxiliar?.id ?? null,
       comissaoAuxiliarPct: auxiliar?.comissaoAuxiliarPct ?? 0,
@@ -109,7 +114,7 @@ export async function abrirComanda(params: {
 }) {
   return db.$transaction(async (tx) => {
     let { clienteId = null, profissionalId = null, filialId = null } = params;
-    let servicos: { servicoId: string; profissionalId: string }[] = [];
+    let servicos: { servicoId: string; profissionalId: string; precoCentavos: number; descricao: string }[] = [];
 
     if (params.agendamentoId) {
       const ag = await tx.agendamento.findFirstOrThrow({
@@ -124,12 +129,13 @@ export async function abrirComanda(params: {
       });
       if (existente) return existente;
       const doGrupo = ag.grupo
-        ? await tx.agendamento.findMany({ where: { grupo: ag.grupo, status: { not: "CANCELADO" } }, orderBy: { inicio: "asc" } })
-        : [ag];
+        ? await tx.agendamento.findMany({ where: { grupo: ag.grupo, status: { not: "CANCELADO" } }, orderBy: { inicio: "asc" }, include: { servico: { select: { nome: true } } } })
+        : [{ ...ag, servico: await tx.servico.findUniqueOrThrow({ where: { id: ag.servicoId }, select: { nome: true } }) }];
       clienteId = ag.clienteId;
       profissionalId = ag.profissionalId;
       filialId = ag.filialId;
-      servicos = doGrupo.map((a) => ({ servicoId: a.servicoId, profissionalId: a.profissionalId }));
+      // preço do agendamento (variação, adicionais e manutenção por prazo já calculados)
+      servicos = doGrupo.map((a) => ({ servicoId: a.servicoId, profissionalId: a.profissionalId, precoCentavos: a.precoCentavos, descricao: descreverItem(a.servico.nome, lerOpcoes(a.opcoes)) }));
     }
 
     if (!filialId && profissionalId) filialId = (await tx.profissional.findUnique({ where: { id: profissionalId } }))?.filialId ?? null;
@@ -145,7 +151,8 @@ export async function abrirComanda(params: {
         caixaId: caixa?.id ?? null,
       },
     });
-    for (const item of servicos) await montarItemServico(tx, params.salaoId, comanda.id, item.servicoId, item.profissionalId, clienteId);
+    for (const item of servicos)
+      await montarItemServico(tx, params.salaoId, comanda.id, item.servicoId, item.profissionalId, clienteId, null, { precoCentavos: item.precoCentavos, descricao: item.descricao });
     return comanda;
   });
 }
@@ -157,12 +164,36 @@ async function comandaAberta(tx: Tx, salaoId: string, comandaId: string) {
   return comanda;
 }
 
-export async function adicionarServico(salaoId: string, comandaId: string, servicoId: string, profissionalId: string | null, auxiliarId: string | null = null) {
+/**
+ * escolha: "s:<servico>" (serviço), "v:<servico>:<variação>" ou "a:<servico>:<adicional>" (adicional numa linha própria).
+ * O preço considera a manutenção por prazo do cliente; vencida, cobra o valor da aplicação.
+ */
+export async function adicionarServico(salaoId: string, comandaId: string, escolha: string, profissionalId: string | null, auxiliarId: string | null = null) {
+  const [tipo, servicoId, opcaoId] = escolha.includes(":") ? escolha.split(":") : ["s", escolha];
   return db.$transaction(async (tx) => {
     const comanda = await comandaAberta(tx, salaoId, comandaId);
-    const servico = await tx.servico.findFirst({ where: { id: servicoId, salaoId } });
+    const servico = await tx.servico.findFirst({ where: { id: servicoId ?? "", salaoId } });
     if (!servico) throw new ErroComanda("Serviço não encontrado.");
-    return montarItemServico(tx, salaoId, comanda.id, servicoId, profissionalId ?? comanda.profissionalId, comanda.clienteId, auxiliarId);
+    const quem = profissionalId ?? comanda.profissionalId;
+    if (tipo === "a") {
+      const adicional = await tx.servicoOpcao.findFirst({ where: { id: opcaoId ?? "", servicoId: servico.id, tipo: "ADICIONAL" } });
+      if (!adicional) throw new ErroComanda("Adicional não encontrado.");
+      return montarItemServico(tx, salaoId, comanda.id, servico.id, quem, comanda.clienteId, auxiliarId, {
+        precoCentavos: adicional.precoCentavos,
+        descricao: `${adicional.nome} (adicional de ${servico.nome})`,
+        semCobertura: true,
+      });
+    }
+    try {
+      const [item] = await resolverItens(salaoId, [{ servicoId: servico.id, variacaoId: tipo === "v" ? opcaoId : null }], tx, {
+        clienteId: comanda.clienteId,
+        manutencaoVencida: "aplicacao",
+      });
+      return montarItemServico(tx, salaoId, comanda.id, servico.id, quem, comanda.clienteId, auxiliarId, { precoCentavos: item.precoCentavos, descricao: item.descricao });
+    } catch (e) {
+      if (e instanceof ErroPedido) throw new ErroComanda(e.message);
+      throw e;
+    }
   });
 }
 
@@ -260,10 +291,22 @@ export async function fecharComanda(
 
     const subtotal = subtotalDosItens(itens);
     const desconto = Math.min(Math.max(0, opcoes.descontoCentavos), subtotal);
+    // Sinal pago no agendamento online: abate primeiro; o que sobrar vira crédito do cliente
+    const comSinal = comanda.agendamentoId
+      ? await agendamentoDoSinal(tx, await tx.agendamento.findUniqueOrThrow({ where: { id: comanda.agendamentoId }, select: { id: true, grupo: true } }))
+      : null;
+    const sinal = comSinal?.sinalPagoEm && !comSinal.sinalDestino ? (comSinal.sinalCentavos ?? 0) : 0;
+    const sinalAplicado = Math.min(sinal, subtotal - desconto);
+    const sobraDoSinal = sinal - sinalAplicado;
     const cashbackUsado =
-      opcoes.usarCashback && cliente ? Math.min(cliente.saldoCashbackCentavos, subtotal - desconto) : 0;
-    const total = subtotal - desconto - cashbackUsado;
-    const cashbackGerado = cliente ? Math.floor((total * salao.cashbackPct) / 100) : 0;
+      opcoes.usarCashback && cliente ? Math.min(cliente.saldoCashbackCentavos, subtotal - desconto - sinalAplicado) : 0;
+    const total = subtotal - desconto - sinalAplicado - cashbackUsado;
+    const cashbackGerado = cliente ? Math.floor(((total + sinalAplicado) * salao.cashbackPct) / 100) + sobraDoSinal : 0;
+    if (comSinal && sinal) {
+      const r = await tx.agendamento.updateMany({ where: { id: comSinal.id, sinalDestino: null }, data: { sinalDestino: "USADO" } });
+      if (r.count === 0) throw new ErroComanda("O sinal deste agendamento acabou de ser usado. Tente fechar de novo.");
+    }
+    if (cliente && total + sinalAplicado > 0) await creditarIndicacao(tx, cliente.id, salao.indicacaoCreditoCentavos);
 
     for (const item of itens) {
       if (item.tipo !== "PRODUTO" || !item.produtoId) continue;
@@ -323,7 +366,8 @@ export async function fecharComanda(
         cashbackUsadoCentavos: cashbackUsado,
         cashbackGeradoCentavos: cashbackGerado,
         totalCentavos: total,
-        formaPagamento: total > 0 ? opcoes.formaPagamento : "SEM_COBRANCA",
+        sinalCentavos: sinalAplicado,
+        formaPagamento: total > 0 ? opcoes.formaPagamento : sinalAplicado > 0 ? "PIX" : "SEM_COBRANCA",
         caixaId: caixa?.id ?? comanda.caixaId,
       },
     });
@@ -367,6 +411,11 @@ export async function cancelarComanda(salaoId: string, comandaId: string) {
         where: await filtroDoAtendimento(tx, comanda.agendamentoId),
         data: { status: "AGENDADO", formaPagamento: null },
       });
+      // o sinal usado nesta comanda volta a ficar disponível (a sobra que virou crédito sai junto com o cashback gerado)
+      if (comanda.status === "FECHADA") {
+        const comSinal = await agendamentoDoSinal(tx, await tx.agendamento.findUniqueOrThrow({ where: { id: comanda.agendamentoId }, select: { id: true, grupo: true } }));
+        if (comSinal?.sinalDestino === "USADO") await tx.agendamento.update({ where: { id: comSinal.id }, data: { sinalDestino: null } });
+      }
     }
     await tx.extraFatura.updateMany({ where: { comandaId, status: "PENDENTE" }, data: { status: "CANCELADO" } });
     await tx.comanda.update({ where: { id: comandaId }, data: { status: "CANCELADA", agendamentoId: null } });

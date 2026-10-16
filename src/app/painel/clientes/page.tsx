@@ -28,7 +28,7 @@ export default async function Clientes({ searchParams }: { searchParams: Promise
       ...(filtro === "assinantes" ? { assinaturas: { some: { status: "ATIVA" } } } : {}),
     },
     include: {
-      comandas: { where: { status: "FECHADA" }, select: { totalCentavos: true, fechadaEm: true }, orderBy: { fechadaEm: "desc" } },
+      comandas: { where: { status: "FECHADA" }, select: { totalCentavos: true, sinalCentavos: true, fechadaEm: true }, orderBy: { fechadaEm: "desc" } },
       assinaturas: { where: { status: "ATIVA" }, select: { id: true } },
     },
     orderBy: { nome: "asc" },
@@ -85,7 +85,7 @@ export default async function Clientes({ searchParams }: { searchParams: Promise
                   </td>
                   <td className="tabular-nums">{formatarTelefone(c.telefone)}</td>
                   <td className="tabular-nums">{c.comandas.length}</td>
-                  <td className="tabular-nums">{formatarDinheiro(c.comandas.reduce((s, x) => s + x.totalCentavos, 0))}</td>
+                  <td className="tabular-nums">{formatarDinheiro(c.comandas.reduce((s, x) => s + x.totalCentavos + x.sinalCentavos, 0))}</td>
                   <td className="tabular-nums">{c.comandas[0]?.fechadaEm ? formatarDia(diaLocal(c.comandas[0].fechadaEm)) : "—"}</td>
                 </tr>
               ))}

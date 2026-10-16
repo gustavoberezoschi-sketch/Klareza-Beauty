@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { limparVariavel } from "@/lib/env";
-import { checkinAutomatico } from "@/lib/agenda";
+import { checkinAutomatico, expirarSinais } from "@/lib/agenda";
 import { statusDaSubconta } from "@/lib/asaas";
 import { db } from "@/lib/db";
 import { enviarLembretesDeAmanha } from "@/lib/push";
@@ -20,6 +20,7 @@ export async function GET(req: Request) {
   const autorizado = !!segredo && iguais(req.headers.get("authorization") ?? "", `Bearer ${segredo}`);
   if (segredo && !autorizado) return NextResponse.json({ erro: "não autorizado" }, { status: 401 });
   await checkinAutomatico();
+  await expirarSinais();
   const r = await enviarLembretesDeAmanha();
   await limparTentativasAntigas();
   // Sem CRON_SECRET a rota é pública: faz só o que é inofensivo repetir (lembrete uma vez por atendimento, check-in).

@@ -2,12 +2,17 @@ import { db } from "./db";
 import { diaLocal, somarDias, somarMeses } from "./tempo";
 
 // Planos do Klareza Beauty. Para mudar preço ou limite, altere só aqui.
-// Base: Bairro. Cidade = 2x, Nacional = 3,5x; anual = 10 mensalidades (2 meses grátis).
+// Solo: profissional autônoma (1 pessoa). Base dos salões: Bairro. Cidade = 2x, Nacional = 3,5x.
+// Anual = 10 mensalidades (2 meses grátis). profissionais: null = equipe ilimitada.
 export const PLANOS_SISTEMA = {
-  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300 },
-  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500 },
-  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null },
-} as const satisfies Record<string, { nome: string; mensal: number; anual: number; unidades: number | null; assinantes: number | null }>;
+  SOLO: { nome: "Solo", mensal: 5990, anual: 59900, unidades: 1, assinantes: 100, profissionais: 1 },
+  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300, profissionais: null },
+  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500, profissionais: null },
+  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null, profissionais: null },
+} as const satisfies Record<
+  string,
+  { nome: string; mensal: number; anual: number; unidades: number | null; assinantes: number | null; profissionais: number | null }
+>;
 
 export type CodigoPlano = keyof typeof PLANOS_SISTEMA;
 export const CODIGOS_PLANO = Object.keys(PLANOS_SISTEMA) as CodigoPlano[];
@@ -48,13 +53,14 @@ export async function encerrarCanceladasVencidas(salaoId: string) {
 
 export async function usoDoPlano(salaoId: string) {
   await encerrarCanceladasVencidas(salaoId);
-  const [b, unidades, assinantes] = await Promise.all([
+  const [b, unidades, assinantes, profissionais] = await Promise.all([
     db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true, ciclo: true, pagoAte: true, suspensa: true } }),
     db.filial.count({ where: { salaoId, ativo: true } }),
     db.assinatura.count({ where: { salaoId, status: "ATIVA" } }),
+    db.profissional.count({ where: { salaoId, ativo: true } }),
   ]);
   const plano = planoDe(b.plano);
-  return { ...b, plano, codigo: b.plano as CodigoPlano, unidades, assinantes, situacao: situacaoDaSalao(b) };
+  return { ...b, plano, codigo: b.plano as CodigoPlano, unidades, assinantes, profissionais, situacao: situacaoDaSalao(b) };
 }
 
 export class LimiteDoPlano extends Error {}
@@ -65,6 +71,15 @@ export async function garantirVagaDeUnidade(salaoId: string) {
   if (u.plano.unidades !== null && u.unidades >= u.plano.unidades)
     throw new LimiteDoPlano(
       `O plano ${u.plano.nome} permite ${u.plano.unidades} unidade${u.plano.unidades > 1 ? "s" : ""}. Para abrir outra, mude de plano em Configurações → Meu plano.`,
+    );
+}
+
+/** Lança LimiteDoPlano se o salão não puder ter mais uma profissional ativa (plano Solo). */
+export async function garantirVagaDeProfissional(salaoId: string) {
+  const u = await usoDoPlano(salaoId);
+  if (u.plano.profissionais !== null && u.profissionais >= u.plano.profissionais)
+    throw new LimiteDoPlano(
+      `O plano ${u.plano.nome} permite ${u.plano.profissionais} profissional ativa. Para ter equipe, mude de plano em Meu plano.`,
     );
 }
 

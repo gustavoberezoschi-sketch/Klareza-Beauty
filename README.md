@@ -10,15 +10,24 @@ os próprios dados e o próprio link de agendamento.
 **Feito para salão de beleza**
 - **Manutenção e retorno:** cada serviço pode ter "lembrar após X dias" (ex.: cílios 18, unhas em gel 21). Em Lembretes, a lista "Hora da manutenção" mostra quem está vencendo e ainda não marcou, com a mensagem pronta no WhatsApp
 - **Ficha de anamnese:** alergias, gestação, lentes, condições de pele e saúde, medicamentos e procedimentos recentes, com registro do consentimento. Os pontos de atenção aparecem em destaque na ficha e na comanda
-- **Fotos de antes e depois** na ficha do cliente (visíveis só no painel)
+- **Fotos de antes e depois** na ficha do cliente; com a autorização do cliente, viram a galeria "Antes e depois" da página do salão
 - **Pacotes de sessões:** cadastre pacotes (ex.: 4 manutenções de cílios), venda na comanda e cada sessão é abatida sozinha nas próximas comandas, com validade opcional
 - **Auxiliar na comissão:** cada serviço da comanda pode ter uma auxiliar, que ganha a própria % (definida na Equipe) além da comissão da profissional principal
+- **Variações e adicionais:** um serviço com tipos de preço e duração próprios (clássico, híbrido, volume russo; unha curta, longa) e extras que somam preço e tempo (remoção, nail art). O cliente escolhe no agendamento e a agenda reserva o tempo certo
+- **Manutenção com preço por prazo:** a manutenção fica ligada à aplicação, com faixas (ex.: até 15 dias R$ 100; até 21 dias R$ 130). O preço sai sozinho pelo último atendimento do cliente; passou do prazo, o agendamento online pede aplicação nova
+- **Sinal antifalta por Pix:** com a conta de recebimento (Asaas) aprovada, o agendamento online cobra uma % por Pix (QR Code e copia e cola). O horário fica reservado por 30 minutos; pago, é descontado na comanda; cancelado no prazo, vira crédito; faltou, o salão fica com ele
+- **Pré-atendimento pelo celular:** o cliente preenche a ficha de anamnese e assina o termo de consentimento (com o dedo) pelo link do agendamento, antes de chegar
+- **Atendimento simultâneo:** vários serviços ao mesmo tempo com profissionais diferentes (ex.: cílios e unhas juntos)
+- **Lista de espera:** dia cheio, o cliente entra na lista; em Lembretes aparece quem pode ser avisado quando abre horário
+- **Cuidados pós-atendimento:** orientações de cada serviço enviadas pelo WhatsApp, com pedido de foto e link de avaliação
+- **Indique uma amiga:** cada cliente tem um código; no primeiro atendimento pago da amiga, as duas ganham crédito
+- **Fórmulas e margem:** fórmulas de coloração por cliente; material usado em cada serviço e relatório de margem por serviço (receita − material − comissões)
 
 **Dia a dia**
 - **Início:** faturamento do dia e do mês (com comparação), gráfico de 14 dias, próximos atendimentos, avisos (estoque baixo, contas vencendo, mensalidades atrasadas) e aniversariantes
 - **Agenda em grade:** uma coluna por profissional, clique num horário vazio para agendar, encaixe, remarcação, confirmação/lembrete por WhatsApp, falta e cancelamento
 - **Lembretes por WhatsApp (sem API, sem custo):** lista de clientes de amanhã, de hoje e dos novos agendamentos pelo site; um botão abre o WhatsApp com a mensagem pronta e marca como enviado. Textos editáveis, com link para o cliente confirmar presença ou cancelar
-- **Folgas e bloqueios:** almoço, folga, férias ou feriado (por profissional ou do salão toda)
+- **Folgas e bloqueios:** almoço, folga, férias ou feriado (por profissional ou do salão todo)
 - **Comandas:** serviços + produtos, desconto, cashback, forma de pagamento, recibo por WhatsApp e estorno
 - **Caixa:** abertura com troco, suprimento, sangria, despesas, totais por forma de pagamento e fechamento com conferência do dinheiro
 
@@ -51,12 +60,13 @@ os próprios dados e o próprio link de agendamento.
 
 | Plano | Mensal | Anual | Unidades | Assinantes ativos no clube |
 | --- | --- | --- | --- | --- |
+| Solo (1 profissional) | R$ 59,90 | R$ 599 | 1 | até 100 |
 | Bairro | R$ 149,90 | R$ 1.499 | 1 | até 300 |
 | Cidade | R$ 299,90 | R$ 2.999 | 2 | até 500 |
 | Nacional | R$ 524,90 | R$ 5.249 | ilimitadas | ilimitados |
 
 Preços e limites ficam em `src/lib/planosSistema.ts`. Os limites são aplicados ao cadastrar
-unidade e assinante. Em `/admin` você define o plano de cada salão, registra pagamentos,
+unidade, assinante e (no Solo) profissional. Em `/admin` você define o plano de cada salão, registra pagamentos,
 acompanha a receita e suspende o acesso de quem não pagou. A página `/planos` mostra os planos
 para quem quiser contratar.
 

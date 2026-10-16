@@ -85,6 +85,7 @@ export default async function MeuPlano() {
           <div className="space-y-5">
             <Barra rotulo="Unidades ativas" usado={uso.unidades} limite={uso.plano.unidades} />
             <Barra rotulo="Assinantes ativos no clube" usado={uso.assinantes} limite={uso.plano.assinantes} />
+            <Barra rotulo="Profissionais ativas" usado={uso.profissionais} limite={uso.plano.profissionais} />
           </div>
         </Secao>
       </div>

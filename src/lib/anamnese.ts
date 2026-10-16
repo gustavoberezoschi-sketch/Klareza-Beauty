@@ -31,3 +31,11 @@ export function alertasDaAnamnese(a: Anamnese): string[] {
   if (a.diabetes) alertas.push("Diabetes ou circulação");
   return alertas;
 }
+
+/** Termo assinado pelo cliente no pré-atendimento (o salão pode trocar o texto em Configurações). */
+export const TERMO_PADRAO =
+  "Declaro que as informações desta ficha são verdadeiras e que fui informado(a) sobre o procedimento, os cuidados depois dele e as possíveis reações. Autorizo {salão} a realizar o atendimento e a guardar estes dados para a minha segurança, conforme a Política de Privacidade.";
+
+export function textoDoTermo(salao: { nome: string; termoConsentimento: string | null }) {
+  return (salao.termoConsentimento?.trim() || TERMO_PADRAO).replaceAll("{salão}", salao.nome).replaceAll("{salao}", salao.nome);
+}

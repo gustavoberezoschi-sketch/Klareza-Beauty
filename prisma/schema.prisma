@@ -10,20 +10,24 @@ datasource db {
 
 // Cado salão cliente do sistema. Todos os outros dados pertencem a umo salão.
 model Salao {
-  id                String  @id @default(cuid())
-  nome              String
-  slug              String  @unique // usado na página pública: /b/<slug>
-  telefone          String?
-  endereco          String?
-  instagram         String?
-  descricao         String?
-  logo              String? // imagem (data URL) redimensionada no navegador
-  capa              String?
-  corDestaque       String  @default("#7a2e52")
-  intervaloMin      Int     @default(30) // de quanto em quanto tempo os horários são oferecidos
-  antecedenciaDias  Int     @default(30) // até quantos dias à frente o cliente pode agendar
-  cancelamentoHoras Int     @default(2) // até quantas horas antes o cliente pode cancelar pelo link
-  cashbackPct       Int     @default(0) // % do valor pago que volta como crédito para o cliente
+  id                       String  @id @default(cuid())
+  nome                     String
+  slug                     String  @unique // usado na página pública: /b/<slug>
+  telefone                 String?
+  endereco                 String?
+  instagram                String?
+  descricao                String?
+  logo                     String? // imagem (data URL) redimensionada no navegador
+  capa                     String?
+  corDestaque              String  @default("#7a2e52")
+  intervaloMin             Int     @default(30) // de quanto em quanto tempo os horários são oferecidos
+  antecedenciaDias         Int     @default(30) // até quantos dias à frente o cliente pode agendar
+  cancelamentoHoras        Int     @default(2) // até quantas horas antes o cliente pode cancelar pelo link
+  cashbackPct              Int     @default(0) // % do valor pago que volta como crédito para o cliente
+  sinalPct                 Int     @default(0) // % de sinal por Pix no agendamento online (0 = não cobra)
+  indicacaoCreditoCentavos Int     @default(0) // "Indique uma amiga": crédito para as duas (0 = desligado)
+  termoConsentimento       String? // texto do termo que o cliente assina no pré-atendimento (vazio = padrão)
+  linkAvaliacao            String? // link para avaliar o salão (ex.: Google), enviado com os cuidados pós-atendimento
 
   // Textos das mensagens de WhatsApp (vazio = texto padrão)
   msgConfirmacao String?
@@ -74,6 +78,8 @@ model Salao {
   pacotes           Pacote[]
   pacotesClientes   PacoteCliente[]
   fotosClientes     FotoCliente[]
+  formulas          FormulaCliente[]
+  listaEspera       ListaEspera[]
 }
 
 // Unidade (filial) do salão: endereço, expediente, equipe, agenda e caixa próprios.
@@ -153,27 +159,35 @@ model Profissional {
 }
 
 model Servico {
-  id            String   @id @default(cuid())
-  salaoId       String
-  salao         Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
-  nome          String
-  categoria     String   @default("Cabelo")
-  descricao     String?
-  foto          String?
-  precoCentavos Int
-  duracaoMin    Int
-  comissaoPct   Int? // se preenchido, substitui a comissão padrão do profissional
-  retornoDias   Int? // manutenção: avisar a cliente para voltar depois de X dias (ex.: cílios 15–20)
-  exibirOnline  Boolean  @default(true)
-  ativo         Boolean  @default(true)
-  ordem         Int      @default(0)
-  criadoEm      DateTime @default(now())
+  id               String    @id @default(cuid())
+  salaoId          String
+  salao            Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  nome             String
+  categoria        String    @default("Cabelo")
+  descricao        String?
+  foto             String?
+  precoCentavos    Int
+  duracaoMin       Int
+  comissaoPct      Int? // se preenchido, substitui a comissão padrão do profissional
+  retornoDias      Int? // manutenção: avisar a cliente para voltar depois de X dias (ex.: cílios 15–20)
+  cuidados         String? // orientações enviadas ao cliente depois do atendimento
+  // Manutenção com preço por prazo: dias desde a última aplicação (ou manutenção) definem o preço
+  manutencaoDeId   String?
+  manutencaoDe     Servico?  @relation("Manutencao", fields: [manutencaoDeId], references: [id], onDelete: SetNull)
+  manutencoes      Servico[] @relation("Manutencao")
+  faixasManutencao Json? // [{ "ateDias": 15, "precoCentavos": 10000 }, ...] em ordem crescente
+  exibirOnline     Boolean   @default(true)
+  ativo            Boolean   @default(true)
+  ordem            Int       @default(0)
+  criadoEm         DateTime  @default(now())
 
   profissionais Profissional[]
   agendamentos  Agendamento[]
   planos        Plano[]
   itens         ComandaItem[]
   pacotes       Pacote[]
+  opcoes        ServicoOpcao[]
+  insumos       ServicoInsumo[]
 }
 
 model Cliente {
@@ -193,16 +207,27 @@ model Cliente {
   anamnese              Json? // ficha de anamnese (alergias, cuidados, observações)
   anamneseEm            DateTime? // quando a cliente confirmou a ficha e autorizou o atendimento
   retornoLembradoEm     DateTime? // último aviso de manutenção enviado pelo WhatsApp
+  termoAssinatura       String? // assinatura desenhada no pré-atendimento (data URL)
+  termoNome             String? // nome digitado ao assinar
+  termoAssinadoEm       DateTime?
+  termoIp               String?
+  codigoIndicacao       String? // código do "Indique uma amiga"
+  indicadoPorId         String?
+  indicadoPor           Cliente?  @relation("Indicacao", fields: [indicadoPorId], references: [id], onDelete: SetNull)
+  indicadas             Cliente[] @relation("Indicacao")
+  indicacaoCreditadaEm  DateTime? // crédito da indicação já pago (para as duas)
   criadoEm              DateTime  @default(now())
 
   fotos          FotoCliente[]
   pacotes        PacoteCliente[]
+  formulas       FormulaCliente[]
   agendamentos   Agendamento[]
   comandas       Comanda[]
   assinaturas    Assinatura[]
   inscricoesPush PushInscricao[]
 
   @@unique([salaoId, telefone])
+  @@unique([salaoId, codigoIndicacao])
 }
 
 model Agendamento {
@@ -220,7 +245,7 @@ model Agendamento {
   inicio               DateTime
   fim                  DateTime
   precoCentavos        Int // preço no momento do agendamento
-  status               String       @default("AGENDADO") // AGENDADO | CONFIRMADO | CONCLUIDO | CANCELADO | FALTOU
+  status               String       @default("AGENDADO") // AGUARDANDO_SINAL | AGENDADO | CONFIRMADO | CONCLUIDO | CANCELADO | FALTOU
   origem               String       @default("ONLINE") // ONLINE | PAINEL
   formaPagamento       String?
   observacao           String?
@@ -230,6 +255,15 @@ model Agendamento {
   lembreteEnviadoEm    DateTime?
   pushLembreteEm       DateTime? // lembrete enviado como notificação no app
   checkinAutoEm        DateTime? // concluído sozinho ao passar o horário (sem comanda fechada)
+  opcoes               Json? // variação e adicionais escolhidos: [{ id, tipo, nome, precoCentavos, duracaoMin }]
+  // Sinal antifalta (fica no 1º agendamento do grupo)
+  sinalCentavos        Int?
+  sinalAsaasId         String?      @unique
+  sinalPagoEm          DateTime?
+  sinalPix             String? // Pix copia e cola
+  sinalQrCode          String? // imagem do QR Code (base64)
+  sinalLink            String? // fatura do Asaas (outras formas)
+  sinalDestino         String? // USADO (na comanda) | CREDITO (virou crédito) | RETIDO (faltou)
   criadoEm             DateTime     @default(now())
 
   comanda Comanda?
@@ -270,6 +304,7 @@ model Produto {
   estoques   EstoqueFilial[]
   movimentos MovimentoEstoque[]
   itens      ComandaItem[]
+  insumos    ServicoInsumo[]
 }
 
 // Quantidade de cada produto em cada unidade.
@@ -317,7 +352,9 @@ model Comanda {
   descontoCentavos       Int           @default(0)
   cashbackUsadoCentavos  Int           @default(0)
   cashbackGeradoCentavos Int           @default(0)
-  totalCentavos          Int           @default(0) // valor efetivamente pago
+  totalCentavos          Int           @default(0) // valor efetivamente pago no balcão
+  sinalCentavos          Int           @default(0) // sinal pago online no agendamento e abatido aqui
+  cuidadosEnviadosEm     DateTime? // cuidados pós-atendimento enviados pelo WhatsApp
   formaPagamento         String?
   abertaEm               DateTime      @default(now())
   fechadaEm              DateTime?
@@ -621,7 +658,69 @@ model FotoCliente {
   imagem    String // data URL reduzida no navegador
   tipo      String   @default("ANTES") // ANTES | DEPOIS
   legenda   String?
+  publica   Boolean  @default(false) // cliente autorizou mostrar na página do salão
   criadoEm  DateTime @default(now())
 
   @@index([clienteId, criadoEm])
+  @@index([salaoId, publica])
+}
+
+// Variações (ex.: clássico, volume russo; unha curta, longa) e adicionais (ex.: remoção, nail art) de um serviço.
+// Variação: preço e duração próprios, no lugar dos do serviço. Adicional: soma preço e duração.
+model ServicoOpcao {
+  id            String  @id @default(cuid())
+  servicoId     String
+  servico       Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  tipo          String // VARIACAO | ADICIONAL
+  nome          String
+  precoCentavos Int
+  duracaoMin    Int
+  ordem         Int     @default(0)
+  ativo         Boolean @default(true)
+
+  @@index([servicoId])
+}
+
+// Material gasto em cada serviço (fração da unidade do produto), para calcular custo e margem.
+model ServicoInsumo {
+  id         String  @id @default(cuid())
+  servicoId  String
+  servico    Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  produtoId  String
+  produto    Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  quantidade Float // ex.: 0.5 = meio tubo
+
+  @@unique([servicoId, produtoId])
+}
+
+// Fórmulas e técnicas usadas no cliente (ex.: coloração: marcas, tons, proporção, tempo de pausa).
+model FormulaCliente {
+  id        String   @id @default(cuid())
+  salaoId   String
+  salao     Salao    @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  clienteId String
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  titulo    String
+  formula   String
+  autor     String?
+  criadoEm  DateTime @default(now())
+
+  @@index([clienteId, criadoEm])
+}
+
+// Lista de espera: o dia estava cheio; o salão avisa por WhatsApp quando abrir um horário.
+model ListaEspera {
+  id         String    @id @default(cuid())
+  salaoId    String
+  salao      Salao     @relation(fields: [salaoId], references: [id], onDelete: Cascade)
+  filialId   String
+  servicoIds String[]
+  nome       String
+  telefone   String
+  dia        String // "2026-10-20"
+  periodo    String    @default("QUALQUER") // MANHA | TARDE | NOITE | QUALQUER
+  avisadoEm  DateTime?
+  criadoEm   DateTime  @default(now())
+
+  @@index([salaoId, dia])
 }

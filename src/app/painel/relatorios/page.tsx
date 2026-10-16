@@ -128,6 +128,36 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
         <p className="mt-3 text-xs text-couro-400">Serviços inclusos em assinatura ou pacote contam pelo preço de tabela para a comissão. A comissão de auxiliar entra para quem ajudou.</p>
       </Secao>
 
+      {!profissional && n.margemPorServico.length > 0 && (
+        <Secao titulo="Margem por serviço" className="mb-4">
+          <div className="-mx-5 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-couro-400">
+                <tr className="[&>th]:px-5 [&>th]:pb-2 [&>th]:font-medium">
+                  <th>Serviço</th><th>Feitos</th><th>Receita</th><th>Material</th><th>Comissões</th><th className="text-right">Sobra</th><th className="text-right">Margem</th>
+                </tr>
+              </thead>
+              <tbody>
+                {n.margemPorServico.map((m) => (
+                  <tr key={m.nome} className="border-t border-black/[0.06] [&>td]:px-5 [&>td]:py-3">
+                    <td className="font-semibold">{m.nome}</td>
+                    <td className="tabular-nums">{m.qtd}</td>
+                    <td className="tabular-nums">{formatarDinheiro(m.receita)}</td>
+                    <td className="tabular-nums text-couro-700">{m.material ? `-${formatarDinheiro(m.material)}` : "—"}</td>
+                    <td className="tabular-nums text-couro-700">-{formatarDinheiro(m.comissao)}</td>
+                    <td className={`text-right font-semibold tabular-nums ${m.lucro < 0 ? "text-poste-vermelho" : "text-emerald-700"}`}>{formatarDinheiro(m.lucro)}</td>
+                    <td className="text-right tabular-nums">{m.receita > 0 ? `${Math.round((m.lucro / m.receita) * 100)}%` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-couro-400">
+            Material = custo dos produtos cadastrados em cada serviço (Serviços → Material usado). Serviços do plano ou de pacote entram com receita zero aqui (o dinheiro entrou na mensalidade ou na venda do pacote).
+          </p>
+        </Secao>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-3">
         <Ranking titulo="Serviços mais feitos" itens={n.servicos} />
         <Ranking titulo="Produtos mais vendidos" itens={n.produtos} vazio="Nenhum produto vendido." />

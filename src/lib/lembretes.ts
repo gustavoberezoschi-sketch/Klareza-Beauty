@@ -1,9 +1,11 @@
 import type { Sessao } from "./auth";
+import { descreverItem, lerOpcoes } from "./pedido";
 import { db } from "./db";
 import { type ContextoFilial, naFilial } from "./filial";
 import { linkWhatsApp } from "./formato";
 import { MSG_CONFIRMACAO_PADRAO, MSG_LEMBRETE_PADRAO, linkDaMensagem } from "./mensagens";
-import { criarDataHora, diaLocal, somarDias } from "./tempo";
+import { horariosDisponiveis } from "./agenda";
+import { criarDataHora, diaLocal, formatarDia, horaParaMinutos, somarDias } from "./tempo";
 
 export type ItemLembrete = {
   ids: string[];
@@ -51,7 +53,7 @@ export async function listaDeLembretes(sessao: Sessao, ctx: ContextoFilial, site
       cliente: a.cliente.nome,
       salao: salao.nome,
       inicio: a.inicio,
-      servicos: g.map((x) => x.servico.nome),
+      servicos: g.map((x) => descreverItem(x.servico.nome, lerOpcoes(x.opcoes))),
       profissional: a.profissional.nome,
       unidade: a.filial.nome,
       endereco: a.filial.endereco,
@@ -161,4 +163,86 @@ export async function listaDeRetornos(sessao: Sessao, ctx: ContextoFilial, site:
       };
     })
     .sort((a, b) => a.vence.localeCompare(b.vence));
+}
+
+export type ItemEspera = {
+  id: string;
+  nome: string;
+  telefone: string;
+  dia: string;
+  periodo: string;
+  servicos: string;
+  horarios: string[]; // horários livres agora, no período pedido
+  avisadoEm: string | null;
+  link: string;
+};
+
+const PERIODOS: Record<string, [number, number]> = { MANHA: [0, 12 * 60], TARDE: [12 * 60, 18 * 60], NOITE: [18 * 60, 24 * 60], QUALQUER: [0, 24 * 60] };
+export const NOME_PERIODO: Record<string, string> = { MANHA: "de manhã", TARDE: "à tarde", NOITE: "à noite", QUALQUER: "qualquer horário" };
+
+/** Lista de espera de hoje em diante, com os horários que abriram desde o pedido. */
+export async function listaDeEspera(sessao: Sessao, ctx: ContextoFilial, site: string): Promise<ItemEspera[]> {
+  const hoje = diaLocal();
+  const [salao, pedidos] = await Promise.all([
+    db.salao.findUniqueOrThrow({ where: { id: sessao.salaoId }, select: { nome: true, slug: true } }),
+    db.listaEspera.findMany({ where: { salaoId: sessao.salaoId, ...naFilial(ctx), dia: { gte: hoje } }, orderBy: [{ dia: "asc" }, { criadoEm: "asc" }], take: 40 }),
+  ]);
+  const servicos = await db.servico.findMany({ where: { id: { in: [...new Set(pedidos.flatMap((p) => p.servicoIds))] } }, select: { id: true, nome: true } });
+  const itens: ItemEspera[] = [];
+  for (const p of pedidos) {
+    const livres = await horariosDisponiveis({ salaoId: sessao.salaoId, filialId: p.filialId, itens: p.servicoIds.map((servicoId) => ({ servicoId })), profissionalId: null, dia: p.dia }).catch(() => []);
+    const [de, ate] = PERIODOS[p.periodo] ?? PERIODOS.QUALQUER;
+    const horarios = livres.map((h) => h.hora).filter((h) => horaParaMinutos(h) >= de && horaParaMinutos(h) < ate);
+    const nomes = p.servicoIds.map((id) => servicos.find((s) => s.id === id)?.nome).filter(Boolean).join(" + ");
+    const quando = formatarDia(p.dia).slice(0, 5);
+    const texto = `Oi, ${p.nome.split(" ")[0]}! Abriu horário no dia ${quando} para ${nomes || "o seu atendimento"} aqui no ${salao.nome}${horarios.length ? ` (${horarios.slice(0, 4).join(", ")})` : ""} ✨ Quer garantir? Agende pelo link: ${site}/b/${salao.slug}/agendar`;
+    itens.push({ id: p.id, nome: p.nome, telefone: p.telefone, dia: p.dia, periodo: p.periodo, servicos: nomes, horarios, avisadoEm: p.avisadoEm?.toISOString() ?? null, link: linkWhatsApp(p.telefone, texto) });
+  }
+  // quem tem horário livre primeiro
+  return itens.sort((a, b) => Number(b.horarios.length > 0) - Number(a.horarios.length > 0) || a.dia.localeCompare(b.dia));
+}
+
+export type ItemCuidados = { comandaId: string; cliente: string; telefone: string; servicos: string; fechadaEm: string; enviadoEm: string | null; link: string };
+
+/** Atendimentos de hoje e de ontem com cuidados pós-atendimento para mandar ao cliente. */
+export async function listaDeCuidados(sessao: Sessao, ctx: ContextoFilial): Promise<ItemCuidados[]> {
+  const desde = criarDataHora(somarDias(diaLocal(), -1), "00:00");
+  const [salao, comandas] = await Promise.all([
+    db.salao.findUniqueOrThrow({ where: { id: sessao.salaoId }, select: { nome: true, linkAvaliacao: true } }),
+    db.comanda.findMany({
+      where: {
+        salaoId: sessao.salaoId,
+        ...naFilial(ctx),
+        ...(sessao.profissionalId ? { profissionalId: sessao.profissionalId } : {}),
+        status: "FECHADA",
+        fechadaEm: { gte: desde },
+        clienteId: { not: null },
+        itens: { some: { servico: { cuidados: { not: null } } } },
+      },
+      include: { cliente: true, itens: { include: { servico: { select: { nome: true, cuidados: true } } } } },
+      orderBy: { fechadaEm: "desc" },
+      take: 60,
+    }),
+  ]);
+  return comandas.map((c) => {
+    const comCuidados = c.itens.filter((i) => i.servico?.cuidados);
+    const unicos = [...new Map(comCuidados.map((i) => [i.servico!.nome, i.servico!.cuidados!])).entries()];
+    const texto = [
+      `Oi, ${c.cliente!.nome.split(" ")[0]}! Obrigada pela visita ao ${salao.nome} ✨`,
+      "",
+      ...unicos.map(([nome, cuidados]) => `*Cuidados com ${nome.toLowerCase()}:*\n${cuidados}`),
+      "",
+      "Se puder, manda uma foto do resultado pra gente 📸",
+      ...(salao.linkAvaliacao ? [`E se gostou, sua avaliação ajuda muito: ${salao.linkAvaliacao}`] : []),
+    ].join("\n");
+    return {
+      comandaId: c.id,
+      cliente: c.cliente!.nome,
+      telefone: c.cliente!.telefone,
+      servicos: unicos.map(([n]) => n).join(", "),
+      fechadaEm: c.fechadaEm!.toISOString(),
+      enviadoEm: c.cuidadosEnviadosEm?.toISOString() ?? null,
+      link: linkWhatsApp(c.cliente!.telefone, texto),
+    };
+  });
 }

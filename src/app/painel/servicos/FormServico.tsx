@@ -1,6 +1,8 @@
 import { FormAcao } from "@/components/FormAcao";
 import { FotoUpload } from "@/components/FotoUpload";
 import { Avatar } from "@/components/ui";
+import { lerFaixas } from "@/lib/pedido";
+import { FaixasManutencao, InsumosServico, OpcoesServico } from "./Extras";
 import { salvarServico } from "../actions";
 
 type Servico = {
@@ -14,17 +16,26 @@ type Servico = {
   comissaoPct: number | null;
   retornoDias: number | null;
   exibirOnline: boolean;
+  cuidados: string | null;
+  manutencaoDeId: string | null;
+  faixasManutencao: unknown;
   profissionais: { id: string }[];
+  opcoes: { id: string; tipo: string; nome: string; precoCentavos: number; duracaoMin: number; ativo: boolean }[];
+  insumos: { produtoId: string; quantidade: number }[];
 };
 
 export function FormServico({
   servico,
   categorias,
   profissionais,
+  outrosServicos,
+  produtos,
 }: {
   servico?: Servico;
   categorias: string[];
   profissionais: { id: string; nome: string; foto: string | null; comissaoPct: number }[];
+  outrosServicos: { id: string; nome: string }[];
+  produtos: { id: string; nome: string; custoCentavos: number }[];
 }) {
   const marcados = new Set(servico?.profissionais.map((b) => b.id));
   return (
@@ -73,6 +84,21 @@ export function FormServico({
             <span className="block text-xs text-couro-400">Desmarque para serviços só de balcão.</span>
           </span>
         </label>
+        <div className="sm:col-span-2">
+          <label className="label" htmlFor="cuidados">Cuidados depois do atendimento</label>
+          <textarea id="cuidados" name="cuidados" defaultValue={servico?.cuidados ?? ""} rows={3} className="input" placeholder="Ex.: Não molhar os cílios por 24h, não usar rímel e não esfregar os olhos." />
+          <p className="mt-1 text-xs text-couro-400">Enviado ao cliente pelo WhatsApp depois do atendimento (em Lembretes).</p>
+        </div>
+        <div className="sm:col-span-2 border-t border-black/[0.06] pt-4">
+          <OpcoesServico inicial={(servico?.opcoes ?? []).filter((o) => o.ativo)} />
+        </div>
+        <div className="sm:col-span-2 border-t border-black/[0.06] pt-4">
+          <FaixasManutencao inicial={lerFaixas(servico?.faixasManutencao)} aplicacaoId={servico?.manutencaoDeId ?? null} servicos={outrosServicos} />
+        </div>
+        <div className="sm:col-span-2 border-t border-black/[0.06] pt-4">
+          <p className="label">Material usado (custo e margem)</p>
+          <InsumosServico inicial={servico?.insumos ?? []} produtos={produtos} />
+        </div>
       </div>
 
       <div className="space-y-4">

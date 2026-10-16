@@ -4,6 +4,7 @@ import { FORMA_ASAAS, cobrancaNoAsaas } from "@/lib/asaas";
 import { tokenConfere } from "@/lib/cripto";
 import { db } from "@/lib/db";
 import { quitarExtrasDaCobranca } from "@/lib/extrasFatura";
+import { sinalPago } from "@/lib/sinal";
 import { somarMeses } from "@/lib/tempo";
 
 // Avisos do Asaas (conta principal e subcontas). Responde 200 para tudo que não é
@@ -59,6 +60,19 @@ export async function POST(req: Request) {
   const { event } = corpo;
   let payment = corpo.payment;
   if (!event || !payment?.id) return NextResponse.json({ ok: true, ignorado: "sem cobrança" });
+
+  // Sinal do agendamento online (Pix na subconta do salão)
+  if (!payment.subscription) {
+    const comSinal = await db.agendamento.findUnique({ where: { sinalAsaasId: payment.id }, include: { salao: { select: { asaasApiKey: true } } } });
+    if (comSinal) {
+      const conferida = await confirmar(payment, comSinal.salao.asaasApiKey, null);
+      if (!conferida.real) return conferida.resposta;
+      if (PAGO.has(event) && STATUS_PAGO.has(conferida.real.status)) await sinalPago(comSinal.id);
+      revalidatePath("/painel", "layout");
+      revalidatePath("/b", "layout");
+      return NextResponse.json({ ok: true, tipo: "sinal" });
+    }
+  }
 
   // Cobrança avulsa de extras (quando não havia mensalidade em aberto para somar)
   if (!payment.subscription) {

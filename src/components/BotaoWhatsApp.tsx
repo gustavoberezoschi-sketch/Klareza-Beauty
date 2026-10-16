@@ -17,7 +17,7 @@ export function BotaoWhatsApp({
 }: {
   href: string;
   ids: string[];
-  tipo: "LEMBRETE" | "CONFIRMACAO" | "RETORNO";
+  tipo: "LEMBRETE" | "CONFIRMACAO" | "RETORNO" | "ESPERA" | "CUIDADOS";
   enviadoEm: string | null;
   rotulo?: string;
 }) {

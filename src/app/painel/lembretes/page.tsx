@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { CalendarCheck, MessageCircle, RefreshCw } from "lucide-react";
+import { BellRing, CalendarCheck, HeartHandshake, MessageCircle, RefreshCw, X } from "lucide-react";
 import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Secao, Vazio } from "@/components/ui";
 import { exigirSessao } from "@/lib/auth";
 import { filialDoPainel } from "@/lib/filial";
 import { formatarTelefone } from "@/lib/formato";
-import { type ItemLembrete, type ItemRetorno, listaDeLembretes, listaDeRetornos } from "@/lib/lembretes";
+import { type ItemCuidados, type ItemEspera, type ItemLembrete, type ItemRetorno, NOME_PERIODO, listaDeCuidados, listaDeEspera, listaDeLembretes, listaDeRetornos } from "@/lib/lembretes";
 import { MSG_CONFIRMACAO_PADRAO, MSG_LEMBRETE_PADRAO, VARIAVEIS } from "@/lib/mensagens";
 import { enderecoDoSite } from "@/lib/site";
 import { formatarDia, diaLocal, horaLocal } from "@/lib/tempo";
-import { salvarMensagens } from "./actions";
+import { removerDaEspera, salvarMensagens } from "./actions";
 
 export const metadata: Metadata = { title: "Lembretes" };
 export const dynamic = "force-dynamic";
@@ -20,7 +20,12 @@ export default async function Lembretes() {
   const ctx = await filialDoPainel(sessao);
   const varias = ctx.filiais.filter((f) => f.ativo).length > 1;
   const site = await enderecoDoSite();
-  const [{ salao, hoje, amanha, novos }, retornos] = await Promise.all([listaDeLembretes(sessao, ctx, site), listaDeRetornos(sessao, ctx, site)]);
+  const [{ salao, hoje, amanha, novos }, retornos, espera, cuidados] = await Promise.all([
+    listaDeLembretes(sessao, ctx, site),
+    listaDeRetornos(sessao, ctx, site),
+    listaDeEspera(sessao, ctx, site),
+    listaDeCuidados(sessao, ctx),
+  ]);
   const faltam = (l: ItemLembrete[]) => l.filter((i) => !i.lembreteEnviadoEm).length;
 
   return (
@@ -34,6 +39,8 @@ export default async function Lembretes() {
         <Etiqueta tom={faltam(hoje) ? "latao" : "verde"}>Hoje: {faltam(hoje)} para enviar</Etiqueta>
         <Etiqueta tom={novos.length ? "azul" : "verde"}>Novos pelo site: {novos.length}</Etiqueta>
         <Etiqueta tom={retornos.some((r) => !r.lembradoEm) ? "latao" : "verde"}>Manutenção: {retornos.filter((r) => !r.lembradoEm).length} para avisar</Etiqueta>
+        <Etiqueta tom={espera.some((e) => e.horarios.length && !e.avisadoEm) ? "azul" : "verde"}>Lista de espera: {espera.filter((e) => e.horarios.length && !e.avisadoEm).length} com horário livre</Etiqueta>
+        <Etiqueta tom={cuidados.some((c) => !c.enviadoEm) ? "latao" : "verde"}>Cuidados: {cuidados.filter((c) => !c.enviadoEm).length} para enviar</Etiqueta>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_400px]">
@@ -48,6 +55,8 @@ export default async function Lembretes() {
             varias={varias}
             vazio="Nenhum agendamento novo esperando confirmação."
           />
+          <Espera itens={espera} />
+          <Cuidados itens={cuidados} />
           <Retornos itens={retornos} />
         </div>
 
@@ -158,6 +167,64 @@ function Retornos({ itens }: { itens: ItemRetorno[] }) {
                 </p>
               </div>
               <BotaoWhatsApp href={i.link} ids={[i.clienteId]} tipo="RETORNO" enviadoEm={i.lembradoEm} rotulo="Avisar" />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Secao>
+  );
+}
+
+function Espera({ itens }: { itens: ItemEspera[] }) {
+  return (
+    <Secao titulo="Lista de espera">
+      <p className="-mt-2 mb-3 text-sm text-couro-400">Clientes que queriam um dia cheio. Quando abre horário (cancelamento), avise com um toque.</p>
+      {itens.length === 0 ? (
+        <Vazio icone={BellRing} titulo="Ninguém na lista de espera." />
+      ) : (
+        <ul className="divide-y divide-black/[0.06]">
+          {itens.map((i) => (
+            <li key={i.id} className="flex flex-wrap items-center gap-3 py-3">
+              <span className="numero w-16 text-lg">{formatarDia(i.dia).slice(0, 5)}</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">
+                  {i.nome}{" "}
+                  {i.horarios.length ? <Etiqueta tom="verde">{i.horarios.length} horário(s) livre(s)</Etiqueta> : <Etiqueta>Dia ainda cheio</Etiqueta>}
+                </p>
+                <p className="truncate text-sm text-couro-400">
+                  {i.servicos} · {NOME_PERIODO[i.periodo]} · {formatarTelefone(i.telefone)}
+                  {i.horarios.length > 0 && ` · ${i.horarios.slice(0, 5).join(", ")}`}
+                </p>
+              </div>
+              {i.horarios.length > 0 && <BotaoWhatsApp href={i.link} ids={[i.id]} tipo="ESPERA" enviadoEm={i.avisadoEm} rotulo="Avisar" />}
+              <form action={removerDaEspera}>
+                <input type="hidden" name="id" value={i.id} />
+                <button className="rounded-lg p-1.5 text-couro-300 hover:bg-fundo hover:text-poste-vermelho" title="Tirar da lista" aria-label={`Tirar ${i.nome} da lista`}><X className="size-4" /></button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Secao>
+  );
+}
+
+function Cuidados({ itens }: { itens: ItemCuidados[] }) {
+  return (
+    <Secao titulo="Cuidados pós-atendimento">
+      <p className="-mt-2 mb-3 text-sm text-couro-400">Orientações de cada serviço (cadastradas em Serviços), com pedido de foto e de avaliação. Atendimentos de hoje e de ontem.</p>
+      {itens.length === 0 ? (
+        <Vazio icone={HeartHandshake} titulo="Nenhum atendimento com cuidados para enviar." />
+      ) : (
+        <ul className="divide-y divide-black/[0.06]">
+          {itens.map((i) => (
+            <li key={i.comandaId} className="flex flex-wrap items-center gap-3 py-3">
+              <span className="numero w-16 text-lg">{horaLocal(new Date(i.fechadaEm))}</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">{i.cliente}</p>
+                <p className="truncate text-sm text-couro-400">{i.servicos} · {formatarTelefone(i.telefone)}</p>
+              </div>
+              <BotaoWhatsApp href={i.link} ids={[i.comandaId]} tipo="CUIDADOS" enviadoEm={i.enviadoEm} rotulo="Enviar cuidados" />
             </li>
           ))}
         </ul>

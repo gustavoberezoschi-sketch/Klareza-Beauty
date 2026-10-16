@@ -32,9 +32,23 @@ const SERVICOS = [
   { nome: "Manicure", categoria: "Unhas", precoCentavos: 4000, duracaoMin: 45, descricao: "Cutilagem, esmaltação e hidratação." },
   { nome: "Mãos e pés", categoria: "Combos", precoCentavos: 7500, duracaoMin: 90, descricao: "Manicure e pedicure no mesmo horário." },
   { nome: "Pedicure", categoria: "Unhas", precoCentavos: 4500, duracaoMin: 50, descricao: null },
-  { nome: "Design de sobrancelha", categoria: "Sobrancelha", precoCentavos: 4500, duracaoMin: 30, descricao: "Design com pinça e henna opcional.", retornoDias: 20 },
-  { nome: "Extensão de cílios", categoria: "Cílios", precoCentavos: 16000, duracaoMin: 120, descricao: "Fio a fio, com manutenção a cada 15 a 20 dias.", retornoDias: 18 },
-  { nome: "Alongamento de unhas em gel", categoria: "Unhas", precoCentavos: 14000, duracaoMin: 150, descricao: "Aplicação em gel com acabamento e esmaltação.", retornoDias: 21 },
+  { nome: "Design de sobrancelha", categoria: "Sobrancelha", precoCentavos: 4500, duracaoMin: 30, descricao: "Design com pinça e henna opcional.", retornoDias: 20, cuidados: "Evite maquiagem e sol direto na região por 24h." },
+  { nome: "Extensão de cílios", categoria: "Cílios", precoCentavos: 16000, duracaoMin: 120, descricao: "Fio a fio, com manutenção a cada 15 a 20 dias.", retornoDias: 18,
+    cuidados: "Não molhe os cílios por 24h. Evite rímel, demaquilante oleoso e esfregar os olhos. Penteie com a escovinha todo dia.",
+    opcoes: { create: [
+      { tipo: "VARIACAO", nome: "Clássico (fio a fio)", precoCentavos: 16000, duracaoMin: 120, ordem: 0 },
+      { tipo: "VARIACAO", nome: "Híbrido", precoCentavos: 18000, duracaoMin: 140, ordem: 1 },
+      { tipo: "VARIACAO", nome: "Volume russo", precoCentavos: 21000, duracaoMin: 160, ordem: 2 },
+      { tipo: "ADICIONAL", nome: "Remoção de extensão anterior", precoCentavos: 3000, duracaoMin: 20, ordem: 3 },
+    ] } },
+  { nome: "Alongamento de unhas em gel", categoria: "Unhas", precoCentavos: 14000, duracaoMin: 150, descricao: "Aplicação em gel com acabamento e esmaltação.", retornoDias: 21,
+    cuidados: "Evite água muito quente e produtos de limpeza sem luva nas primeiras 48h. Use óleo de cutícula todo dia.",
+    opcoes: { create: [
+      { tipo: "VARIACAO", nome: "Curta", precoCentavos: 14000, duracaoMin: 150, ordem: 0 },
+      { tipo: "VARIACAO", nome: "Longa", precoCentavos: 17000, duracaoMin: 180, ordem: 1 },
+      { tipo: "ADICIONAL", nome: "Nail art (2 unhas)", precoCentavos: 2000, duracaoMin: 15, ordem: 2 },
+      { tipo: "ADICIONAL", nome: "Francesinha", precoCentavos: 1500, duracaoMin: 10, ordem: 3 },
+    ] } },
 ];
 
 const PRODUTOS = [
@@ -42,6 +56,9 @@ const PRODUTOS = [
   { nome: "Óleo de cutícula", categoria: "Unhas", precoCentavos: 3900, custoCentavos: 1500, estoque: 2, estoqueMinimo: 3 },
   { nome: "Shampoo para cabelos tingidos", categoria: "Cabelo", precoCentavos: 3200, custoCentavos: 1400, estoque: 8, estoqueMinimo: 2 },
   { nome: "Água com gás", categoria: "Bebidas", precoCentavos: 1200, custoCentavos: 500, estoque: 24, estoqueMinimo: 6 },
+  { nome: "Fios para cílios (bandeja)", categoria: "Uso interno", precoCentavos: 0, custoCentavos: 4500, estoque: 10, estoqueMinimo: 2 },
+  { nome: "Cola para cílios", categoria: "Uso interno", precoCentavos: 0, custoCentavos: 7000, estoque: 4, estoqueMinimo: 1 },
+  { nome: "Gel para unhas (pote)", categoria: "Uso interno", precoCentavos: 0, custoCentavos: 5000, estoque: 6, estoqueMinimo: 2 },
 ];
 
 const CLIENTES = [
@@ -62,6 +79,7 @@ async function main() {
       await db.assinatura.deleteMany({ where: { salaoId: antiga.id } });
       await db.agendamento.deleteMany({ where: { salaoId: antiga.id } });
       await db.pacoteCliente.deleteMany({ where: { salaoId: antiga.id } });
+      await db.servicoInsumo.deleteMany({ where: { servico: { salaoId: antiga.id } } });
       await db.pacote.deleteMany({ where: { salaoId: antiga.id } });
       await db.salao.delete({ where: { id: antiga.id } });
     }
@@ -136,6 +154,30 @@ async function main() {
     // Só a primeira profissional faz extensão de cílios
     await db.servico.update({ where: { id: porNome("Extensão de cílios").id }, data: { profissionais: { connect: { id: profissionais[0].id } } } });
 
+    // Manutenção de cílios com preço por prazo (até 15 dias / até 21 dias / depois: aplicação nova)
+    const manutencao = await db.servico.create({
+      data: {
+        salaoId: b.id, nome: "Manutenção de cílios", categoria: "Cílios", precoCentavos: 10000, duracaoMin: 60,
+        descricao: "Reposição dos fios que caíram.", retornoDias: 18, manutencaoDeId: porNome("Extensão de cílios").id,
+        faixasManutencao: [{ ateDias: 15, precoCentavos: 10000 }, { ateDias: 21, precoCentavos: 13000 }],
+        cuidados: "Não molhe os cílios por 24h e evite esfregar os olhos.",
+        profissionais: { connect: { id: profissionais[0].id } },
+      },
+    });
+    // Material de cada serviço (custo e margem)
+    const prod = (nome: string) => b.produtos.find((p) => p.nome === nome)!;
+    await db.servicoInsumo.createMany({
+      data: [
+        { servicoId: porNome("Extensão de cílios").id, produtoId: prod("Fios para cílios (bandeja)").id, quantidade: 0.3 },
+        { servicoId: porNome("Extensão de cílios").id, produtoId: prod("Cola para cílios").id, quantidade: 0.1 },
+        { servicoId: manutencao.id, produtoId: prod("Fios para cílios (bandeja)").id, quantidade: 0.15 },
+        { servicoId: manutencao.id, produtoId: prod("Cola para cílios").id, quantidade: 0.05 },
+        { servicoId: porNome("Alongamento de unhas em gel").id, produtoId: prod("Gel para unhas (pote)").id, quantidade: 0.2 },
+      ],
+    });
+    // Indique uma amiga: R$ 20 para cada no primeiro salão
+    if (n === 0) await db.salao.update({ where: { id: b.id }, data: { indicacaoCreditoCentavos: 2000, linkAvaliacao: "https://g.page/r/exemplo/review" } });
+
     if (n === 0) {
       await db.usuario.create({ data: { salaoId: b.id, profissionalId: profissionais[0].id, nome: "Carla Mendes", email: "carla@flordelotus.com", papel: "PROFISSIONAL", senhaHash } });
     }
@@ -196,7 +238,10 @@ async function main() {
           const auxiliar = profissionais.find((x) => x.id !== profissional.id)!;
           await db.comandaItem.updateMany({ where: { comandaId: comanda.id, tipo: "SERVICO" }, data: { auxiliarId: auxiliar.id, comissaoAuxiliarPct: auxiliar.comissaoAuxiliarPct } });
         }
-        if (k % 4 === 0) await adicionarProduto(b.id, comanda.id, b.produtos[k % b.produtos.length].id, 1, profissional.id);
+        if (k % 4 === 0) {
+          const venda = b.produtos.filter((p) => p.precoCentavos > 0);
+          await adicionarProduto(b.id, comanda.id, venda[k % venda.length].id, 1, profissional.id);
+        }
         await fecharComanda(b.id, comanda.id, { formaPagamento: ["PIX", "CARTAO_DEBITO", "DINHEIRO", "CARTAO_CREDITO"][k % 4], descontoCentavos: 0, usarCashback: k % 5 === 0 });
         const fechada = new Date(inicio.getTime() + servico.duracaoMin * 60_000);
         await db.comanda.update({ where: { id: comanda.id }, data: { fechadaEm: fechada, abertaEm: inicio } });
@@ -233,6 +278,15 @@ async function main() {
     await db.cliente.update({
       where: { id: porNomeCliente("Joana Silva").id },
       data: { anamnese: { alergias: "Cola de cílios com cianoacrilato", lentes: true, gestante: false, observacoes: "Prefere curvatura C." }, anamneseEm: criarDataHora(somarDias(hoje, -30), "10:00") },
+    });
+
+    // Fórmula de coloração, lista de espera e indicação
+    const joana = porNomeCliente("Joana Silva");
+    await db.formulaCliente.create({ data: { salaoId: b.id, clienteId: joana.id, titulo: "Coloração raiz", formula: "30 g 6.1 + 30 g OX 20 vol · 35 min de pausa", autor: "Carla Mendes" } });
+    await db.cliente.update({ where: { id: joana.id }, data: { codigoIndicacao: n === 0 ? "JOANA7K2P" : "JOANA8M3Q" } });
+    await db.cliente.update({ where: { id: porNomeCliente("Bruna Alves").id }, data: { indicadoPorId: joana.id } });
+    await db.listaEspera.create({
+      data: { salaoId: b.id, filialId: b.filiais[0].id, servicoIds: [porNome("Extensão de cílios").id], nome: "Camila Rocha", telefone: "11912340003", dia: somarDias(hoje, 1), periodo: "TARDE" },
     });
 
     console.log(`✅ ${demo.nome}: login ${demo.email} / 123456 · link /b/${demo.slug}`);

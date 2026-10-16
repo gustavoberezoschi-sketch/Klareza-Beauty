@@ -1,6 +1,7 @@
 import { assinaturaVigente, usosDoPlanoNoMes } from "./comandas";
 import { db } from "./db";
 import { corDoTexto } from "./formato";
+import { descreverFaixas, lerFaixas } from "./pedido";
 import { diaDaSemana, diaLocal, somarDias } from "./tempo";
 
 /** Variáveis de cor da marca para as páginas do cliente. */
@@ -38,7 +39,11 @@ export async function dadosDoAgendamento(slug: string) {
     where: { slug },
     include: {
       filiais: { where: { ativo: true }, include: { horarios: true }, orderBy: [{ ordem: "asc" }, { criadoEm: "asc" }] },
-      servicos: { where: { ativo: true, exibirOnline: true }, include: { profissionais: { select: { id: true } } }, orderBy: [{ categoria: "asc" }, { precoCentavos: "asc" }] },
+      servicos: {
+        where: { ativo: true, exibirOnline: true },
+        include: { profissionais: { select: { id: true } }, opcoes: { where: { ativo: true }, orderBy: [{ ordem: "asc" }, { precoCentavos: "asc" }] } },
+        orderBy: [{ categoria: "asc" }, { precoCentavos: "asc" }],
+      },
       profissionais: { where: { ativo: true, filial: { ativo: true } }, orderBy: [{ destaque: "desc" }, { nome: "asc" }] },
     },
   });
@@ -58,6 +63,9 @@ export async function dadosDoAgendamento(slug: string) {
       precoCentavos: s.precoCentavos,
       duracaoMin: s.duracaoMin,
       profissionalIds: s.profissionais.map((x) => x.id),
+      variacoes: s.opcoes.filter((o) => o.tipo === "VARIACAO").map((o) => ({ id: o.id, nome: o.nome, precoCentavos: o.precoCentavos, duracaoMin: o.duracaoMin })),
+      adicionais: s.opcoes.filter((o) => o.tipo === "ADICIONAL").map((o) => ({ id: o.id, nome: o.nome, precoCentavos: o.precoCentavos, duracaoMin: o.duracaoMin })),
+      manutencao: descreverFaixas(lerFaixas(s.faixasManutencao)) || null,
     })),
     profissionais: b.profissionais.map((x) => ({ id: x.id, nome: x.nome, foto: x.foto, destaque: x.destaque, bio: x.bio, filialId: x.filialId })),
   };

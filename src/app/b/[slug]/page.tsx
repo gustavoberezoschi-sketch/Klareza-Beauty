@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const b = await db.salao.findUnique({ where: { slug: (await params).slug }, select: { nome: true, descricao: true } });
   return b
     ? { title: { absolute: `${b.nome} · Agende seu horário` }, description: b.descricao ?? `Agende seu horário no ${b.nome}.` }
-    : { title: "Salão não encontrada" };
+    : { title: "Salão não encontrado" };
 }
 
 export default async function PaginaPublica({ params }: Props) {
@@ -32,6 +32,7 @@ export default async function PaginaPublica({ params }: Props) {
       profissionais: { where: { ativo: true, filial: { ativo: true } }, include: { filial: { select: { nome: true } } }, orderBy: [{ destaque: "desc" }, { nome: "asc" }] },
       planos: { where: { ativo: true, exibirOnline: true }, include: { servicos: { select: { nome: true } } }, orderBy: { precoCentavos: "asc" } },
       banners: { orderBy: { ordem: "asc" } },
+      fotosClientes: { where: { publica: true }, select: { id: true, tipo: true, legenda: true }, orderBy: { criadoEm: "desc" }, take: 12 },
     },
   });
   if (!b) notFound();
@@ -163,6 +164,23 @@ export default async function PaginaPublica({ params }: Props) {
                 </ul>
               </div>
             ))}
+          </section>
+        )}
+
+        {b.fotosClientes.length > 0 && (
+          <section>
+            <h2 className="mb-4 font-display text-xl font-bold">Antes e depois</h2>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {b.fotosClientes.map((f) => (
+                <figure key={f.id} className="overflow-hidden rounded-2xl bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/b/${slug}/foto/${f.id}`} alt={f.legenda ?? (f.tipo === "DEPOIS" ? "Depois" : "Antes")} loading="lazy" className="aspect-square w-full object-cover" />
+                  <figcaption className="truncate px-2.5 py-1.5 text-xs text-couro-700">
+                    <strong>{f.tipo === "DEPOIS" ? "Depois" : "Antes"}</strong>{f.legenda && ` · ${f.legenda}`}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </section>
         )}
 
