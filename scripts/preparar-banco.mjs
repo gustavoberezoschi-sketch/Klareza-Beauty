@@ -16,7 +16,7 @@ function limpar(valor) {
 
 function falhar(mensagem) {
   console.error("\n" + "=".repeat(70));
-  console.error("❌ ERRO NA CONFIGURAÇÃO DO SISTEMA SALAO");
+  console.error("❌ ERRO NA CONFIGURAÇÃO DO KLAREZA BEAUTY");
   console.error(mensagem);
   console.error("Ajuste em: Vercel → seu projeto → Settings → Environment Variables");
   console.error("Depois: Deployments → ⋯ (na última linha) → Redeploy");
