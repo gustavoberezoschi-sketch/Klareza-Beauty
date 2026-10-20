@@ -6,6 +6,7 @@ import { InstalarApp } from "@/components/AppDoSalao";
 import { Carrossel } from "@/components/Carrossel";
 import { clienteLogado } from "@/lib/clienteAuth";
 import { db } from "@/lib/db";
+import { temRecurso } from "@/lib/planosSistema";
 import { corDoTexto, formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { estiloDaMarca } from "@/lib/publico";
 import { NOMES_DIAS, diaDaSemana, diaLocal, horaLocal } from "@/lib/tempo";
@@ -184,7 +185,7 @@ export default async function PaginaPublica({ params }: Props) {
           </section>
         )}
 
-        {b.planos.length > 0 && (
+        {temRecurso(b.plano, "clube") && b.planos.length > 0 && (
           <section>
             <h2 className="mb-1 flex items-center gap-2 font-display text-xl font-bold"><Crown className="size-5" style={{ color: cor }} /> Clube de assinatura</h2>
             <p className="mb-4 text-sm text-couro-400">Pague um valor fixo por mês e venha quando quiser.</p>

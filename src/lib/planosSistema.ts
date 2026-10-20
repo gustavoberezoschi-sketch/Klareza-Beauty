@@ -1,17 +1,39 @@
+import { redirect } from "next/navigation";
 import { db } from "./db";
 import { diaLocal, somarDias, somarMeses } from "./tempo";
 
 // Planos do Klareza Beauty. Para mudar preço ou limite, altere só aqui.
+/**
+ * Recursos que o plano libera. O Solo é para uma profissional que atende sozinha: não tem o que só uma equipe usa
+ * (clube de assinatura, comissões, financeiro), para que um salão com mais gente escolha o Bairro.
+ */
+export const RECURSOS = {
+  clube: "Clube de assinatura e clube de vantagens",
+  comissoes: "Comissões e relatório por profissional",
+  financeiro: "Financeiro (contas a pagar)",
+} as const;
+export type Recurso = keyof typeof RECURSOS;
+const TUDO: Record<Recurso, boolean> = { clube: true, comissoes: true, financeiro: true };
+const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, financeiro: false };
+
 // Solo: profissional autônoma (1 pessoa). Base dos salões: Bairro. Cidade = 2x, Nacional = 3,5x.
 // Anual = 10 mensalidades (2 meses grátis). profissionais: null = equipe ilimitada.
 export const PLANOS_SISTEMA = {
-  SOLO: { nome: "Solo", mensal: 5990, anual: 59900, unidades: 1, assinantes: 100, profissionais: 1 },
-  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300, profissionais: null },
-  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500, profissionais: null },
-  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null, profissionais: null },
+  SOLO: { nome: "Solo", mensal: 5990, anual: 59900, unidades: 1, assinantes: 0, profissionais: 1, recursos: SEM_EQUIPE },
+  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300, profissionais: null, recursos: TUDO },
+  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500, profissionais: null, recursos: TUDO },
+  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null, profissionais: null, recursos: TUDO },
 } as const satisfies Record<
   string,
-  { nome: string; mensal: number; anual: number; unidades: number | null; assinantes: number | null; profissionais: number | null }
+  {
+    nome: string;
+    mensal: number;
+    anual: number;
+    unidades: number | null;
+    assinantes: number | null;
+    profissionais: number | null;
+    recursos: Record<Recurso, boolean>;
+  }
 >;
 
 export type CodigoPlano = keyof typeof PLANOS_SISTEMA;
@@ -20,6 +42,22 @@ export const DIAS_TOLERANCIA = 10; // depois do vencimento, antes de considerar 
 
 export function planoDe(codigo: string) {
   return PLANOS_SISTEMA[(codigo in PLANOS_SISTEMA ? codigo : "BAIRRO") as CodigoPlano];
+}
+
+export function temRecurso(codigoPlano: string, recurso: Recurso) {
+  return planoDe(codigoPlano).recursos[recurso];
+}
+
+/** Recursos do plano do salão. */
+export async function recursosDoSalao(salaoId: string) {
+  const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true } });
+  return { codigo: b.plano as CodigoPlano, ...planoDe(b.plano).recursos, equipe: planoDe(b.plano).profissionais === null };
+}
+
+/** Páginas e ações de um recurso que o plano não tem levam para "Meu plano". */
+export async function exigirRecurso(salaoId: string, recurso: Recurso) {
+  const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true } });
+  if (!temRecurso(b.plano, recurso)) redirect(`/painel/plano?indisponivel=${recurso}`);
 }
 
 export function valorDoCiclo(codigo: string, ciclo: string) {
@@ -86,6 +124,7 @@ export async function garantirVagaDeProfissional(salaoId: string) {
 /** Lança LimiteDoPlano se o salão não puder ter mais um assinante ativo no clube. */
 export async function garantirVagaDeAssinante(salaoId: string) {
   const u = await usoDoPlano(salaoId);
+  if (!u.plano.recursos.clube) throw new LimiteDoPlano(`O plano ${u.plano.nome} não inclui o clube de assinatura. Para usar, mude de plano em Meu plano.`);
   if (u.plano.assinantes !== null && u.assinantes >= u.plano.assinantes)
     throw new LimiteDoPlano(
       `O plano ${u.plano.nome} permite até ${u.plano.assinantes} assinantes ativos no clube. Para cadastrar mais, mude de plano em Configurações → Meu plano.`,

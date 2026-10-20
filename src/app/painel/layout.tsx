@@ -5,7 +5,7 @@ import { exigirSessao } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { linkWhatsApp } from "@/lib/formato";
-import { situacaoDaSalao } from "@/lib/planosSistema";
+import { recursosDoSalao, situacaoDaSalao } from "@/lib/planosSistema";
 import { formatarDia } from "@/lib/tempo";
 import Link from "next/link";
 import { sair } from "../login/actions";
@@ -44,6 +44,7 @@ export default async function PainelLayout({ children }: { children: React.React
     );
   }
   const { filiais, atual } = await filialDoPainel(sessao);
+  const recursos = await recursosDoSalao(sessao.salaoId);
 
   return (
     <div className="min-h-screen">
@@ -53,6 +54,7 @@ export default async function PainelLayout({ children }: { children: React.React
         logo={salao?.logo ?? null}
         usuario={sessao.nome}
         papel={sessao.papel}
+        recursos={{ clube: recursos.clube, financeiro: recursos.financeiro, equipe: recursos.equipe }}
         sair={sair}
         filiais={filiais.filter((f) => f.ativo).map((f) => ({ id: f.id, nome: f.nome }))}
         filialAtual={atual}

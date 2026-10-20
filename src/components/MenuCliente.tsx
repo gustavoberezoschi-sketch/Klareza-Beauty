@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Crown, Gift, House, LogOut, UserRound } from "lucide-react";
 
-export function MenuCliente({ slug, nome, logo, temVantagens, sair }: { slug: string; nome: string; logo: string | null; temVantagens: boolean; sair: () => Promise<void> }) {
+export function MenuCliente({ slug, nome, logo, temVantagens, temPlano = true, sair }: { slug: string; nome: string; logo: string | null; temVantagens: boolean; temPlano?: boolean; sair: () => Promise<void> }) {
   const caminho = usePathname();
   const base = `/b/${slug}/conta`;
   const itens = [
     { href: base, rotulo: "Início", icone: House },
     { href: `${base}/agendamentos`, rotulo: "Agendamentos", icone: CalendarDays },
     ...(temVantagens ? [{ href: `${base}/vantagens`, rotulo: "Vantagens", icone: Gift }] : []),
-    { href: `${base}/plano`, rotulo: "Plano", icone: Crown },
+    ...(temPlano ? [{ href: `${base}/plano`, rotulo: "Plano", icone: Crown }] : []),
     { href: `${base}/perfil`, rotulo: "Perfil", icone: UserRound },
   ];
   const ativo = (href: string) => (href === base ? caminho === base : caminho.startsWith(href));

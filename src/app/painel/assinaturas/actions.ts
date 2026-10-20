@@ -10,7 +10,7 @@ import { FORMAS_PAGAMENTO, lerDinheiro } from "@/lib/formato";
 import { ErroAsaas } from "@/lib/asaas";
 import { ErroClube, assinarClubeOnline, cancelarAssinaturaDoClube } from "@/lib/clubeOnline";
 import { somenteDigitos } from "@/lib/formato";
-import { LimiteDoPlano, garantirVagaDeAssinante } from "@/lib/planosSistema";
+import { LimiteDoPlano, exigirRecurso, garantirVagaDeAssinante } from "@/lib/planosSistema";
 import { diaLocal, somarMeses } from "@/lib/tempo";
 import type { Resultado } from "../actions";
 
@@ -18,6 +18,7 @@ const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").t
 
 export async function salvarPlano(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const id = texto(form, "id");
   const nome = texto(form, "nome");
   const preco = lerDinheiro(texto(form, "preco"));
@@ -42,6 +43,7 @@ export async function salvarPlano(_: Resultado, form: FormData): Promise<Resulta
 
 export async function alternarPlano(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const p = await db.plano.findFirst({ where: { id: texto(form, "id"), salaoId } });
   if (p) await db.plano.update({ where: { id: p.id }, data: { ativo: !p.ativo } });
   revalidatePath("/painel", "layout");
@@ -56,6 +58,7 @@ async function registrar(assinaturaId: string, valor: number, forma: string, sal
 
 export async function novaAssinatura(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const [cliente, plano] = await Promise.all([
     db.cliente.findFirst({ where: { id: texto(form, "clienteId"), salaoId } }),
     db.plano.findFirst({ where: { id: texto(form, "planoId"), salaoId, ativo: true } }),
@@ -94,6 +97,7 @@ export async function novaAssinatura(_: Resultado, form: FormData): Promise<Resu
 
 export async function pagarMensalidade(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const a = await db.assinatura.findFirst({ where: { id: texto(form, "id"), salaoId, status: "ATIVA" }, include: { plano: true } });
   const forma = texto(form, "formaPagamento");
   if (!a || !(forma in FORMAS_PAGAMENTO)) return;
@@ -105,6 +109,7 @@ export async function pagarMensalidade(form: FormData) {
 
 export async function cancelarAssinatura(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   try {
     await cancelarAssinaturaDoClube(salaoId, texto(form, "id"));
   } catch (e) {

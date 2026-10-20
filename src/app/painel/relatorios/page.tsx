@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GraficoBarras } from "@/components/GraficoBarras";
 import { Cabecalho, Indicador, Secao } from "@/components/ui";
 import { exigirSessao } from "@/lib/auth";
+import { recursosDoSalao } from "@/lib/planosSistema";
 import { filialDoPainel } from "@/lib/filial";
 import { NOME_FORMA, formatarDinheiro } from "@/lib/formato";
 import { numerosDoPeriodo } from "@/lib/relatorios";
@@ -17,6 +18,7 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
   const de = p.de && diaValido(p.de) ? p.de : `${hoje.slice(0, 8)}01`;
   const ate = p.ate && diaValido(p.ate) && p.ate >= de ? p.ate : hoje;
   const profissional = sessao.profissionalId;
+  const recursos = await recursosDoSalao(sessao.salaoId);
   const ctx = await filialDoPainel(sessao);
   const varias = ctx.filiais.filter((f) => f.ativo).length > 1;
   const n = await numerosDoPeriodo(sessao.salaoId, de, ate, profissional, profissional ? null : ctx.atual?.id);
@@ -90,43 +92,45 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
         </Secao>
       )}
 
+      {(recursos.comissoes || profissional) && (
       <Secao titulo={profissional ? "Detalhe" : "Comissões por profissional"} className="mb-4">
-        <div className="-mx-5 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-couro-400">
-              <tr className="[&>th]:px-5 [&>th]:pb-2 [&>th]:font-medium">
-                <th>Profissional</th><th>Atendimentos</th><th>Serviços</th><th>Produtos</th><th className="text-right">Comissão</th>
-              </tr>
-            </thead>
-            <tbody>
-              {n.porProfissional.map((b) => (
-                <tr key={b.id} className="border-t border-black/[0.06] [&>td]:px-5 [&>td]:py-3">
-                  <td className="font-semibold">{b.nome}</td>
-                  <td className="tabular-nums">{b.qtdServicos}</td>
-                  <td className="tabular-nums">{formatarDinheiro(b.servicos)}</td>
-                  <td className="tabular-nums">{formatarDinheiro(b.produtos)}</td>
-                  <td className="text-right font-semibold text-latao-700 tabular-nums">{formatarDinheiro(b.comissao)}</td>
+          <div className="-mx-5 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-couro-400">
+                <tr className="[&>th]:px-5 [&>th]:pb-2 [&>th]:font-medium">
+                  <th>Profissional</th><th>Atendimentos</th><th>Serviços</th><th>Produtos</th><th className="text-right">Comissão</th>
                 </tr>
-              ))}
-              {n.porProfissional.length === 0 && (
-                <tr><td colSpan={5} className="px-5 py-3 text-couro-400">Nenhum atendimento fechado no período.</td></tr>
+              </thead>
+              <tbody>
+                {n.porProfissional.map((b) => (
+                  <tr key={b.id} className="border-t border-black/[0.06] [&>td]:px-5 [&>td]:py-3">
+                    <td className="font-semibold">{b.nome}</td>
+                    <td className="tabular-nums">{b.qtdServicos}</td>
+                    <td className="tabular-nums">{formatarDinheiro(b.servicos)}</td>
+                    <td className="tabular-nums">{formatarDinheiro(b.produtos)}</td>
+                    <td className="text-right font-semibold text-latao-700 tabular-nums">{formatarDinheiro(b.comissao)}</td>
+                  </tr>
+                ))}
+                {n.porProfissional.length === 0 && (
+                  <tr><td colSpan={5} className="px-5 py-3 text-couro-400">Nenhum atendimento fechado no período.</td></tr>
+                )}
+              </tbody>
+              {n.porProfissional.length > 1 && (
+                <tfoot>
+                  <tr className="border-t border-black/15 font-semibold [&>td]:px-5 [&>td]:py-3">
+                    <td>Total</td>
+                    <td className="tabular-nums">{n.atendimentos}</td>
+                    <td className="tabular-nums">{formatarDinheiro(n.porProfissional.reduce((s, b) => s + b.servicos, 0))}</td>
+                    <td className="tabular-nums">{formatarDinheiro(n.porProfissional.reduce((s, b) => s + b.produtos, 0))}</td>
+                    <td className="text-right tabular-nums">{formatarDinheiro(n.comissoes)}</td>
+                  </tr>
+                </tfoot>
               )}
-            </tbody>
-            {n.porProfissional.length > 1 && (
-              <tfoot>
-                <tr className="border-t border-black/15 font-semibold [&>td]:px-5 [&>td]:py-3">
-                  <td>Total</td>
-                  <td className="tabular-nums">{n.atendimentos}</td>
-                  <td className="tabular-nums">{formatarDinheiro(n.porProfissional.reduce((s, b) => s + b.servicos, 0))}</td>
-                  <td className="tabular-nums">{formatarDinheiro(n.porProfissional.reduce((s, b) => s + b.produtos, 0))}</td>
-                  <td className="text-right tabular-nums">{formatarDinheiro(n.comissoes)}</td>
-                </tr>
-              </tfoot>
-            )}
-          </table>
-        </div>
-        <p className="mt-3 text-xs text-couro-400">Serviços inclusos em assinatura ou pacote contam pelo preço de tabela para a comissão. A comissão de auxiliar entra para quem ajudou.</p>
-      </Secao>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-couro-400">Serviços inclusos em assinatura ou pacote contam pelo preço de tabela para a comissão. A comissão de auxiliar entra para quem ajudou.</p>
+        </Secao>
+      )}
 
       {!profissional && n.margemPorServico.length > 0 && (
         <Secao titulo="Margem por serviço" className="mb-4">

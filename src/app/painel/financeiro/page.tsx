@@ -3,6 +3,7 @@ import { Landmark, Trash2 } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Indicador, Secao, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { db } from "@/lib/db";
 import { FORMAS_PAGAMENTO, formatarDinheiro } from "@/lib/formato";
 import { numerosDoPeriodo } from "@/lib/relatorios";
@@ -17,6 +18,7 @@ const NOMES_MES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "
 
 export default async function Financeiro({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "financeiro");
   const p = await searchParams;
   const hoje = diaLocal();
   const ref = p.mes && /^\d{4}-\d{2}$/.test(p.mes) ? `${p.mes}-01` : hoje;

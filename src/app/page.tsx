@@ -230,8 +230,12 @@ export default async function Landing() {
                 </p>
                 <ul className={`mt-8 flex-1 space-y-3 border-t pt-6 ${forte ? "border-white/15" : "border-[var(--lp-linha)]"}`}>
                   <li>{p.unidades === null ? "Unidades ilimitadas" : p.unidades === 1 ? "1 unidade" : `${p.unidades} unidades`}</li>
-                  <li>{p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes no clube`}</li>
-                  <li>Todos os recursos inclusos</li>
+                  {p.recursos.clube ? (
+                    <li>{p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes no clube`}</li>
+                  ) : (
+                    <li className={forte ? "text-white/60" : "text-[var(--lp-cinza)]"}>Sem clube de assinatura, comissões e financeiro</li>
+                  )}
+                  {p.recursos.clube && <li>Todos os recursos inclusos</li>}
                   <li>{p.profissionais === null ? "Equipe ilimitada" : "1 profissional (autônoma)"}</li>
                   <li className="font-medium">+ Placa de acrílico com QR code (brinde)</li>
                 </ul>

@@ -5,7 +5,7 @@ import { Cabecalho, Etiqueta, Secao } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatarDinheiro, linkWhatsApp } from "@/lib/formato";
-import { PLANOS_SISTEMA, usoDoPlano, valorDoCiclo } from "@/lib/planosSistema";
+import { PLANOS_SISTEMA, RECURSOS, type Recurso, usoDoPlano, valorDoCiclo } from "@/lib/planosSistema";
 import { formatarDataHora, formatarDia } from "@/lib/tempo";
 
 export const metadata: Metadata = { title: "Meu plano" };
@@ -34,8 +34,9 @@ function Barra({ rotulo, usado, limite }: { rotulo: string; usado: number; limit
   );
 }
 
-export default async function MeuPlano() {
+export default async function MeuPlano({ searchParams }: { searchParams: Promise<{ indisponivel?: string }> }) {
   const { salaoId } = await exigirGestor();
+  const indisponivel = (await searchParams).indisponivel as Recurso | undefined;
   const [uso, salao, config, pagamentos] = await Promise.all([
     usoDoPlano(salaoId),
     db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { nome: true, linkPagamentoSistema: true, asaasAssinaturaSistema: true, cobrancaSistemaCartao: true } }),
@@ -48,6 +49,11 @@ export default async function MeuPlano() {
   return (
     <div>
       <Cabecalho titulo="Meu plano" descricao="Sua assinatura do Klareza Beauty." />
+      {indisponivel && indisponivel in RECURSOS && (
+        <p className="mb-4 rounded-2xl bg-latao-100 px-5 py-3 text-sm text-latao-700">
+          <strong>{RECURSOS[indisponivel]}</strong> não está incluído no plano {uso.plano.nome}. Para usar, mude para o plano Bairro ou superior.
+        </p>
+      )}
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <Secao titulo={<span className="flex items-center gap-2">Plano {uso.plano.nome} <Etiqueta tom={sit.t}>{sit.r}</Etiqueta></span>}>
           <p className="numero text-3xl">
@@ -84,7 +90,7 @@ export default async function MeuPlano() {
         <Secao titulo="Uso do plano">
           <div className="space-y-5">
             <Barra rotulo="Unidades ativas" usado={uso.unidades} limite={uso.plano.unidades} />
-            <Barra rotulo="Assinantes ativos no clube" usado={uso.assinantes} limite={uso.plano.assinantes} />
+            {uso.plano.recursos.clube && <Barra rotulo="Assinantes ativos no clube" usado={uso.assinantes} limite={uso.plano.assinantes} />}
             <Barra rotulo="Profissionais ativas" usado={uso.profissionais} limite={uso.plano.profissionais} />
           </div>
         </Secao>

@@ -5,6 +5,7 @@ import { Carrossel } from "@/components/Carrossel";
 import { atendimentosDoCliente } from "@/lib/atendimentosCliente";
 import { exigirCliente } from "@/lib/clienteAuth";
 import { db } from "@/lib/db";
+import { temRecurso } from "@/lib/planosSistema";
 import { formatarDinheiro } from "@/lib/formato";
 import { planoDoCliente } from "@/lib/publico";
 import { CartaoAgendamento } from "./CartaoAgendamento";
@@ -22,12 +23,13 @@ export default async function InicioCliente({ params }: { params: Promise<{ slug
   const [b, plano, proximos] = await Promise.all([
     db.salao.findUniqueOrThrow({
       where: { slug },
-      select: { nome: true, indicacaoCreditoCentavos: true, banners: { orderBy: { ordem: "asc" } }, _count: { select: { parceiros: { where: { ativo: true } }, planos: { where: { ativo: true, exibirOnline: true } } } } },
+      select: { nome: true, plano: true, indicacaoCreditoCentavos: true, banners: { orderBy: { ordem: "asc" } }, _count: { select: { parceiros: { where: { ativo: true } }, planos: { where: { ativo: true, exibirOnline: true } } } } },
     }),
     planoDoCliente(cliente.id),
     atendimentosDoCliente(cliente.id, "futuros", 3),
   ]);
   const { publica } = await chavesVapid();
+  const clube = temRecurso(b.plano, "clube");
   // "Indique uma amiga": o código só é criado quando o salão liga a indicação
   const codigo = b.indicacaoCreditoCentavos > 0 ? await codigoDoCliente(cliente.id) : null;
   const convite = codigo
@@ -40,7 +42,7 @@ export default async function InicioCliente({ params }: { params: Promise<{ slug
       <InstalarApp slug={slug} nome={b.nome} />
       <Carrossel banners={b.banners} />
 
-      {plano ? (
+      {!clube ? null : plano ? (
         <Link href={`/b/${slug}/conta/plano`} className="block rounded-2xl bg-white p-5 shadow-sm">
           <p className="flex items-center gap-2 font-semibold"><Crown className="size-5 text-[var(--cor)]" /> Seu plano</p>
           <p className="mt-1 text-sm text-couro-700">Você está aproveitando as vantagens do {plano.nome}.</p>
@@ -54,7 +56,7 @@ export default async function InicioCliente({ params }: { params: Promise<{ slug
         </Link>
       ) : null}
 
-      {b._count.parceiros > 0 && (
+      {clube && b._count.parceiros > 0 && (
         <Link href={`/b/${slug}/conta/vantagens`} className="flex items-center justify-between gap-3 rounded-2xl bg-[var(--cor)] p-5 text-[var(--cor-texto)] shadow-sm" style={{ backgroundImage: "linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.25))" }}>
           <span>
             <span className="flex items-center gap-2 font-bold"><Gift className="size-5" /> Conheça o Clube de vantagens do {b.nome}</span>

@@ -1,6 +1,6 @@
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { formatarDinheiro } from "@/lib/formato";
-import { CODIGOS_PLANO, PLANOS_SISTEMA, type CodigoPlano } from "@/lib/planosSistema";
+import { CODIGOS_PLANO, PLANOS_SISTEMA, RECURSOS, type CodigoPlano } from "@/lib/planosSistema";
 
 /** Os planos lado a lado (usado na página /planos e no "Meu plano"). */
 export function TabelaPlanos({ atual, acao }: { atual?: CodigoPlano; acao?: (codigo: CodigoPlano) => React.ReactNode }) {
@@ -28,10 +28,15 @@ export function TabelaPlanos({ atual, acao }: { atual?: CodigoPlano; acao?: (cod
             </p>
             <ul className="mt-5 flex-1 space-y-2 text-sm">
               <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.unidades === null ? "Unidades ilimitadas" : p.unidades === 1 ? "1 unidade" : `Até ${p.unidades} unidades`}</li>
-              <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes ativos no clube`}</li>
+              {p.recursos.clube && (
+                <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes ativos no clube`}</li>
+              )}
               <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.profissionais === null ? "Equipe ilimitada" : "1 profissional (para quem atende sozinha)"}</li>
-              {["Agenda e agendamento online", "Área do cliente com login", "Comandas, caixa e estoque", "Comissões e relatórios", "Lembretes por WhatsApp", "Placa de acrílico com QR code (brinde)"].map((t) => (
+              {["Agenda e agendamento online", "Área do cliente com login", "Comandas, caixa e estoque", p.recursos.comissoes ? "Comissões e relatórios" : "Relatórios de faturamento", "Lembretes por WhatsApp", "Sinal por Pix, pacotes, fichas e fotos", "Placa de acrílico com QR code (brinde)"].map((t) => (
                 <li key={t} className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {t}</li>
+              ))}
+              {(Object.keys(RECURSOS) as (keyof typeof RECURSOS)[]).filter((r) => !p.recursos[r]).map((r) => (
+                <li key={r} className="flex gap-2 text-couro-400"><X className="size-4 shrink-0" /> Sem {RECURSOS[r].toLowerCase()}</li>
               ))}
             </ul>
             {acao && <div className="mt-6">{acao(c)}</div>}

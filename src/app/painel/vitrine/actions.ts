@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { exigirGestor } from "@/lib/auth";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { db } from "@/lib/db";
 import type { Resultado } from "../actions";
 
@@ -19,6 +20,7 @@ function atualizar() {
 
 export async function novoBanner(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const img = imagem(form, "imagem");
   if (!img) return { erro: "Escolha a imagem do banner." };
   if ((await db.banner.count({ where: { salaoId } })) >= 8) return { erro: "Máximo de 8 banners. Remova algum antes." };
@@ -30,12 +32,14 @@ export async function novoBanner(_: Resultado, form: FormData): Promise<Resultad
 
 export async function removerBanner(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   await db.banner.deleteMany({ where: { id: texto(form, "id"), salaoId } });
   atualizar();
 }
 
 export async function moverBanner(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const banners = await db.banner.findMany({ where: { salaoId }, orderBy: { ordem: "asc" } });
   const i = banners.findIndex((b) => b.id === texto(form, "id"));
   const j = i + (texto(form, "direcao") === "subir" ? -1 : 1);
@@ -47,6 +51,7 @@ export async function moverBanner(form: FormData) {
 
 export async function salvarParceiro(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const id = texto(form, "id");
   const nome = texto(form, "nome");
   if (!nome) return { erro: "Informe o nome do parceiro." };
@@ -65,6 +70,7 @@ export async function salvarParceiro(_: Resultado, form: FormData): Promise<Resu
 
 export async function alternarParceiro(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const p = await db.parceiro.findFirst({ where: { id: texto(form, "id"), salaoId } });
   if (p) await db.parceiro.update({ where: { id: p.id }, data: { ativo: !p.ativo } });
   atualizar();
@@ -72,6 +78,7 @@ export async function alternarParceiro(form: FormData) {
 
 export async function removerParceiro(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   await db.parceiro.deleteMany({ where: { id: texto(form, "id"), salaoId } });
   atualizar();
 }

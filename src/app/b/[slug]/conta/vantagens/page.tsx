@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { ExternalLink, Gift } from "lucide-react";
 import { exigirCliente } from "@/lib/clienteAuth";
+import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { temRecurso } from "@/lib/planosSistema";
 import { CopiarCupom } from "./CopiarCupom";
 
 export const metadata: Metadata = { title: "Clube de vantagens" };
@@ -9,6 +11,8 @@ export const metadata: Metadata = { title: "Clube de vantagens" };
 export default async function Vantagens({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   await exigirCliente(slug);
+  const salao = await db.salao.findUnique({ where: { slug }, select: { plano: true } });
+  if (!salao || !temRecurso(salao.plano, "clube")) notFound();
   const parceiros = await db.parceiro.findMany({ where: { salao: { slug }, ativo: true }, orderBy: { nome: "asc" } });
 
   return (

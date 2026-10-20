@@ -60,10 +60,16 @@ os próprios dados e o próprio link de agendamento.
 
 | Plano | Mensal | Anual | Unidades | Assinantes ativos no clube |
 | --- | --- | --- | --- | --- |
-| Solo (1 profissional) | R$ 59,90 | R$ 599 | 1 | até 100 |
+| Solo (1 profissional) | R$ 59,90 | R$ 599 | 1 | sem clube |
 | Bairro | R$ 149,90 | R$ 1.499 | 1 | até 300 |
 | Cidade | R$ 299,90 | R$ 2.999 | 2 | até 500 |
 | Nacional | R$ 524,90 | R$ 5.249 | ilimitadas | ilimitados |
+
+O **Solo** é para uma profissional que atende sozinha: uma profissional ativa (o agendamento online já a escolhe
+sozinho) e **sem** clube de assinatura e de vantagens, comissões (e relatório por profissional) e financeiro, para
+que um salão com equipe escolha o Bairro. Os recursos de cada plano ficam em `RECURSOS` e em `PLANOS_SISTEMA`
+(`recursos`), em `src/lib/planosSistema.ts`; as telas e as ações do servidor conferem o plano, então um recurso
+bloqueado não abre nem por link direto.
 
 Preços e limites ficam em `src/lib/planosSistema.ts`. Os limites são aplicados ao cadastrar
 unidade, assinante e (no Solo) profissional. Em `/admin` você define o plano de cada salão, registra pagamentos,

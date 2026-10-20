@@ -51,6 +51,11 @@ export default async function Termos() {
           </li>
           <li>Ao atingir o limite do plano, o sistema pede a mudança para um plano maior antes de cadastrar novas unidades ou assinantes.</li>
           <li>
+            O plano Solo é para uma profissional que atende sozinha: permite uma profissional ativa e não inclui clube de assinatura, comissões nem
+            financeiro. Salões ou estúdios com mais de uma profissional devem contratar o plano Bairro ou superior, e não vários planos Solo para a
+            mesma operação. O Klareza Beauty pode pedir a mudança de plano quando identificar esse uso.
+          </li>
+          <li>
             Sem o pagamento da mensalidade, o acesso ao painel e o agendamento online podem ser suspensos até a regularização. Os dados não são apagados
             pela suspensão.
           </li>

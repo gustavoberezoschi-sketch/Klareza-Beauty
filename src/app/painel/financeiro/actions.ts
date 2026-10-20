@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { exigirGestor } from "@/lib/auth";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { db } from "@/lib/db";
 import { FORMAS_PAGAMENTO, lerDinheiro } from "@/lib/formato";
 import { diaValido, somarMeses } from "@/lib/tempo";
@@ -11,6 +12,7 @@ const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").t
 
 export async function novaConta(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "financeiro");
   const descricao = texto(form, "descricao");
   const valor = lerDinheiro(texto(form, "valor"));
   const vencimento = texto(form, "vencimento");
@@ -34,6 +36,7 @@ export async function novaConta(_: Resultado, form: FormData): Promise<Resultado
 
 export async function pagarConta(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "financeiro");
   const forma = texto(form, "formaPagamento");
   await db.contaPagar.updateMany({
     where: { id: texto(form, "id"), salaoId, pagoEm: null },
@@ -44,6 +47,7 @@ export async function pagarConta(form: FormData) {
 
 export async function excluirConta(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "financeiro");
   await db.contaPagar.deleteMany({ where: { id: texto(form, "id"), salaoId } });
   revalidatePath("/painel", "layout");
 }

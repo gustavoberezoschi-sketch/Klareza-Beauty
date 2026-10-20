@@ -5,6 +5,7 @@ import { Avatar, Cabecalho, Etiqueta, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { filialDoPainel, naFilial } from "@/lib/filial";
+import { usoDoPlano } from "@/lib/planosSistema";
 import { formatarDinheiro, formatarTelefone } from "@/lib/formato";
 import { criarDataHora, diaLocal, limitesDoMes, somarDias } from "@/lib/tempo";
 
@@ -25,6 +26,9 @@ export default async function Equipe() {
       select: { profissionalId: true, auxiliarId: true, quantidade: true, precoUnitCentavos: true, comissaoPct: true, comissaoAuxiliarPct: true, tipo: true },
     }),
   ]);
+  const uso = await usoDoPlano(salaoId);
+  const solo = uso.plano.profissionais !== null;
+  const cheio = uso.plano.profissionais !== null && uso.profissionais >= uso.plano.profissionais;
   const doMes = (id: string) => {
     const meus = itens.filter((i) => i.profissionalId === id);
     return {
@@ -38,12 +42,17 @@ export default async function Equipe() {
   return (
     <div>
       <Cabecalho
-        titulo="Equipe"
-        descricao="Profissionais, comissões e acesso de cada um ao sistema."
-        acoes={<Link href="/painel/equipe/novo" className="btn-destaque"><Plus className="size-4" /> Novo profissional</Link>}
+        titulo={solo ? "Meu perfil" : "Equipe"}
+        descricao={solo ? "Seu perfil aparece para as clientes no agendamento online." : "Profissionais, comissões e acesso de cada um ao sistema."}
+        acoes={cheio ? null : <Link href="/painel/equipe/novo" className="btn-destaque"><Plus className="size-4" /> {solo ? "Criar meu perfil" : "Novo profissional"}</Link>}
       />
+      {solo && cheio && (
+        <p className="mb-4 rounded-2xl bg-fundo px-5 py-3 text-sm text-couro-700">
+          O plano {uso.plano.nome} é para uma profissional só. Para ter equipe (mais profissionais, comissões, clube e financeiro), mude para o plano Bairro em <Link href="/painel/plano" className="font-semibold underline">Meu plano</Link>.
+        </p>
+      )}
       {profissionais.length === 0 ? (
-        <Vazio icone={UsersRound} titulo="Nenhum profissional cadastrado" acao={<Link href="/painel/equipe/novo" className="btn-primario">Cadastrar profissional</Link>} />
+        <Vazio icone={UsersRound} titulo={solo ? "Crie o seu perfil" : "Nenhum profissional cadastrado"} texto={solo ? "É ele que aparece para as clientes escolherem o horário." : undefined} acao={<Link href="/painel/equipe/novo" className="btn-primario">{solo ? "Criar meu perfil" : "Cadastrar profissional"}</Link>} />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {profissionais.map((b) => {
@@ -61,10 +70,10 @@ export default async function Equipe() {
                   </div>
                   {!b.ativo ? <Etiqueta>Inativo</Etiqueta> : b.usuario && <Etiqueta tom="azul"><KeyRound className="mr-1 size-3" /> Tem acesso</Etiqueta>}
                 </div>
-                <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-black/[0.06] pt-4 text-center">
-                  <div><dt className="rotulo">Comissão</dt><dd className="numero mt-1">{b.comissaoPct}%</dd></div>
-                  <div><dt className="rotulo">No mês</dt><dd className="numero mt-1">{m.atendimentos}</dd></div>
-                  <div><dt className="rotulo">A receber</dt><dd className="numero mt-1 text-latao-700">{formatarDinheiro(m.comissao)}</dd></div>
+                <dl className={`mt-4 grid gap-2 border-t border-black/[0.06] pt-4 text-center ${uso.plano.recursos.comissoes ? "grid-cols-3" : "grid-cols-1"}`}>
+                  {uso.plano.recursos.comissoes && <div><dt className="rotulo">Comissão</dt><dd className="numero mt-1">{b.comissaoPct}%</dd></div>}
+                  <div><dt className="rotulo">Atendimentos no mês</dt><dd className="numero mt-1">{m.atendimentos}</dd></div>
+                  {uso.plano.recursos.comissoes && <div><dt className="rotulo">A receber</dt><dd className="numero mt-1 text-latao-700">{formatarDinheiro(m.comissao)}</dd></div>}
                 </dl>
               </Link>
             );

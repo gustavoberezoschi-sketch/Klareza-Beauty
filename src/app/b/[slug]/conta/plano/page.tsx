@@ -3,7 +3,9 @@ import { Check, Crown } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { exigirCliente } from "@/lib/clienteAuth";
 import { cobraOnline } from "@/lib/clubeOnline";
+import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { temRecurso } from "@/lib/planosSistema";
 import { formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { planoDoCliente } from "@/lib/publico";
 import { diaLocal, formatarDia } from "@/lib/tempo";
@@ -18,9 +20,10 @@ export default async function Plano({ params }: { params: Promise<{ slug: string
     planoDoCliente(cliente.id),
     db.salao.findUniqueOrThrow({
       where: { slug },
-      select: { nome: true, telefone: true, asaasApiKey: true, asaasStatus: true, cobrancaOnlineClube: true, planos: { where: { ativo: true, exibirOnline: true }, include: { servicos: { select: { nome: true, id: true } } }, orderBy: { precoCentavos: "asc" } } },
+      select: { nome: true, plano: true, telefone: true, asaasApiKey: true, asaasStatus: true, cobrancaOnlineClube: true, planos: { where: { ativo: true, exibirOnline: true }, include: { servicos: { select: { nome: true, id: true } } }, orderBy: { precoCentavos: "asc" } } },
     }),
   ]);
+  if (!temRecurso(b.plano, "clube")) notFound();
   const atual = plano ? b.planos.find((p) => p.nome === plano.nome) : null;
   const online = cobraOnline(b);
   const minha = await db.assinatura.findFirst({

@@ -96,6 +96,14 @@ export function Agendar({
   const [carregando, iniciar] = useTransition();
 
   const profissional = profissionais.find((b) => b.id === profissionalId);
+  // uma só profissional na unidade (plano Solo ou salão pequeno): ela já vem escolhida e a etapa some
+  const unica = profissionais.length === 1 ? profissionais[0] : null;
+  useEffect(() => {
+    if (unica && profissionalId !== unica.id) {
+      setProfissionalId(unica.id);
+      setAberta((a) => (a < 2 ? 2 : a));
+    }
+  }, [unica, profissionalId]);
   const faz = (s: ServicoOnline, id: string | null) => !id || s.profissionalIds.length === 0 || s.profissionalIds.includes(id);
   const disponiveis = servicos.filter((s) => faz(s, profissionalId || null));
   const selecionados = escolhidos.map((id) => servicos.find((s) => s.id === id)!).filter(Boolean);
@@ -332,7 +340,7 @@ export function Agendar({
         </Etapa>
       )}
 
-      <Etapa n={1} aberta={aberta === 1} feita={profissionalId !== null} bloqueada={!filialId} icone={UserRound} titulo="Selecione um profissional" resumo={profissionalId === null ? null : profissional?.nome ?? "Sem preferência"} abrir={() => filialId && setAberta(1)}>
+      {!unica && <Etapa n={1} aberta={aberta === 1} feita={profissionalId !== null} bloqueada={!filialId} icone={UserRound} titulo="Selecione um profissional" resumo={profissionalId === null ? null : profissional?.nome ?? "Sem preferência"} abrir={() => filialId && setAberta(1)}>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {profissionais.length > 1 && (
             <CartaoProfissional nome="Sem preferência" selecionado={profissionalId === SEM_PREFERENCIA} onClick={() => escolherProfissional(SEM_PREFERENCIA)} />
@@ -341,7 +349,7 @@ export function Agendar({
             <CartaoProfissional key={b.id} nome={b.nome} foto={b.foto} destaque={b.destaque} selecionado={profissionalId === b.id} onClick={() => escolherProfissional(b.id)} />
           ))}
         </div>
-      </Etapa>
+      </Etapa>}
 
       <Etapa n={2} aberta={aberta === 2} feita={escolhidos.length > 0} bloqueada={profissionalId === null} icone={Sparkles} titulo="Selecione os serviços" resumo={selecionados.length ? selecionados.map((s) => s.nome).join(", ") : null} abrir={() => profissionalId !== null && setAberta(2)}>
         <div className="space-y-2">

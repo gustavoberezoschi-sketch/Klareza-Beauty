@@ -4,6 +4,7 @@ import { Crown } from "lucide-react";
 import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Indicador, Secao, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { cobraOnline } from "@/lib/clubeOnline";
 import { usosDoPlanoNoMes } from "@/lib/comandas";
 import { db } from "@/lib/db";
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Assinaturas({ searchParams }: { searchParams: Promise<{ cliente?: string; editar?: string }> }) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "clube");
   const p = await searchParams;
   const hoje = diaLocal();
   await encerrarCanceladasVencidas(salaoId);
