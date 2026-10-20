@@ -8,6 +8,7 @@ import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { TERMO_PADRAO } from "@/lib/anamnese";
 import { formatarDinheiro, formatarTelefone } from "@/lib/formato";
+import { planoDe, temRecurso } from "@/lib/planosSistema";
 import { sinalAtivo } from "@/lib/sinal";
 import { enderecoDoSite } from "@/lib/site";
 import { alterarMinhaSenha, salvarConfiguracoes } from "../actions";
@@ -82,17 +83,24 @@ export default async function Configuracoes() {
           </Secao>
           <Secao titulo="Sinal, indicação e pós-atendimento">
             <div className="grid gap-3 sm:grid-cols-2">
+              {temRecurso(b.plano, "sinal") ? (
               <div>
-                <label className="label" htmlFor="sinal">Sinal no agendamento online (%)</label>
-                <input id="sinal" name="sinal" type="number" min={0} max={100} className="input" defaultValue={b.sinalPct} />
-                <p className="mt-1 text-xs text-couro-400">
-                  {b.asaasApiKey && b.asaasStatus === "APPROVED"
-                    ? sinalAtivo(b)
-                      ? "Ligado: o cliente paga por Pix para garantir o horário. 0 = desligado."
-                      : "O cliente paga essa parte por Pix para garantir o horário. 0 = desligado."
-                    : "Precisa da conta de recebimento aprovada em Pagamentos online."}
-                </p>
-              </div>
+                  <label className="label" htmlFor="sinal">Sinal no agendamento online (%)</label>
+                  <input id="sinal" name="sinal" type="number" min={0} max={100} className="input" defaultValue={b.sinalPct} />
+                  <p className="mt-1 text-xs text-couro-400">
+                    {b.asaasApiKey && b.asaasStatus === "APPROVED"
+                      ? sinalAtivo(b)
+                        ? "Ligado: o cliente paga por Pix para garantir o horário. 0 = desligado."
+                        : "O cliente paga essa parte por Pix para garantir o horário. 0 = desligado."
+                      : "Precisa da conta de recebimento aprovada em Pagamentos online."}
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="label">Sinal no agendamento online</p>
+                  <p className="text-xs text-couro-400">Não incluído no plano {planoDe(b.plano).nome}. Está no plano Bairro e nos maiores (<Link href="/painel/plano" className="underline">Meu plano</Link>).</p>
+                </div>
+              )}
               <div>
                 <label className="label" htmlFor="indicacao">Crédito por indicação (R$)</label>
                 <input id="indicacao" name="indicacao" className="input" inputMode="decimal" defaultValue={b.indicacaoCreditoCentavos ? (b.indicacaoCreditoCentavos / 100).toFixed(2).replace(".", ",") : ""} placeholder="0,00" />

@@ -3,6 +3,7 @@ import { temConflito } from "./agenda";
 import { ErroAsaas, criarCliente, criarCobrancaPix, qrCodePix } from "./asaas";
 import { cpfValido } from "./clubeOnline";
 import { db } from "./db";
+import { temRecurso } from "./planosSistema";
 import { diaLocal } from "./tempo";
 
 type Tx = Prisma.TransactionClient | typeof db;
@@ -16,8 +17,8 @@ export const SINAL_MINIMO_CENTAVOS = 500; // o Asaas não cobra menos de R$ 5,00
 export class ErroSinal extends Error {}
 
 /** O salão cobra sinal no agendamento online? (conta de recebimento aprovada e % definida) */
-export function sinalAtivo(b: { sinalPct: number; asaasApiKey: string | null; asaasStatus: string | null }) {
-  return b.sinalPct > 0 && !!b.asaasApiKey && b.asaasStatus === "APPROVED";
+export function sinalAtivo(b: { plano: string; sinalPct: number; asaasApiKey: string | null; asaasStatus: string | null }) {
+  return temRecurso(b.plano, "sinal") && b.sinalPct > 0 && !!b.asaasApiKey && b.asaasStatus === "APPROVED";
 }
 
 /** Valor do sinal; abaixo do mínimo do Asaas não cobra. */

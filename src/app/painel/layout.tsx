@@ -54,7 +54,7 @@ export default async function PainelLayout({ children }: { children: React.React
         logo={salao?.logo ?? null}
         usuario={sessao.nome}
         papel={sessao.papel}
-        recursos={{ clube: recursos.clube, financeiro: recursos.financeiro, equipe: recursos.equipe }}
+        recursos={{ clube: recursos.clube, financeiro: recursos.financeiro, equipe: recursos.equipe, pagamentos: recursos.clube || recursos.sinal }}
         sair={sair}
         filiais={filiais.filter((f) => f.ativo).map((f) => ({ id: f.id, nome: f.nome }))}
         filialAtual={atual}

@@ -15,7 +15,7 @@ os próprios dados e o próprio link de agendamento.
 - **Auxiliar na comissão:** cada serviço da comanda pode ter uma auxiliar, que ganha a própria % (definida na Equipe) além da comissão da profissional principal
 - **Variações e adicionais:** um serviço com tipos de preço e duração próprios (clássico, híbrido, volume russo; unha curta, longa) e extras que somam preço e tempo (remoção, nail art). O cliente escolhe no agendamento e a agenda reserva o tempo certo
 - **Manutenção com preço por prazo:** a manutenção fica ligada à aplicação, com faixas (ex.: até 15 dias R$ 100; até 21 dias R$ 130). O preço sai sozinho pelo último atendimento do cliente; passou do prazo, o agendamento online pede aplicação nova
-- **Sinal antifalta por Pix:** com a conta de recebimento (Asaas) aprovada, o agendamento online cobra uma % por Pix (QR Code e copia e cola). O horário fica reservado por 30 minutos; pago, é descontado na comanda; cancelado no prazo, vira crédito; faltou, o salão fica com ele
+- **Sinal antifalta por Pix:** com a conta de recebimento (Asaas) aprovada, (planos Bairro e acima) o agendamento online cobra uma % por Pix (QR Code e copia e cola). O horário fica reservado por 30 minutos; pago, é descontado na comanda; cancelado no prazo, vira crédito; faltou, o salão fica com ele
 - **Pré-atendimento pelo celular:** o cliente preenche a ficha de anamnese e assina o termo de consentimento (com o dedo) pelo link do agendamento, antes de chegar
 - **Atendimento simultâneo:** vários serviços ao mesmo tempo com profissionais diferentes (ex.: cílios e unhas juntos)
 - **Lista de espera:** dia cheio, o cliente entra na lista; em Lembretes aparece quem pode ser avisado quando abre horário
@@ -60,13 +60,14 @@ os próprios dados e o próprio link de agendamento.
 
 | Plano | Mensal | Anual | Unidades | Assinantes ativos no clube |
 | --- | --- | --- | --- | --- |
-| Solo (1 profissional) | R$ 59,90 | R$ 599 | 1 | sem clube |
+| Solo (1 profissional, sem clube, financeiro, comissões e sinal) | R$ 59,90 | R$ 599 | 1 | sem clube |
 | Bairro | R$ 149,90 | R$ 1.499 | 1 | até 300 |
 | Cidade | R$ 299,90 | R$ 2.999 | 2 | até 500 |
 | Nacional | R$ 524,90 | R$ 5.249 | ilimitadas | ilimitados |
 
 O **Solo** é para uma profissional que atende sozinha: uma profissional ativa (o agendamento online já a escolhe
-sozinho) e **sem** clube de assinatura e de vantagens, comissões (e relatório por profissional) e financeiro, para
+sozinho) e **sem** clube de assinatura e de vantagens, comissões (e relatório por profissional), financeiro e sinal por Pix (e, sem clube nem sinal, sem pagamentos
+online), para
 que um salão com equipe escolha o Bairro. Os recursos de cada plano ficam em `RECURSOS` e em `PLANOS_SISTEMA`
 (`recursos`), em `src/lib/planosSistema.ts`; as telas e as ações do servidor conferem o plano, então um recurso
 bloqueado não abre nem por link direto.

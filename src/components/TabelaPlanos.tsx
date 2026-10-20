@@ -32,7 +32,7 @@ export function TabelaPlanos({ atual, acao }: { atual?: CodigoPlano; acao?: (cod
                 <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes ativos no clube`}</li>
               )}
               <li className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {p.profissionais === null ? "Equipe ilimitada" : "1 profissional (para quem atende sozinha)"}</li>
-              {["Agenda e agendamento online", "Área do cliente com login", "Comandas, caixa e estoque", p.recursos.comissoes ? "Comissões e relatórios" : "Relatórios de faturamento", "Lembretes por WhatsApp", "Sinal por Pix, pacotes, fichas e fotos", "Placa de acrílico com QR code (brinde)"].map((t) => (
+              {["Agenda e agendamento online", "Área do cliente com login", "Comandas, caixa e estoque", p.recursos.comissoes ? "Comissões e relatórios" : "Relatórios de faturamento", "Lembretes por WhatsApp", p.recursos.sinal ? "Sinal por Pix, pacotes, fichas e fotos" : "Pacotes, fichas e fotos", "Placa de acrílico com QR code (brinde)"].map((t) => (
                 <li key={t} className="flex gap-2"><Check className="size-4 shrink-0 text-latao-600" /> {t}</li>
               ))}
               {(Object.keys(RECURSOS) as (keyof typeof RECURSOS)[]).filter((r) => !p.recursos[r]).map((r) => (

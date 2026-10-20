@@ -11,10 +11,11 @@ export const RECURSOS = {
   clube: "Clube de assinatura e clube de vantagens",
   comissoes: "Comissões e relatório por profissional",
   financeiro: "Financeiro (contas a pagar)",
+  sinal: "Sinal antifalta por Pix",
 } as const;
 export type Recurso = keyof typeof RECURSOS;
-const TUDO: Record<Recurso, boolean> = { clube: true, comissoes: true, financeiro: true };
-const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, financeiro: false };
+const TUDO: Record<Recurso, boolean> = { clube: true, comissoes: true, financeiro: true, sinal: true };
+const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, financeiro: false, sinal: false };
 
 // Solo: profissional autônoma (1 pessoa). Base dos salões: Bairro. Cidade = 2x, Nacional = 3,5x.
 // Anual = 10 mensalidades (2 meses grátis). profissionais: null = equipe ilimitada.
@@ -48,10 +49,22 @@ export function temRecurso(codigoPlano: string, recurso: Recurso) {
   return planoDe(codigoPlano).recursos[recurso];
 }
 
+/** Cobrança online (conta Asaas): só faz sentido com clube de assinatura ou sinal por Pix. */
+export function temPagamentosOnline(codigoPlano: string) {
+  const r = planoDe(codigoPlano).recursos;
+  return r.clube || r.sinal;
+}
+
 /** Recursos do plano do salão. */
 export async function recursosDoSalao(salaoId: string) {
   const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true } });
   return { codigo: b.plano as CodigoPlano, ...planoDe(b.plano).recursos, equipe: planoDe(b.plano).profissionais === null };
+}
+
+/** Páginas de cobrança online de um plano sem clube nem sinal levam para "Meu plano". */
+export async function exigirPagamentosOnline(salaoId: string) {
+  const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true } });
+  if (!temPagamentosOnline(b.plano)) redirect("/painel/plano?indisponivel=sinal");
 }
 
 /** Páginas e ações de um recurso que o plano não tem levam para "Meu plano". */

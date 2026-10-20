@@ -100,7 +100,7 @@ export function Menu({
   usuario: string;
   papel: string;
   /** o que o plano do salão libera (o Solo não tem clube, financeiro nem equipe) */
-  recursos: { clube: boolean; financeiro: boolean; equipe: boolean };
+  recursos: { clube: boolean; financeiro: boolean; equipe: boolean; pagamentos: boolean };
   sair: () => Promise<void>;
   filiais: { id: string; nome: string }[];
   filialAtual: { id: string; nome: string } | null;
@@ -116,7 +116,7 @@ export function Menu({
       : GESTOR.map((g) => ({
           ...g,
           itens: g.itens
-            .filter((i) => (i.href !== "/painel/assinaturas" || recursos.clube) && (i.href !== "/painel/financeiro" || recursos.financeiro))
+            .filter((i) => (i.href !== "/painel/assinaturas" || recursos.clube) && (i.href !== "/painel/financeiro" || recursos.financeiro) && (i.href !== "/painel/pagamentos" || recursos.pagamentos))
             .map((i) => (i.href === "/painel/equipe" && !recursos.equipe ? { ...i, rotulo: "Meu perfil" } : i)),
         }));
   const ativo = (href: string) => (href === "/painel" ? caminho === href : caminho.startsWith(href));

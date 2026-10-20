@@ -4,6 +4,7 @@ import { FormAcao } from "@/components/FormAcao";
 import { Cabecalho, Etiqueta, Secao } from "@/components/ui";
 import { type GrupoDocumento, TAXAS_ASAAS, asaasConfigurado, ambienteAsaas, documentosDaSubconta, emSandbox, liquidoEstimado } from "@/lib/asaas";
 import { exigirGestor } from "@/lib/auth";
+import { exigirPagamentosOnline } from "@/lib/planosSistema";
 import { db } from "@/lib/db";
 import { NOME_FORMA, formatarDinheiro } from "@/lib/formato";
 import { formatarDataHora } from "@/lib/tempo";
@@ -23,6 +24,7 @@ const STATUS: Record<string, { r: string; t: "verde" | "latao" | "vermelho" | "n
 
 export default async function Pagamentos() {
   const { salaoId, papel } = await exigirGestor();
+  await exigirPagamentosOnline(salaoId);
   const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId } });
   const pagamentos = await db.pagamentoAssinatura.findMany({
     where: { asaasPagamentoId: { not: null }, assinatura: { salaoId } },

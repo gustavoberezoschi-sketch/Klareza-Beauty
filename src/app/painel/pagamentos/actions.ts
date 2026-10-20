@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { ErroAsaas, aprovarSubcontaSandbox, asaasConfigurado, configurarWebhook, criarSubconta, statusDaSubconta } from "@/lib/asaas";
 import { exigirGestor } from "@/lib/auth";
+import { exigirPagamentosOnline } from "@/lib/planosSistema";
 import { cifrar, tokenWebhookAsaas } from "@/lib/cripto";
 import { db } from "@/lib/db";
 import { lerDinheiro, somenteDigitos } from "@/lib/formato";
@@ -18,6 +19,7 @@ const TIPOS_EMPRESA = ["MEI", "LIMITED", "INDIVIDUAL", "ASSOCIATION"] as const;
 export async function criarContaRecebimento(_: Resultado, form: FormData): Promise<Resultado> {
   // a conta de recebimento fica no nome/e-mail do titular: só o dono cria
   const { salaoId, papel } = await exigirGestor();
+  await exigirPagamentosOnline(salaoId);
   if (papel !== "DONO") return { erro: "Só o dono do salão pode abrir a conta de recebimento." };
   if (!asaasConfigurado()) return { erro: "Os pagamentos online ainda não estão liberados. Fale com o Klareza Beauty." };
   const salao = await db.salao.findUniqueOrThrow({ where: { id: salaoId } });
@@ -75,6 +77,7 @@ export async function criarContaRecebimento(_: Resultado, form: FormData): Promi
 
 export async function atualizarStatusConta(_: Resultado): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirPagamentosOnline(salaoId);
   const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId } });
   if (!b.asaasApiKey) return { erro: "A conta de recebimento ainda não foi criada." };
   try {
@@ -90,6 +93,7 @@ export async function atualizarStatusConta(_: Resultado): Promise<Resultado> {
 
 export async function alternarCobrancaClube(form: FormData) {
   const { salaoId, papel } = await exigirGestor();
+  await exigirPagamentosOnline(salaoId);
   if (papel !== "DONO") return;
   const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId } });
   if (b.asaasStatus !== "APPROVED" && form.get("ligar") === "1") return;
@@ -101,6 +105,7 @@ export async function alternarCobrancaClube(form: FormData) {
 /** Ambiente de testes: aprova a conta de recebimento sem esperar análise de documentos. */
 export async function aprovarNoTeste(_: Resultado): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirPagamentosOnline(salaoId);
   const b = await db.salao.findUniqueOrThrow({ where: { id: salaoId } });
   if (!b.asaasApiKey) return { erro: "A conta de recebimento ainda não foi criada." };
   try {
@@ -120,6 +125,7 @@ export async function aprovarNoTeste(_: Resultado): Promise<Resultado> {
 /** Só o dono mexe em saque e na chave Pix (gerente vê o saldo, mas não tira dinheiro). */
 async function exigirDono() {
   const sessao = await exigirGestor();
+  await exigirPagamentosOnline(sessao.salaoId);
   if (sessao.papel !== "DONO") throw new ErroSaque("Só o dono do salão pode fazer saques e mudar a chave Pix.");
   return sessao;
 }

@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { criarSessao, exigirGestor, exigirSessao } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lerDinheiro, somenteDigitos } from "@/lib/formato";
-import { LimiteDoPlano, garantirVagaDeProfissional } from "@/lib/planosSistema";
+import { LimiteDoPlano, garantirVagaDeProfissional, temRecurso } from "@/lib/planosSistema";
 import { bloqueioDeLogin, falhaDeLogin, sucessoDeLogin } from "@/lib/limite";
 import { problemaNaSenha } from "@/lib/senha";
 
@@ -260,7 +260,9 @@ export async function salvarConfiguracoes(_: Resultado, form: FormData): Promise
   const antecedenciaDias = Number(texto(form, "antecedencia"));
   const cancelamentoHoras = Number(texto(form, "cancelamento"));
   const cashbackPct = Number(texto(form, "cashback"));
-  const sinalPct = Number(texto(form, "sinal") || 0);
+  const salaoAtual = await db.salao.findUniqueOrThrow({ where: { id: salaoId }, select: { plano: true } });
+  // plano sem sinal (Solo): o campo nem aparece; se vier, vale 0
+  const sinalPct = temRecurso(salaoAtual.plano, "sinal") ? Number(texto(form, "sinal") || 0) : 0;
   const indicacao = texto(form, "indicacao") ? lerDinheiro(texto(form, "indicacao")) : 0;
   const linkAvaliacao = texto(form, "avaliacao");
   const cor = texto(form, "cor");

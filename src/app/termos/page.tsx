@@ -51,8 +51,8 @@ export default async function Termos() {
           </li>
           <li>Ao atingir o limite do plano, o sistema pede a mudança para um plano maior antes de cadastrar novas unidades ou assinantes.</li>
           <li>
-            O plano Solo é para uma profissional que atende sozinha: permite uma profissional ativa e não inclui clube de assinatura, comissões nem
-            financeiro. Salões ou estúdios com mais de uma profissional devem contratar o plano Bairro ou superior, e não vários planos Solo para a
+            O plano Solo é para uma profissional que atende sozinha: permite uma profissional ativa e não inclui clube de assinatura, comissões, financeiro nem sinal
+            por Pix. Salões ou estúdios com mais de uma profissional devem contratar o plano Bairro ou superior, e não vários planos Solo para a
             mesma operação. O Klareza Beauty pode pedir a mudança de plano quando identificar esse uso.
           </li>
           <li>
