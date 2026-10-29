@@ -2,9 +2,17 @@ export function formatarDinheiro(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-/** Converte "35", "35,50" ou "35.50" em centavos. Retorna null se inválido. */
+/**
+ * Converte "35", "35,50", "35.50", "1.000" ou "R$ 1.000,50" em centavos. Retorna null se inválido.
+ * Com vírgula, o ponto é separador de milhar; sem vírgula, o ponto é decimal (ou milhar, se vier em grupos de 3).
+ */
 export function lerDinheiro(texto: string): number | null {
-  const limpo = texto.replace(/[R$\s.]/g, "").replace(",", ".");
+  const semSimbolo = texto.replace(/[R$\s]/g, "");
+  const limpo = semSimbolo.includes(",")
+    ? semSimbolo.replace(/\./g, "").replace(",", ".")
+    : /^\d{1,3}(\.\d{3})+$/.test(semSimbolo)
+      ? semSimbolo.replace(/\./g, "")
+      : semSimbolo;
   if (!/^\d+(\.\d{1,2})?$/.test(limpo)) return null;
   return Math.round(Number(limpo) * 100);
 }

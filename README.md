@@ -182,10 +182,23 @@ Abra http://localhost:3000. Logins da demonstração (senha `123456`):
 
 Também dá para cadastrar salões pelo terminal com `npm run criar-salão`.
 
+## Testes
+
+```bash
+npm test     # regras de dinheiro, datas, planos e fechamento da comanda
+npm run lint # checagem de tipos (tsc)
+```
+
+Os testes são funções puras, sem banco de dados. Estão em `tests/`: o fechamento da comanda (desconto,
+sinal, cashback e indicação), a conversão de valores digitados, as datas no horário de Brasília,
+os recursos e vencimentos dos planos. Ainda não cobrem o banco: o caixa, os relatórios, o webhook do Asaas e os
+pacotes vendidos e consumidos.
+
 ## Próximas etapas sugeridas
 
-- [ ] Envio automático dos lembretes (precisaria de uma API de WhatsApp paga)
-- [ ] Cobrança automática das assinaturas no cartão/Pix (precisa de conta no Mercado Pago ou Asaas)
+- [ ] Envio automático dos lembretes por WhatsApp (precisa de uma API paga; hoje o app manda o aviso e o WhatsApp é um clique)
+- [x] Cobrança automática das assinaturas do clube no cartão, pelo Asaas (o Pix segue pelo link de pagamento)
 - [ ] Emissão de nota fiscal de serviço (NFS-e)
-- [ ] Pacotes de serviços pré-pagos e vale-presente
-- [ ] Controle das mensalidades dos salões clientes na área /admin
+- [ ] Vale-presente (os pacotes de sessões já existem)
+- [x] Controle das mensalidades dos salões clientes na área /admin
+- [ ] Testes para o caixa, os relatórios, o webhook do Asaas e os pacotes (hoje só as regras puras têm teste)
