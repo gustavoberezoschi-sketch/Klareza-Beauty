@@ -267,6 +267,28 @@ export function subtotalDosItens(itens: { quantidade: number; precoUnitCentavos:
   return itens.reduce((s, i) => s + (itemSemCobranca(i) ? 0 : i.quantidade * i.precoUnitCentavos), 0);
 }
 
+/**
+ * Conta do fechamento. Ordem: desconto, depois sinal pago (abate primeiro), depois cashback do cliente.
+ * O cashback ganho é calculado sobre o que o cliente pagou (inclusive o sinal); a sobra do sinal vira crédito inteiro.
+ */
+export function calcularFechamento(p: {
+  subtotal: number;
+  descontoPedido: number;
+  sinal: number;
+  temCliente: boolean;
+  cashbackSaldo: number;
+  usarCashback: boolean;
+  cashbackPct: number;
+}) {
+  const desconto = Math.min(Math.max(0, p.descontoPedido), p.subtotal);
+  const sinalAplicado = Math.min(p.sinal, p.subtotal - desconto);
+  const sobraDoSinal = p.sinal - sinalAplicado;
+  const cashbackUsado = p.usarCashback && p.temCliente ? Math.min(p.cashbackSaldo, p.subtotal - desconto - sinalAplicado) : 0;
+  const total = p.subtotal - desconto - sinalAplicado - cashbackUsado;
+  const cashbackGerado = p.temCliente ? Math.floor(((total + sinalAplicado) * p.cashbackPct) / 100) + sobraDoSinal : 0;
+  return { desconto, sinalAplicado, sobraDoSinal, cashbackUsado, total, cashbackGerado };
+}
+
 /** Fecha a comanda: aplica desconto e cashback, baixa estoque e conclui o agendamento. */
 export async function fecharComanda(
   salaoId: string,
@@ -290,18 +312,20 @@ export async function fecharComanda(
       throw new ErroComanda("Só dá para lançar na fatura de assinantes com cobrança automática do clube.");
 
     const subtotal = subtotalDosItens(itens);
-    const desconto = Math.min(Math.max(0, opcoes.descontoCentavos), subtotal);
     // Sinal pago no agendamento online: abate primeiro; o que sobrar vira crédito do cliente
     const comSinal = comanda.agendamentoId
       ? await agendamentoDoSinal(tx, await tx.agendamento.findUniqueOrThrow({ where: { id: comanda.agendamentoId }, select: { id: true, grupo: true } }))
       : null;
     const sinal = comSinal?.sinalPagoEm && !comSinal.sinalDestino ? (comSinal.sinalCentavos ?? 0) : 0;
-    const sinalAplicado = Math.min(sinal, subtotal - desconto);
-    const sobraDoSinal = sinal - sinalAplicado;
-    const cashbackUsado =
-      opcoes.usarCashback && cliente ? Math.min(cliente.saldoCashbackCentavos, subtotal - desconto - sinalAplicado) : 0;
-    const total = subtotal - desconto - sinalAplicado - cashbackUsado;
-    const cashbackGerado = cliente ? Math.floor(((total + sinalAplicado) * salao.cashbackPct) / 100) + sobraDoSinal : 0;
+    const { desconto, sinalAplicado, cashbackUsado, total, cashbackGerado } = calcularFechamento({
+      subtotal,
+      descontoPedido: opcoes.descontoCentavos,
+      sinal,
+      temCliente: !!cliente,
+      cashbackSaldo: cliente?.saldoCashbackCentavos ?? 0,
+      usarCashback: opcoes.usarCashback,
+      cashbackPct: salao.cashbackPct,
+    });
     if (comSinal && sinal) {
       const r = await tx.agendamento.updateMany({ where: { id: comSinal.id, sinalDestino: null }, data: { sinalDestino: "USADO" } });
       if (r.count === 0) throw new ErroComanda("O sinal deste agendamento acabou de ser usado. Tente fechar de novo.");
