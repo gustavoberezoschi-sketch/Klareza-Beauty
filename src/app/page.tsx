@@ -4,13 +4,14 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Plus, QrCode } from "lucide-react";
 import { db } from "@/lib/db";
 import { EMPRESA } from "@/lib/empresa";
-import { formatarDinheiro, linkWhatsApp } from "@/lib/formato";
-import { CODIGOS_PLANO, PLANOS_SISTEMA } from "@/lib/planosSistema";
+import { linkWhatsApp } from "@/lib/formato";
+import { CODIGOS_PLANO, PLANOS_SISTEMA, linhasDoPlano } from "@/lib/planosSistema";
 import { AvisoCookies } from "./_landing/AvisoCookies";
 import { Calculadora } from "./_landing/Calculadora";
 import { Efeitos } from "./_landing/Efeitos";
 import { Historia } from "./_landing/Historia";
 import { Logo } from "./_landing/Logo";
+import { Planos } from "./_landing/Planos";
 import { fontesLanding } from "./_landing/fontes";
 import "./_landing/landing.css";
 
@@ -29,7 +30,6 @@ export const metadata: Metadata = {
 };
 export const dynamic = "force-dynamic";
 
-const real = (c: number) => formatarDinheiro(c).replace(",00", "");
 const atraso = (d: number) => ({ "--d": `${d}s` }) as React.CSSProperties;
 
 const FAIXA = ["Agendamento online", "Clube de assinatura", "Comandas", "Caixa", "Estoque", "Lembretes no WhatsApp", "Relatórios", "Várias unidades"];
@@ -60,7 +60,7 @@ const PERGUNTAS = [
   { p: "Os lembretes de WhatsApp têm custo?", r: "Não. O sistema monta a mensagem e abre o seu WhatsApp. Você só aperta enviar." },
   { p: "Funciona no celular?", r: "Sim. O painel funciona no celular, no tablet e no computador, e cada profissional pode ter o próprio login." },
   { p: "E os dados dos meus clientes?", r: "Ficam guardados com senha criptografada e conexão segura, e são usados só para o funcionamento do seu salão, como manda a LGPD. Veja a nossa Política de Privacidade." },
-  { p: "Como meus clientes encontram a página para agendar?", r: "Pelo link do seu salão na bio do Instagram e no WhatsApp e pelo QR code. Na primeira mensalidade você ganha uma placa de acrílico com o QR code para deixar no balcão." },
+  { p: "Como meus clientes encontram a página para agendar?", r: "Pelo link do seu salão na bio do Instagram e no WhatsApp e pelo QR code. Nos planos Bairro, Cidade e Nacional, na primeira mensalidade você ganha uma placa de acrílico com o QR code para deixar no balcão." },
   { p: "Posso mudar de plano depois?", r: "Pode. É só falar com a gente que ajustamos o plano conforme o salão cresce." },
 ];
 
@@ -206,54 +206,20 @@ export default async function Landing() {
       {/* Planos */}
       <section id="planos" className="mx-auto max-w-7xl scroll-mt-16 px-5 py-24 sm:py-32">
         <h2 data-revela className="lp-titulo text-5xl sm:text-7xl">Planos</h2>
-        <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {CODIGOS_PLANO.map((c, i) => {
-            const p = PLANOS_SISTEMA[c];
-            const forte = c === "CIDADE";
-            return (
-              <div
-                key={c}
-                data-revela
-                style={atraso(i * 0.1)}
-                className={`flex flex-col rounded-3xl p-8 ${forte ? "bg-[var(--lp-tinta)] text-white" : "border border-[var(--lp-linha)]"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-xl font-semibold">{p.nome}</p>
-                  {forte && <span className="rounded-full bg-white/10 px-3 py-1 text-xs">Para 2 unidades</span>}
-                </div>
-                <p className="lp-titulo mt-8 text-5xl">
-                  {real(p.mensal)}
-                  <span className={`ml-1 font-sans text-base font-normal tracking-normal ${forte ? "text-white/60" : "text-[var(--lp-cinza)]"}`}>/mês</span>
-                </p>
-                <p className={`mt-2 text-sm ${forte ? "text-white/60" : "text-[var(--lp-cinza)]"}`}>
-                  ou {real(p.anual)}/ano, {real(p.mensal * 12 - p.anual)} de economia
-                </p>
-                <ul className={`mt-8 flex-1 space-y-3 border-t pt-6 ${forte ? "border-white/15" : "border-[var(--lp-linha)]"}`}>
-                  <li>{p.unidades === null ? "Unidades ilimitadas" : p.unidades === 1 ? "1 unidade" : `${p.unidades} unidades`}</li>
-                  {p.recursos.clube ? (
-                    <li>{p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes no clube`}</li>
-                  ) : (
-                    <li className={forte ? "text-white/60" : "text-[var(--lp-cinza)]"}>Sem clube de assinatura, comissões e financeiro</li>
-                  )}
-                  {p.recursos.clube && <li>Todos os recursos inclusos</li>}
-                  <li>{p.profissionais === null ? "Equipe ilimitada" : "1 profissional (autônoma)"}</li>
-                  <li className="font-medium">+ Placa de acrílico com QR code (brinde)</li>
-                </ul>
-                <a
-                  href={contato(`Olá! Tenho interesse no plano ${p.nome} do Klareza Beauty.`)}
-                  {...alvo}
-                  className={`lp-btn mt-8 w-full ${forte ? "bg-white text-[var(--lp-tinta)] hover:bg-white/90" : "lp-btn-linha"}`}
-                >
-                  Quero o {p.nome} <ArrowRight className="lp-seta size-4" />
-                </a>
-              </div>
-            );
-          })}
-        </div>
+        <Planos
+          planos={CODIGOS_PLANO.map((c) => ({
+            codigo: c,
+            nome: PLANOS_SISTEMA[c].nome,
+            mensal: PLANOS_SISTEMA[c].mensal,
+            anual: PLANOS_SISTEMA[c].anual,
+            linhas: linhasDoPlano(c),
+            href: contato(`Olá! Tenho interesse no plano ${PLANOS_SISTEMA[c].nome} do Klareza Beauty.`),
+          }))}
+        />
         <div data-revela className="mt-6 flex flex-col gap-4 rounded-3xl bg-[var(--lp-verde-claro)] p-6 sm:flex-row sm:items-center sm:p-8">
           <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--lp-verde)] text-white"><QrCode className="size-7" /></span>
           <div>
-            <p className="text-xl font-semibold tracking-tight">Brinde na primeira mensalidade: placa de acrílico com QR code.</p>
+            <p className="text-xl font-semibold tracking-tight">Brinde na primeira mensalidade dos planos Bairro, Cidade e Nacional: placa de acrílico com QR code.</p>
             <p className="mt-1 text-[var(--lp-cinza)]">Fica no balcão do salão. O cliente aponta a câmera do celular e já cai na página para agendar.</p>
           </div>
         </div>
