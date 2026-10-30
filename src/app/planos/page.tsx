@@ -4,6 +4,7 @@ import { CalendarCheck, Crown, MessageCircle, ReceiptText, Store, Users } from "
 import { Marca } from "@/components/Marca";
 import { TabelaPlanos } from "@/components/TabelaPlanos";
 import { db } from "@/lib/db";
+import { EMPRESA } from "@/lib/empresa";
 import { linkWhatsApp } from "@/lib/formato";
 import { PLANOS_SISTEMA } from "@/lib/planosSistema";
 
@@ -23,7 +24,8 @@ const RECURSOS = [
 ];
 
 export default async function Planos() {
-  const suporte = (await db.configSistema.findUnique({ where: { id: "geral" } }))?.whatsappSuporte;
+  // sem WhatsApp de suporte no /admin, usa o da empresa para o botão de contratar não sumir
+  const suporte = (await db.configSistema.findUnique({ where: { id: "geral" } }))?.whatsappSuporte ?? EMPRESA.telefone;
   return (
     <main className="min-h-screen">
       <header className="bg-couro-900 text-white">
@@ -52,7 +54,8 @@ export default async function Planos() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-display text-2xl font-bold">Tudo incluso em todos os planos</h2>
+        <h2 className="font-display text-2xl font-bold">Tudo incluso do Bairro em diante</h2>
+        <p className="mt-2 text-sm text-couro-700">O Solo, para quem atende sozinha, não tem clube de assinatura, comissões, financeiro nem sinal por Pix.</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {RECURSOS.map(({ icone: Icone, t, d }) => (
             <div key={t} className="card">

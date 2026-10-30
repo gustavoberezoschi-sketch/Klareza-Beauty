@@ -65,7 +65,8 @@ const PERGUNTAS = [
 ];
 
 export default async function Landing() {
-  const suporte = (await db.configSistema.findUnique({ where: { id: "geral" } }).catch(() => null))?.whatsappSuporte;
+  // sem WhatsApp de suporte no /admin, usa o da empresa (o mesmo do rodapé) em vez de mandar para o login
+  const suporte = (await db.configSistema.findUnique({ where: { id: "geral" } }).catch(() => null))?.whatsappSuporte ?? EMPRESA.telefone;
   const contato = (msg: string) => (suporte ? linkWhatsApp(suporte, msg) : "/login");
   const alvo = suporte ? { target: "_blank", rel: "noopener" } : {};
   const demo = contato("Olá! Vi o site do Klareza Beauty e quero uma demonstração para o meu salão.");
@@ -173,8 +174,8 @@ export default async function Landing() {
       {/* Recursos */}
       <section className="mx-auto max-w-7xl px-5 py-24 sm:py-32">
         <div data-revela className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <h2 className="lp-titulo max-w-3xl text-5xl sm:text-7xl">Tudo incluso, <span className="lp-serifa text-[var(--lp-verde)]">em todos os planos.</span></h2>
-          <p className="max-w-sm text-[var(--lp-cinza)]">Sem módulo extra, sem cobrança por profissional. Muda só o tamanho do plano.</p>
+          <h2 className="lp-titulo max-w-3xl text-5xl sm:text-7xl">Tudo incluso, <span className="lp-serifa text-[var(--lp-verde)]">do Bairro em diante.</span></h2>
+          <p className="max-w-sm text-[var(--lp-cinza)]">Sem módulo extra, sem cobrança por profissional: muda só o número de unidades e de assinantes. O Solo, para quem atende sozinha, não tem clube, comissões, financeiro nem sinal por Pix.</p>
         </div>
         <div className="mt-14 grid border-t border-l border-[var(--lp-linha)] sm:grid-cols-2 lg:grid-cols-4">
           {RECURSOS.map((r, i) => (
