@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { lerDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import type { Resultado } from "../actions";
 
 const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").trim();
 
 export async function salvarPacote(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "comandas");
   const nome = texto(form, "nome");
   const sessoes = Number(texto(form, "sessoes"));
   const precoCentavos = lerDinheiro(texto(form, "preco"));
@@ -32,6 +34,7 @@ export async function salvarPacote(_: Resultado, form: FormData): Promise<Result
 
 export async function alternarPacote(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "comandas");
   const pacote = await db.pacote.findFirst({ where: { id: texto(form, "id"), salaoId } });
   if (pacote) await db.pacote.update({ where: { id: pacote.id }, data: { ativo: !pacote.ativo } });
   revalidatePath("/painel", "layout");

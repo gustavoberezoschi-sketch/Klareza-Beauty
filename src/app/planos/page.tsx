@@ -52,7 +52,7 @@ export default async function Planos() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-display text-2xl font-bold">Tudo incluso em todos os planos</h2>
+        <h2 className="font-display text-2xl font-bold">Nos planos Bairro, Cidade e Nacional</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {RECURSOS.map(({ icone: Icone, t, d }) => (
             <div key={t} className="card">

@@ -7,6 +7,7 @@ import { caixaAberto } from "@/lib/caixa";
 import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { lerDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import type { Resultado } from "../actions";
 
 const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").trim();
@@ -14,6 +15,7 @@ const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").t
 /** Caixa é sempre de uma unidade: exige uma unidade escolhida no menu. */
 async function unidade() {
   const sessao = await exigirGestor();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const { atual } = await filialDoPainel(sessao);
   return { salaoId: sessao.salaoId, filialId: atual?.id ?? null };
 }

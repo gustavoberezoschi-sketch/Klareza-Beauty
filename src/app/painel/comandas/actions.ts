@@ -17,6 +17,7 @@ import { ErroAsaas } from "@/lib/asaas";
 import { db } from "@/lib/db";
 import { ErroExtra, lancarNaFatura, retirarDaFatura } from "@/lib/extrasFatura";
 import { FORMAS_PAGAMENTO, lerDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import type { Resultado } from "../actions";
 
 const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").trim();
@@ -43,6 +44,7 @@ async function tentar(fn: () => Promise<unknown>, ok?: string): Promise<Resultad
 
 export async function novaComanda(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const clienteId = texto(form, "clienteId") || null;
   const profissionalId = sessao.profissionalId ?? (texto(form, "profissionalId") || null);
   if (clienteId && !(await db.cliente.findFirst({ where: { id: clienteId, salaoId: sessao.salaoId } })))
@@ -59,6 +61,7 @@ export async function novaComanda(_: Resultado, form: FormData): Promise<Resulta
 
 export async function incluirServico(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   return tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
     await adicionarServico(
@@ -73,6 +76,7 @@ export async function incluirServico(_: Resultado, form: FormData): Promise<Resu
 
 export async function incluirPacote(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   return tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
     await adicionarPacote(sessao.salaoId, c.id, texto(form, "pacoteId"));
@@ -81,6 +85,7 @@ export async function incluirPacote(_: Resultado, form: FormData): Promise<Resul
 
 export async function incluirProduto(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   return tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
     await adicionarProduto(
@@ -95,6 +100,7 @@ export async function incluirProduto(_: Resultado, form: FormData): Promise<Resu
 
 export async function excluirItem(form: FormData) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   await tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
     await removerItem(sessao.salaoId, c.id, texto(form, "itemId"));
@@ -103,6 +109,7 @@ export async function excluirItem(form: FormData) {
 
 export async function finalizarComanda(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const forma = texto(form, "formaPagamento");
   const desconto = texto(form, "desconto") ? lerDinheiro(texto(form, "desconto")) : 0;
   if (!(forma in FORMAS_PAGAMENTO) && forma !== "FATURA") return { erro: "Escolha a forma de pagamento." };
@@ -128,6 +135,7 @@ export async function finalizarComanda(_: Resultado, form: FormData): Promise<Re
 /** Tenta de novo lançar no Asaas um extra que falhou. */
 export async function relancarExtra(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   return tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
     const extra = await db.extraFatura.findUnique({ where: { comandaId: c.id } });
@@ -139,6 +147,7 @@ export async function relancarExtra(_: Resultado, form: FormData): Promise<Resul
 /** Cancela uma comanda fechada; se ela foi para a fatura do clube, tira o valor da cobrança antes. */
 export async function estornarFechada(_: Resultado, form: FormData): Promise<Resultado> {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   if (sessao.papel === "PROFISSIONAL") return { erro: "Só o dono ou gerente pode estornar." };
   const r = await tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));
@@ -151,6 +160,7 @@ export async function estornarFechada(_: Resultado, form: FormData): Promise<Res
 
 export async function estornarComanda(form: FormData) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   if (sessao.papel === "PROFISSIONAL") return;
   await tentar(async () => {
     const c = await conferir(sessao, texto(form, "comandaId"));

@@ -9,6 +9,7 @@ import { ajustarSinalPeloStatus } from "@/lib/sinal";
 import { db } from "@/lib/db";
 import { somenteDigitos } from "@/lib/formato";
 import { criarDataHora, diaValido } from "@/lib/tempo";
+import { exigirRecurso } from "@/lib/planosSistema";
 import type { Resultado } from "../actions";
 
 const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").trim();
@@ -124,6 +125,7 @@ export async function mudarStatus(form: FormData) {
 
 export async function iniciarAtendimento(form: FormData) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const ag = await db.agendamento.findFirst({
     where: { id: texto(form, "id"), salaoId: sessao.salaoId, ...escopo(sessao) },
   });

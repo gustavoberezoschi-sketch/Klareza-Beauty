@@ -5,12 +5,14 @@ import { exigirSessao } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { formatarTelefone } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { novaComanda } from "../actions";
 
 export const metadata: Metadata = { title: "Nova comanda" };
 
 export default async function NovaComanda() {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const ctx = await filialDoPainel(sessao);
   const ativas = ctx.filiais.filter((f) => f.ativo);
   const [clientes, profissionais] = await Promise.all([

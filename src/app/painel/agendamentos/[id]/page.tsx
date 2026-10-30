@@ -12,6 +12,7 @@ import { formatarDinheiro, formatarTelefone, linkWhatsApp } from "@/lib/formato"
 import { MSG_CONFIRMACAO_PADRAO, MSG_LEMBRETE_PADRAO, linkDaMensagem } from "@/lib/mensagens";
 import { enderecoDoSite } from "@/lib/site";
 import { diaLocal, formatarDataHora, formatarDiaExtenso, horaLocal } from "@/lib/tempo";
+import { recursosDoSalao } from "@/lib/planosSistema";
 import { iniciarAtendimento, mudarStatus, remarcarAgendamento } from "../../agenda/actions";
 
 export const metadata: Metadata = { title: "Agendamento" };
@@ -42,6 +43,7 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
   const dia = diaLocal(ag.inicio);
   const quando = `${formatarDiaExtenso(dia)} às ${horaLocal(ag.inicio)}`;
   const status = STATUS[ag.status as keyof typeof STATUS] ?? STATUS.AGENDADO;
+  const { comandas: temComandas } = await recursosDoSalao(sessao.salaoId);
   const aberto = ag.status === "AGENDADO" || ag.status === "CONFIRMADO";
   // passou do horário sem comanda fechada: conta como atendido sozinho, mas o profissional ainda pode marcar falta ou lançar a comanda
   const checkinAuto = ag.status === "CONCLUIDO" && !!ag.checkinAutoEm;
@@ -74,7 +76,7 @@ export default async function Agendamento({ params }: { params: Promise<{ id: st
         }
         descricao={<span className="inline-block first-letter:uppercase">{quando}</span>}
         acoes={
-          aberto || (checkinAuto && !(ag.comanda && ag.comanda.status !== "CANCELADA")) ? (
+          !temComandas ? null : aberto || (checkinAuto && !(ag.comanda && ag.comanda.status !== "CANCELADA")) ? (
             <form action={iniciarAtendimento}>
               <input type="hidden" name="id" value={ag.id} />
               <button className="btn-destaque">

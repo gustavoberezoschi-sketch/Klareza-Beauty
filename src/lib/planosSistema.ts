@@ -5,17 +5,19 @@ import { diaLocal, somarDias, somarMeses } from "./tempo";
 // Planos do Klareza Beauty. Para mudar preço ou limite, altere só aqui.
 /**
  * Recursos que o plano libera. O Solo é para uma profissional que atende sozinha: não tem o que só uma equipe usa
- * (clube de assinatura, comissões, financeiro), para que um salão com mais gente escolha o Bairro.
+ * (clube de assinatura, comandas e caixa, estoque, comissões e relatórios, financeiro), para que um salão com mais gente escolha o Bairro.
  */
 export const RECURSOS = {
   clube: "Clube de assinatura e clube de vantagens",
   comissoes: "Comissões e relatório por profissional",
   financeiro: "Financeiro (contas a pagar)",
   sinal: "Sinal antifalta por Pix",
+  comandas: "Comandas, caixa e pacotes",
+  estoque: "Produtos e estoque",
 } as const;
 export type Recurso = keyof typeof RECURSOS;
-const TUDO: Record<Recurso, boolean> = { clube: true, comissoes: true, financeiro: true, sinal: true };
-const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, financeiro: false, sinal: false };
+const TUDO: Record<Recurso, boolean> = { clube: true, comissoes: true, financeiro: true, sinal: true, comandas: true, estoque: true };
+const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, financeiro: false, sinal: false, comandas: false, estoque: false };
 
 // Solo: profissional autônoma (1 pessoa). Base dos salões: Bairro. Cidade = 2x, Nacional = 3,5x.
 // Anual = 10 mensalidades (2 meses grátis). profissionais: null = equipe ilimitada.
@@ -62,10 +64,10 @@ export function linhasDoPlano(codigo: CodigoPlano): LinhaPlano[] {
     { texto: "Agenda e agendamento online", tem: true },
     { texto: "Área do cliente com login", tem: true },
     { texto: "Lembretes por WhatsApp", tem: true },
-    { texto: "Pacotes, fichas e fotos", tem: true },
+    { texto: "Fichas e fotos dos clientes", tem: true },
     { texto: "Sinal antifalta por Pix", tem: p.recursos.sinal },
-    { texto: "Comandas e caixa", tem: equipe },
-    { texto: "Produtos e estoque", tem: equipe },
+    { texto: "Comandas, caixa e pacotes", tem: p.recursos.comandas },
+    { texto: "Produtos e estoque", tem: p.recursos.estoque },
     { texto: "Comissões e relatórios", tem: p.recursos.comissoes },
     { texto: "Financeiro (contas a pagar)", tem: p.recursos.financeiro },
     { texto: "Parceiros e cupons no app", tem: equipe },

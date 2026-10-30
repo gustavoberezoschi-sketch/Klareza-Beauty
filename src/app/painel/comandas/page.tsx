@@ -8,12 +8,14 @@ import { db } from "@/lib/db";
 import { filialDoPainel, naFilial } from "@/lib/filial";
 import { NOME_FORMA, formatarDinheiro } from "@/lib/formato";
 import { diaLocal, diaValido, formatarDia, horaLocal, inicioEFimDoDia } from "@/lib/tempo";
+import { exigirRecurso } from "@/lib/planosSistema";
 
 export const metadata: Metadata = { title: "Comandas" };
 export const dynamic = "force-dynamic";
 
 export default async function Comandas({ searchParams }: { searchParams: Promise<{ dia?: string }> }) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const p = await searchParams;
   const dia = p.dia && diaValido(p.dia) ? p.dia : diaLocal();
   const { inicio, fim } = inicioEFimDoDia(dia);
