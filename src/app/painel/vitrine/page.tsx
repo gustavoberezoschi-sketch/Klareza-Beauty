@@ -6,7 +6,7 @@ import { FormAcao } from "@/components/FormAcao";
 import { FotoUpload } from "@/components/FotoUpload";
 import { Cabecalho, Etiqueta, Secao, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
-import { recursosDoSalao } from "@/lib/planosSistema";
+import { PLANOS_SISTEMA, recursosDoSalao } from "@/lib/planosSistema";
 import { db } from "@/lib/db";
 import { enderecoDoSite } from "@/lib/site";
 import { alternarParceiro, moverBanner, novoBanner, removerBanner, removerParceiro, salvarParceiro } from "./actions";
@@ -46,9 +46,11 @@ export default async function Vitrine({ searchParams }: { searchParams: Promise<
           <div className="size-40 shrink-0 rounded-xl border border-black/[0.06] bg-white p-2 [&_svg]:size-full" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code do link de agendamento" />
           <div className="space-y-3 text-sm text-couro-700">
             <p>O cliente aponta a câmera do celular e cai direto na página do salão para agendar. Use no balcão, no espelho, em cartões e no Instagram.</p>
-            <p className="rounded-xl bg-latao-50 p-3 text-latao-700">
-              <strong>Brinde:</strong> na primeira mensalidade do Klareza Beauty, o salão ganha uma placa de acrílico com este QR code para o balcão.
-            </p>
+            {PLANOS_SISTEMA[recursos.codigo].placa && (
+              <p className="rounded-xl bg-latao-50 p-3 text-latao-700">
+                <strong>Brinde:</strong> na primeira mensalidade do Klareza Beauty, o salão ganha uma placa de acrílico com este QR code para o balcão.
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               <a href="/painel/vitrine/qrcode?formato=png" className="btn-secundario btn-pequeno"><Download className="size-3.5" /> Baixar PNG (impressão)</a>
               <a href="/painel/vitrine/qrcode?formato=svg" className="btn-secundario btn-pequeno"><Download className="size-3.5" /> Baixar SVG (gráfica)</a>

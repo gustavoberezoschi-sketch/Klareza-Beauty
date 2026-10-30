@@ -20,10 +20,10 @@ const SEM_EQUIPE: Record<Recurso, boolean> = { clube: false, comissoes: false, f
 // Solo: profissional autônoma (1 pessoa). Base dos salões: Bairro. Cidade = 2x, Nacional = 3,5x.
 // Anual = 10 mensalidades (2 meses grátis). profissionais: null = equipe ilimitada.
 export const PLANOS_SISTEMA = {
-  SOLO: { nome: "Solo", mensal: 5990, anual: 59900, unidades: 1, assinantes: 0, profissionais: 1, recursos: SEM_EQUIPE },
-  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300, profissionais: null, recursos: TUDO },
-  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500, profissionais: null, recursos: TUDO },
-  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null, profissionais: null, recursos: TUDO },
+  SOLO: { nome: "Solo", mensal: 5990, anual: 59900, unidades: 1, assinantes: 0, profissionais: 1, placa: false, recursos: SEM_EQUIPE },
+  BAIRRO: { nome: "Bairro", mensal: 14990, anual: 149900, unidades: 1, assinantes: 300, profissionais: null, placa: true, recursos: TUDO },
+  CIDADE: { nome: "Cidade", mensal: 29990, anual: 299900, unidades: 2, assinantes: 500, profissionais: null, placa: true, recursos: TUDO },
+  NACIONAL: { nome: "Nacional", mensal: 52490, anual: 524900, unidades: null, assinantes: null, profissionais: null, placa: true, recursos: TUDO },
 } as const satisfies Record<
   string,
   {
@@ -33,6 +33,7 @@ export const PLANOS_SISTEMA = {
     unidades: number | null;
     assinantes: number | null;
     profissionais: number | null;
+    placa: boolean; // brinde: placa de acrílico com QR code na primeira mensalidade
     recursos: Record<Recurso, boolean>;
   }
 >;
@@ -40,6 +41,38 @@ export const PLANOS_SISTEMA = {
 export type CodigoPlano = keyof typeof PLANOS_SISTEMA;
 export const CODIGOS_PLANO = Object.keys(PLANOS_SISTEMA) as CodigoPlano[];
 export const DIAS_TOLERANCIA = 10; // depois do vencimento, antes de considerar atrasada
+
+/** Uma linha da lista de recursos de um plano (vitrine): `tem: false` aparece riscada. */
+export type LinhaPlano = { texto: string; tem: boolean; forte?: boolean };
+
+/** O que cada plano tem e não tem, na mesma ordem para todos (landing e "Meu plano"). */
+export function linhasDoPlano(codigo: CodigoPlano): LinhaPlano[] {
+  const p = PLANOS_SISTEMA[codigo];
+  const equipe = p.profissionais === null;
+  const linhas: LinhaPlano[] = [
+    { texto: equipe ? "Equipe ilimitada" : "1 profissional, a responsável", tem: true, forte: equipe },
+    { texto: p.unidades === null ? "Unidades ilimitadas" : p.unidades === 1 ? "1 unidade" : `Até ${p.unidades} unidades`, tem: true, forte: p.unidades !== 1 },
+  ];
+  linhas.push(
+    p.recursos.clube
+      ? { texto: p.assinantes === null ? "Assinantes ilimitados no clube" : `Até ${p.assinantes} assinantes no clube`, tem: true, forte: true }
+      : { texto: "Clube de assinatura no cartão", tem: false },
+  );
+  linhas.push(
+    { texto: "Agenda e agendamento online", tem: true },
+    { texto: "Área do cliente com login", tem: true },
+    { texto: "Lembretes por WhatsApp", tem: true },
+    { texto: "Pacotes, fichas e fotos", tem: true },
+    { texto: "Sinal antifalta por Pix", tem: p.recursos.sinal },
+    { texto: "Comandas e caixa", tem: equipe },
+    { texto: "Produtos e estoque", tem: equipe },
+    { texto: "Comissões e relatórios", tem: p.recursos.comissoes },
+    { texto: "Financeiro (contas a pagar)", tem: p.recursos.financeiro },
+    { texto: "Parceiros e cupons no app", tem: equipe },
+    { texto: "Placa de acrílico com QR code (brinde)", tem: p.placa },
+  );
+  return linhas;
+}
 
 export function planoDe(codigo: string) {
   return PLANOS_SISTEMA[(codigo in PLANOS_SISTEMA ? codigo : "BAIRRO") as CodigoPlano];

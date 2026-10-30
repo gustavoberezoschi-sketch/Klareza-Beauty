@@ -61,7 +61,7 @@ export default async function Termos() {
           </li>
           <li>Mudanças de preço serão avisadas com antecedência e valem a partir do ciclo seguinte.</li>
           <li>
-            Brinde: após a confirmação do pagamento da primeira mensalidade, o salão recebe uma placa de acrílico com o QR code do seu link de
+            Brinde (planos Bairro, Cidade e Nacional; o Solo não inclui): após a confirmação do pagamento da primeira mensalidade, o salão recebe uma placa de acrílico com o QR code do seu link de
             agendamento (uma por salão).
           </li>
         </ul>
