@@ -185,14 +185,26 @@ Também dá para cadastrar salões pelo terminal com `npm run criar-salão`.
 ## Testes
 
 ```bash
-npm test     # regras de dinheiro, datas, planos e fechamento da comanda
+npm test     # regras puras: fechamento da comanda, sinal, planos, datas, CPF, faixas de manutenção
 npm run lint # checagem de tipos (tsc)
 ```
 
-Os testes são funções puras, sem banco de dados. Estão em `tests/`: o fechamento da comanda (desconto,
-sinal, cashback e indicação), a conversão de valores digitados, as datas no horário de Brasília,
-os recursos e vencimentos dos planos. Ainda não cobrem o banco: o caixa, os relatórios, o webhook do Asaas e os
-pacotes vendidos e consumidos.
+Os testes de `npm test` não usam banco. Em `tests/`, cobrem o fechamento da comanda (desconto, sinal,
+cashback e indicação), a conversão de valores digitados, as datas no horário de Brasília e os recursos
+e vencimentos dos planos.
+
+Os testes de banco (`tests/banco/`) cobrem o caixa, os relatórios, os pacotes e o webhook do Asaas.
+Eles criam e apagam dados, então **só rodam contra um banco local com "teste" no nome**, nunca contra o de produção:
+
+```bash
+createdb klareza_teste                      # ou crie o banco pelo seu cliente de PostgreSQL
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/klareza_teste" \
+DIRECT_URL="postgresql://usuario:senha@localhost:5432/klareza_teste" \
+npx prisma migrate deploy
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/klareza_teste" npm run test:banco
+```
+
+O webhook é testado com um Asaas falso em HTTP local (`ASAAS_URL`), então nada sai para o Asaas de verdade.
 
 ## Próximas etapas sugeridas
 
@@ -201,4 +213,4 @@ pacotes vendidos e consumidos.
 - [ ] Emissão de nota fiscal de serviço (NFS-e)
 - [ ] Vale-presente (os pacotes de sessões já existem)
 - [x] Controle das mensalidades dos salões clientes na área /admin
-- [ ] Testes para o caixa, os relatórios, o webhook do Asaas e os pacotes (hoje só as regras puras têm teste)
+- [x] Testes para o caixa, os relatórios, o webhook do Asaas e os pacotes (`npm run test:banco`)

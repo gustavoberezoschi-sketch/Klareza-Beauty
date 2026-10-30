@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { itemSemCobranca } from "./pacotes";
-import { criarDataHora, somarDias } from "./tempo";
+import { criarDataHora, diaLocal, somarDias } from "./tempo";
 
 /** Números de um período (dias inclusivos) a partir das comandas fechadas. */
 export async function numerosDoPeriodo(salaoId: string, de: string, ate: string, profissionalId?: string | null, filialId?: string | null) {
@@ -20,7 +20,10 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
     db.agendamento.findMany({ where: { salaoId, ...naUnidade, inicio: intervalo, ...(profissionalId ? { profissionalId } : {}) }, select: { status: true, origem: true } }),
     db.cliente.count({ where: { salaoId, criadoEm: intervalo } }),
     // sinal de quem faltou fica com o salão (conta no dia do horário)
-    db.agendamento.findMany({ where: { salaoId, ...naUnidade, sinalDestino: "RETIDO", inicio: intervalo }, select: { sinalCentavos: true } }),
+    db.agendamento.findMany({
+      where: { salaoId, ...naUnidade, sinalDestino: "RETIDO", inicio: intervalo },
+      select: { sinalCentavos: true, inicio: true, filialId: true, filial: { select: { nome: true } } },
+    }),
   ]);
 
   const itens = comandas.flatMap((c) => c.itens.map((i) => ({ ...i, fechadaEm: c.fechadaEm! })));
@@ -72,6 +75,11 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
     const d = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(c.fechadaEm!);
     porDia.set(d, (porDia.get(d) ?? 0) + c.totalCentavos + c.sinalCentavos);
   }
+  // sinal retido por falta conta no dia do horário, como no total de vendas
+  for (const a of sinaisRetidos) {
+    const d = diaLocal(a.inicio);
+    porDia.set(d, (porDia.get(d) ?? 0) + (a.sinalCentavos ?? 0));
+  }
 
   const porFilial = new Map<string, { nome: string; vendas: number; comandas: number }>();
   for (const c of comandas) {
@@ -79,6 +87,11 @@ export async function numerosDoPeriodo(salaoId: string, de: string, ate: string,
     f.vendas += c.totalCentavos + c.sinalCentavos;
     f.comandas += 1;
     porFilial.set(c.filialId, f);
+  }
+  for (const a of sinaisRetidos) {
+    const f = porFilial.get(a.filialId) ?? { nome: a.filial.nome, vendas: 0, comandas: 0 };
+    f.vendas += a.sinalCentavos ?? 0;
+    porFilial.set(a.filialId, f);
   }
 
   const vendas = comandas.reduce((s, c) => s + c.totalCentavos, 0) + sinais;
