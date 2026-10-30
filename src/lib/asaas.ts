@@ -42,10 +42,11 @@ async function chamar<T>(caminho: string, { chave, metodo = "GET", corpo, timeou
   const texto = await resposta.text();
   const json = texto ? JSON.parse(texto) : {};
   if (!resposta.ok) {
-    const erros = (json?.errors as { description?: string }[] | undefined)?.map((e) => e.description).filter(Boolean);
-    if (erros?.length) throw new ErroAsaas(erros.join(" "));
+    // 5xx é falha do Asaas, mesmo que venha com um corpo de erro: o webhook precisa de 503 para o Asaas reenviar o aviso
     if (resposta.status >= 500)
       throw new ErroAsaas(`O Asaas está com instabilidade agora (erro ${resposta.status}). Espere alguns minutos e tente de novo; se continuar, fale com o suporte.`);
+    const erros = (json?.errors as { description?: string }[] | undefined)?.map((e) => e.description).filter(Boolean);
+    if (erros?.length) throw new ErroAsaas(erros.join(" "));
     throw new ErroAsaas(`Asaas respondeu com erro ${resposta.status}.`);
   }
   return json as T;
