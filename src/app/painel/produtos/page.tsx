@@ -7,6 +7,7 @@ import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { formatarDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { salvarProduto } from "./actions";
 
 export const metadata: Metadata = { title: "Produtos e estoque" };
@@ -14,6 +15,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Produtos() {
   const sessao = await exigirGestor();
+  await exigirRecurso(sessao.salaoId, "estoque");
   const { salaoId } = sessao;
   const ctx = await filialDoPainel(sessao);
   const ativas = ctx.filiais.filter((f) => f.ativo);

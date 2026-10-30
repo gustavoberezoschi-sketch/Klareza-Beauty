@@ -13,6 +13,7 @@ import { pacotesDaCliente } from "@/lib/pacotes";
 import { agendamentoDoSinal } from "@/lib/sinal";
 import { FORMAS_PAGAMENTO, NOME_FORMA, formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { formatarDataHora } from "@/lib/tempo";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { estornarComanda, estornarFechada, excluirItem, finalizarComanda, incluirPacote, incluirProduto, incluirServico, relancarExtra } from "../actions";
 
 export const metadata: Metadata = { title: "Comanda" };
@@ -20,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Comanda({ params }: { params: Promise<{ id: string }> }) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const comanda = await db.comanda.findFirst({
     where: { id: (await params).id, salaoId: sessao.salaoId, ...(sessao.profissionalId ? { profissionalId: sessao.profissionalId } : {}) },
     include: { cliente: true, profissional: true, itens: { include: { profissional: true, auxiliar: true }, orderBy: { id: "asc" } }, salao: true, agendamento: true },

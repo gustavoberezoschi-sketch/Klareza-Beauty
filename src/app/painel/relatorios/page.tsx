@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GraficoBarras } from "@/components/GraficoBarras";
 import { Cabecalho, Indicador, Secao } from "@/components/ui";
 import { exigirSessao } from "@/lib/auth";
-import { recursosDoSalao } from "@/lib/planosSistema";
+import { exigirRecurso, recursosDoSalao } from "@/lib/planosSistema";
 import { filialDoPainel } from "@/lib/filial";
 import { NOME_FORMA, formatarDinheiro } from "@/lib/formato";
 import { numerosDoPeriodo } from "@/lib/relatorios";
@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Relatorios({ searchParams }: { searchParams: Promise<{ de?: string; ate?: string }> }) {
   const sessao = await exigirSessao();
+  await exigirRecurso(sessao.salaoId, "comissoes");
   const p = await searchParams;
   const hoje = diaLocal();
   const de = p.de && diaValido(p.de) ? p.de : `${hoje.slice(0, 8)}01`;

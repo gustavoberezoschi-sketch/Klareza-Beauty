@@ -5,6 +5,7 @@ import { Cabecalho, Etiqueta, Secao, Vazio } from "@/components/ui";
 import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatarDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { alternarPacote, salvarPacote } from "./actions";
 
 export const metadata: Metadata = { title: "Pacotes" };
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Pacotes() {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "comandas");
   const [pacotes, servicos] = await Promise.all([
     db.pacote.findMany({
       where: { salaoId },

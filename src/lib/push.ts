@@ -6,7 +6,7 @@ import { criarDataHora, diaLocal, horaLocal, somarDias } from "./tempo";
 // Notificações do app (Web Push). As chaves VAPID são criadas no primeiro uso e guardadas
 // no banco (a privada criptografada), sem precisar configurar nada na Vercel.
 
-const CONTATO = "mailto:gustavoberezoschi@gmail.com";
+const CONTATO = "mailto:rottadigitaloficial@gmail.com";
 
 export async function chavesVapid() {
   const config = await db.configSistema.findUnique({ where: { id: "geral" } });

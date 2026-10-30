@@ -13,6 +13,7 @@ import { filialDoPainel } from "@/lib/filial";
 import { pacotesDaCliente } from "@/lib/pacotes";
 import { enderecoDoSite } from "@/lib/site";
 import { diaLocal, formatarDataHora, formatarDia } from "@/lib/tempo";
+import { recursosDoSalao } from "@/lib/planosSistema";
 import { definirSenhaDoApp, salvarCliente } from "../../actions";
 import { novaComanda } from "../../comandas/actions";
 import { adicionarFormula, adicionarFoto, alternarFotoPublica, excluirFormula, excluirFoto, salvarAnamnese } from "../actions";
@@ -32,6 +33,7 @@ const STATUS: Record<string, { r: string; t: "latao" | "azul" | "verde" | "neutr
 export default async function Cliente({ params }: { params: Promise<{ id: string }> }) {
   const sessao = await exigirGestor();
   const { salaoId } = sessao;
+  const rec = await recursosDoSalao(salaoId);
   const id = (await params).id;
   if (id === "novo") return <FormCliente />;
 
@@ -136,7 +138,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
               </ul>
             )}
           </Secao>
-          <Secao titulo="Compras">
+          {rec.comandas && <Secao titulo="Compras">
             {c.comandas.length === 0 ? (
               <p className="text-sm text-couro-400">Nenhuma compra registrada.</p>
             ) : (
@@ -153,7 +155,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
                 ))}
               </ul>
             )}
-          </Secao>
+          </Secao>}
           <Secao titulo="Antes e depois">
             {c.fotos.length === 0 ? (
               <p className="mb-4 text-sm text-couro-400">Nenhuma foto ainda. As fotos ficam só no painel; com a autorização do cliente, dá para publicar na galeria da página do salão.</p>
@@ -284,7 +286,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
               <button className="btn-secundario">Definir</button>
             </FormAcao>
           </Secao>
-          <Secao titulo={<span className="flex items-center gap-2"><Ticket className="size-4" /> Pacotes</span>}>
+          {rec.comandas && <Secao titulo={<span className="flex items-center gap-2"><Ticket className="size-4" /> Pacotes</span>}>
             {pacotes.length === 0 ? (
               <p className="text-sm text-couro-400">Nenhum pacote. Venda pela comanda, em “Vender pacote”.</p>
             ) : (
@@ -302,7 +304,7 @@ export default async function Cliente({ params }: { params: Promise<{ id: string
                 ))}
               </ul>
             )}
-          </Secao>
+          </Secao>}
           <Secao titulo="Clube de assinatura">
             {ativa ? (
               <p className="text-sm">

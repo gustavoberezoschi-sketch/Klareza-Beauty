@@ -60,7 +60,7 @@ os próprios dados e o próprio link de agendamento.
 
 | Plano | Mensal | Anual | Unidades | Assinantes ativos no clube |
 | --- | --- | --- | --- | --- |
-| Solo (1 profissional, sem clube, financeiro, comissões e sinal) | R$ 59,90 | R$ 599 | 1 | sem clube |
+| Solo (1 profissional, sem clube, comandas e caixa, pacotes, estoque, relatórios, financeiro e sinal) | R$ 59,90 | R$ 599 | 1 | sem clube |
 | Bairro | R$ 149,90 | R$ 1.499 | 1 | até 300 |
 | Cidade | R$ 299,90 | R$ 2.999 | 2 | até 500 |
 | Nacional | R$ 524,90 | R$ 5.249 | ilimitadas | ilimitados |

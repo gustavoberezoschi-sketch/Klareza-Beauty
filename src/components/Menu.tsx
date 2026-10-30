@@ -100,7 +100,7 @@ export function Menu({
   usuario: string;
   papel: string;
   /** o que o plano do salão libera (o Solo não tem clube, financeiro nem equipe) */
-  recursos: { clube: boolean; financeiro: boolean; equipe: boolean; pagamentos: boolean };
+  recursos: { clube: boolean; financeiro: boolean; equipe: boolean; pagamentos: boolean; comandas: boolean; estoque: boolean; relatorios: boolean };
   sair: () => Promise<void>;
   filiais: { id: string; nome: string }[];
   filialAtual: { id: string; nome: string } | null;
@@ -110,13 +110,20 @@ export function Menu({
   const [aberto, setAberto] = useState(false);
   useEffect(() => setAberto(false), [caminho]);
 
+  const liberado = (href: string) =>
+    (href !== "/painel/assinaturas" || recursos.clube) &&
+    (href !== "/painel/financeiro" || recursos.financeiro) &&
+    (href !== "/painel/pagamentos" || recursos.pagamentos) &&
+    ((href !== "/painel/comandas" && href !== "/painel/caixa" && href !== "/painel/pacotes") || recursos.comandas) &&
+    (href !== "/painel/produtos" || recursos.estoque) &&
+    (href !== "/painel/relatorios" || recursos.relatorios);
   const grupos =
     papel === "PROFISSIONAL"
-      ? PROFISSIONAL
+      ? PROFISSIONAL.map((g) => ({ ...g, itens: g.itens.filter((i) => liberado(i.href)) }))
       : GESTOR.map((g) => ({
           ...g,
           itens: g.itens
-            .filter((i) => (i.href !== "/painel/assinaturas" || recursos.clube) && (i.href !== "/painel/financeiro" || recursos.financeiro) && (i.href !== "/painel/pagamentos" || recursos.pagamentos))
+            .filter((i) => liberado(i.href))
             .map((i) => (i.href === "/painel/equipe" && !recursos.equipe ? { ...i, rotulo: "Meu perfil" } : i)),
         }));
   const ativo = (href: string) => (href === "/painel" ? caminho === href : caminho.startsWith(href));

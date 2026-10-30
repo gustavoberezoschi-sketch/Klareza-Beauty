@@ -6,6 +6,7 @@ import { exigirGestor } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { movimentarEstoque } from "@/lib/estoque";
 import { lerDinheiro } from "@/lib/formato";
+import { exigirRecurso } from "@/lib/planosSistema";
 import type { Resultado } from "../actions";
 
 const texto = (form: FormData, campo: string) => String(form.get(campo) ?? "").trim();
@@ -16,6 +17,7 @@ async function filialDaSalao(salaoId: string, filialId: string) {
 
 export async function salvarProduto(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "estoque");
   const id = texto(form, "id");
   const nome = texto(form, "nome");
   const preco = lerDinheiro(texto(form, "preco"));
@@ -51,6 +53,7 @@ export async function salvarProduto(_: Resultado, form: FormData): Promise<Resul
 
 export async function movimentar(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "estoque");
   const produto = await db.produto.findFirst({ where: { id: texto(form, "id"), salaoId } });
   const filial = await filialDaSalao(salaoId, texto(form, "filialId"));
   if (!produto) return { erro: "Produto não encontrado." };
@@ -83,6 +86,7 @@ export async function movimentar(_: Resultado, form: FormData): Promise<Resultad
 
 export async function transferir(_: Resultado, form: FormData): Promise<Resultado> {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "estoque");
   const produto = await db.produto.findFirst({ where: { id: texto(form, "id"), salaoId } });
   const [de, para] = await Promise.all([filialDaSalao(salaoId, texto(form, "de")), filialDaSalao(salaoId, texto(form, "para"))]);
   const qtd = Number(texto(form, "quantidade"));
@@ -102,6 +106,7 @@ export async function transferir(_: Resultado, form: FormData): Promise<Resultad
 
 export async function definirMinimo(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "estoque");
   const produto = await db.produto.findFirst({ where: { id: texto(form, "id"), salaoId } });
   const filial = await filialDaSalao(salaoId, texto(form, "filialId"));
   const minimo = Number(texto(form, "minimo"));
@@ -116,6 +121,7 @@ export async function definirMinimo(form: FormData) {
 
 export async function alternarProduto(form: FormData) {
   const { salaoId } = await exigirGestor();
+  await exigirRecurso(salaoId, "estoque");
   const p = await db.produto.findFirst({ where: { id: texto(form, "id"), salaoId } });
   if (p) await db.produto.update({ where: { id: p.id }, data: { ativo: !p.ativo } });
   revalidatePath("/painel", "layout");

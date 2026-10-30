@@ -20,6 +20,7 @@ import { exigirSessao } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { estoquePorProduto } from "@/lib/estoque";
 import { filialDoPainel, naFilial } from "@/lib/filial";
+import { recursosDoSalao } from "@/lib/planosSistema";
 import { formatarDinheiro, linkWhatsApp } from "@/lib/formato";
 import { criarDataHora, diaLocal, formatarDia, horaLocal, inicioEFimDoDia, limitesDoMes, somarDias, somarMeses } from "@/lib/tempo";
 
@@ -33,6 +34,7 @@ export default async function Inicio() {
   const ctx = await filialDoPainel(sessao);
   const filtro = naFilial(ctx);
   const ativas = ctx.filiais.filter((f) => f.ativo);
+  const rec = await recursosDoSalao(sessao.salaoId);
   const hoje = diaLocal();
   const { inicio: iniHoje, fim: fimHoje } = inicioEFimDoDia(hoje);
   const mes = limitesDoMes(hoje);
@@ -98,9 +100,11 @@ export default async function Inicio() {
         descricao={`Resumo ${ctx.atual && ativas.length > 1 ? `da unidade ${ctx.atual.nome}` : ativas.length > 1 ? "de todas as unidades" : `do ${salao.nome}`} hoje`}
         acoes={
           <>
-            <Link href="/painel/comandas/nova" className="btn-secundario">
-              <ReceiptText className="size-4" /> Nova venda
-            </Link>
+            {rec.comandas && (
+              <Link href="/painel/comandas/nova" className="btn-secundario">
+                <ReceiptText className="size-4" /> Nova venda
+              </Link>
+            )}
             <Link href="/painel/agenda/novo" className="btn-destaque">
               <CalendarDays className="size-4" /> Agendar
             </Link>
@@ -108,23 +112,31 @@ export default async function Inicio() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Indicador rotulo="Faturado hoje" valor={formatarDinheiro(fatHoje)} icone={CircleDollarSign} destaque detalhe={`${contaEntre(hoje, hoje)} venda(s) fechada(s)`} />
-        <Indicador rotulo="Atendimentos hoje" valor={agendamentosHoje.length} icone={CalendarDays} detalhe={`${proximos.length} ainda por vir`} />
-        <Indicador
-          rotulo="Faturado no mês"
-          valor={formatarDinheiro(fatMes)}
-          icone={TrendingUp}
-          detalhe={variacao === null ? "Sem comparação com o mês passado" : `${variacao >= 0 ? "▲" : "▼"} ${Math.abs(variacao)}% vs. mesmo período do mês passado`}
-        />
-        <Indicador rotulo="Ticket médio do mês" valor={formatarDinheiro(atendimentosMes ? Math.round(fatMes / atendimentosMes) : 0)} icone={ReceiptText} detalhe={`${atendimentosMes} venda(s) no mês`} />
-      </div>
+      {rec.comandas ? (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Indicador rotulo="Faturado hoje" valor={formatarDinheiro(fatHoje)} icone={CircleDollarSign} destaque detalhe={`${contaEntre(hoje, hoje)} venda(s) fechada(s)`} />
+          <Indicador rotulo="Atendimentos hoje" valor={agendamentosHoje.length} icone={CalendarDays} detalhe={`${proximos.length} ainda por vir`} />
+          <Indicador
+            rotulo="Faturado no mês"
+            valor={formatarDinheiro(fatMes)}
+            icone={TrendingUp}
+            detalhe={variacao === null ? "Sem comparação com o mês passado" : `${variacao >= 0 ? "▲" : "▼"} ${Math.abs(variacao)}% vs. mesmo período do mês passado`}
+          />
+          <Indicador rotulo="Ticket médio do mês" valor={formatarDinheiro(atendimentosMes ? Math.round(fatMes / atendimentosMes) : 0)} icone={ReceiptText} detalhe={`${atendimentosMes} venda(s) no mês`} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Indicador rotulo="Atendimentos hoje" valor={agendamentosHoje.length} icone={CalendarDays} detalhe={`${proximos.length} ainda por vir`} />
+        </div>
+      )}
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_380px]">
         <div className="space-y-4">
-          <Secao titulo="Faturamento dos últimos 14 dias" acoes={<Link href="/painel/relatorios" className="text-sm font-semibold text-latao-700 hover:underline">Relatórios</Link>}>
-            <GraficoBarras dados={grafico} titulo="Faturamento por dia nos últimos 14 dias" />
-          </Secao>
+          {rec.comandas && (
+            <Secao titulo="Faturamento dos últimos 14 dias" acoes={<Link href="/painel/relatorios" className="text-sm font-semibold text-latao-700 hover:underline">Relatórios</Link>}>
+              <GraficoBarras dados={grafico} titulo="Faturamento por dia nos últimos 14 dias" />
+            </Secao>
+          )}
 
           <Secao titulo="Próximos atendimentos de hoje" acoes={<Link href="/painel/agenda" className="text-sm font-semibold text-latao-700 hover:underline">Ver agenda</Link>}>
             {proximos.length === 0 ? (
@@ -150,47 +162,49 @@ export default async function Inicio() {
         </div>
 
         <div className="space-y-4">
-          <Secao titulo="Caixa">
-            {ctx.atual ? (
-              caixas[0] ? (
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-couro-700">
-                    <Etiqueta tom="verde">Aberto</Etiqueta> desde {horaLocal(caixas[0].abertoEm)}
-                  </p>
-                  <Link href="/painel/caixa" className="btn-secundario btn-pequeno">Ver caixa</Link>
-                </div>
+          {rec.comandas && (
+            <Secao titulo="Caixa">
+              {ctx.atual ? (
+                caixas[0] ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm text-couro-700">
+                      <Etiqueta tom="verde">Aberto</Etiqueta> desde {horaLocal(caixas[0].abertoEm)}
+                    </p>
+                    <Link href="/painel/caixa" className="btn-secundario btn-pequeno">Ver caixa</Link>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm text-couro-400">O caixa de hoje ainda não foi aberto.</p>
+                    <Link href="/painel/caixa" className="btn-primario btn-pequeno"><Wallet className="size-3.5" /> Abrir caixa</Link>
+                  </div>
+                )
               ) : (
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-couro-400">O caixa de hoje ainda não foi aberto.</p>
-                  <Link href="/painel/caixa" className="btn-primario btn-pequeno"><Wallet className="size-3.5" /> Abrir caixa</Link>
-                </div>
-              )
-            ) : (
-              <ul className="space-y-2 text-sm">
-                {ativas.map((f) => {
-                  const cx = caixas.find((c) => c.filialId === f.id);
-                  return (
-                    <li key={f.id} className="flex items-center justify-between gap-2">
-                      <span className="font-medium">{f.nome}</span>
-                      {cx ? <Etiqueta tom="verde">Aberto desde {horaLocal(cx.abertoEm)}</Etiqueta> : <Etiqueta>Fechado</Etiqueta>}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {abertas > 0 && (
-              <Link href="/painel/comandas" className="mt-3 flex items-center justify-between rounded-xl bg-latao-50 px-3 py-2.5 text-sm font-medium text-latao-700">
-                {abertas} comanda(s) aberta(s) aguardando pagamento <ArrowRight className="size-4" />
-              </Link>
-            )}
-          </Secao>
+                <ul className="space-y-2 text-sm">
+                  {ativas.map((f) => {
+                    const cx = caixas.find((c) => c.filialId === f.id);
+                    return (
+                      <li key={f.id} className="flex items-center justify-between gap-2">
+                        <span className="font-medium">{f.nome}</span>
+                        {cx ? <Etiqueta tom="verde">Aberto desde {horaLocal(cx.abertoEm)}</Etiqueta> : <Etiqueta>Fechado</Etiqueta>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {abertas > 0 && (
+                <Link href="/painel/comandas" className="mt-3 flex items-center justify-between rounded-xl bg-latao-50 px-3 py-2.5 text-sm font-medium text-latao-700">
+                  {abertas} comanda(s) aberta(s) aguardando pagamento <ArrowRight className="size-4" />
+                </Link>
+              )}
+            </Secao>
+          )}
 
           <Secao titulo="Avisos">
             <ul className="space-y-2.5 text-sm">
               {lembretesAmanha > 0 && (
                 <Aviso href="/painel/lembretes" icone={MessageCircle} texto={`${lembretesAmanha} cliente(s) de amanhã ainda sem lembrete no WhatsApp`} />
               )}
-              {estoqueBaixo.length > 0 && (
+              {rec.estoque && estoqueBaixo.length > 0 && (
                 <Aviso href="/painel/produtos" icone={Package} texto={`${estoqueBaixo.length} produto(s) com estoque baixo: ${estoqueBaixo.slice(0, 3).map((p) => p.nome).join(", ")}`} />
               )}
               {contas.map((c) => (
@@ -205,7 +219,7 @@ export default async function Inicio() {
               {assinaturasVencidas > 0 && (
                 <Aviso href="/painel/assinaturas" icone={Crown} alerta texto={`${assinaturasVencidas} assinatura(s) com mensalidade atrasada`} />
               )}
-              {lembretesAmanha === 0 && estoqueBaixo.length === 0 && contas.length === 0 && assinaturasVencidas === 0 && (
+              {lembretesAmanha === 0 && !(rec.estoque && estoqueBaixo.length > 0) && contas.length === 0 && assinaturasVencidas === 0 && (
                 <li className="text-couro-400">Tudo em dia por aqui.</li>
               )}
             </ul>

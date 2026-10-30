@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { formatarDinheiro } from "@/lib/formato";
 import { formatarDataHora } from "@/lib/tempo";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { alternarProduto, definirMinimo, movimentar, salvarProduto, transferir } from "../actions";
 
 export const metadata: Metadata = { title: "Produto" };
@@ -18,6 +19,7 @@ const reais = (c: number) => (c / 100).toFixed(2).replace(".", ",");
 
 export default async function Produto({ params }: { params: Promise<{ id: string }> }) {
   const sessao = await exigirGestor();
+  await exigirRecurso(sessao.salaoId, "estoque");
   const ctx = await filialDoPainel(sessao);
   const ativas = ctx.filiais.filter((f) => f.ativo);
   const varias = ativas.length > 1;

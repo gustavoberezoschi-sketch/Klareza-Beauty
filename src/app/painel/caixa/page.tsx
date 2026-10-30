@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { filialDoPainel } from "@/lib/filial";
 import { NOME_FORMA, formatarDinheiro } from "@/lib/formato";
 import { formatarDataHora, horaLocal } from "@/lib/tempo";
+import { exigirRecurso } from "@/lib/planosSistema";
 import { trocarFilial } from "../unidades/actions";
 import { abrirCaixa, fecharCaixa, lancarMovimento } from "./actions";
 
@@ -19,6 +20,7 @@ const TIPOS = { SUPRIMENTO: "Suprimento (entrada de troco)", SANGRIA: "Sangria (
 
 export default async function Caixa({ searchParams }: { searchParams: Promise<{ id?: string; fechado?: string }> }) {
   const sessao = await exigirGestor();
+  await exigirRecurso(sessao.salaoId, "comandas");
   const { salaoId } = sessao;
   const p = await searchParams;
   const ctx = await filialDoPainel(sessao);
