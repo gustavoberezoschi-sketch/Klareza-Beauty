@@ -1,0 +1,1094 @@
+{
+ "cfg_identidade": {
+  "rota": "/painel/configuracoes",
+  "caixa_css": [
+   80,
+   191,
+   504,
+   660
+  ],
+  "px": [
+   1008,
+   1320
+  ]
+ },
+ "cfg_regras": {
+  "rota": "/painel/configuracoes",
+  "caixa_css": [
+   600,
+   351,
+   504,
+   265
+  ],
+  "px": [
+   1008,
+   530
+  ]
+ },
+ "cfg_sinal": {
+  "rota": "/painel/configuracoes",
+  "caixa_css": [
+   600,
+   632,
+   504,
+   468
+  ],
+  "px": [
+   1008,
+   936
+  ]
+ },
+ "cfg_horario": {
+  "rota": "/painel/configuracoes",
+  "caixa_css": [
+   600,
+   191,
+   504,
+   144
+  ],
+  "px": [
+   1008,
+   288
+  ]
+ },
+ "un_centro": {
+  "rota": "/painel/unidades",
+  "caixa_css": [
+   40,
+   115,
+   360,
+   178
+  ],
+  "px": [
+   720,
+   356
+  ]
+ },
+ "un_norte": {
+  "rota": "/painel/unidades",
+  "caixa_css": [
+   412,
+   115,
+   360,
+   178
+  ],
+  "px": [
+   720,
+   356
+  ]
+ },
+ "sv_card_ext": {
+  "rota": "/painel/servicos",
+  "caixa_css": [
+   412,
+   545,
+   360,
+   172
+  ],
+  "px": [
+   720,
+   344
+  ]
+ },
+ "sv_card_man": {
+  "rota": "/painel/servicos",
+  "caixa_css": [
+   40,
+   545,
+   360,
+   172
+  ],
+  "px": [
+   720,
+   344
+  ]
+ },
+ "sv_card_esc": {
+  "rota": "/painel/servicos",
+  "caixa_css": [
+   40,
+   144,
+   360,
+   130
+  ],
+  "px": [
+   720,
+   260
+  ]
+ },
+ "sv_basico": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   118,
+   666,
+   300
+  ],
+  "px": [
+   1332,
+   600
+  ]
+ },
+ "sv_comissao": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   420,
+   666,
+   128
+  ],
+  "px": [
+   1332,
+   256
+  ]
+ },
+ "sv_cuidados": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   596,
+   666,
+   160
+  ],
+  "px": [
+   1332,
+   320
+  ]
+ },
+ "sv_variacoes": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   780,
+   666,
+   270
+  ],
+  "px": [
+   1332,
+   540
+  ]
+ },
+ "sv_adicionais": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   1050,
+   666,
+   130
+  ],
+  "px": [
+   1332,
+   260
+  ]
+ },
+ "sv_material": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   1408,
+   666,
+   200
+  ],
+  "px": [
+   1332,
+   400
+  ]
+ },
+ "sv_quemfaz": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   764,
+   314,
+   340,
+   224
+  ],
+  "px": [
+   680,
+   448
+  ]
+ },
+ "sv_faixas": {
+  "rota": "/painel/servicos/<id>",
+  "caixa_css": [
+   80,
+   1004,
+   666,
+   300
+  ],
+  "px": [
+   1332,
+   600
+  ]
+ },
+ "eq_carla": {
+  "rota": "/painel/equipe",
+  "caixa_css": [
+   40,
+   115,
+   360,
+   192
+  ],
+  "px": [
+   720,
+   384
+  ]
+ },
+ "eq_diana": {
+  "rota": "/painel/equipe",
+  "caixa_css": [
+   412,
+   115,
+   360,
+   192
+  ],
+  "px": [
+   720,
+   384
+  ]
+ },
+ "eq_rafaela": {
+  "rota": "/painel/equipe",
+  "caixa_css": [
+   784,
+   115,
+   360,
+   192
+  ],
+  "px": [
+   720,
+   384
+  ]
+ },
+ "eq_comissoes": {
+  "rota": "/painel/equipe/<id>",
+  "caixa_css": [
+   600,
+   118,
+   440,
+   190
+  ],
+  "px": [
+   880,
+   380
+  ]
+ },
+ "eq_acesso": {
+  "rota": "/painel/equipe/<id>",
+  "caixa_css": [
+   600,
+   324,
+   440,
+   281
+  ],
+  "px": [
+   880,
+   562
+  ]
+ },
+ "pr_kpis": {
+  "rota": "/painel/produtos",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   115
+  ],
+  "px": [
+   2208,
+   230
+  ]
+ },
+ "pr_tabela": {
+  "rota": "/painel/produtos",
+  "caixa_css": [
+   40,
+   246,
+   728,
+   597
+  ],
+  "px": [
+   1456,
+   1194
+  ]
+ },
+ "pr_estoque_un": {
+  "rota": "/painel/produtos/<id>",
+  "caixa_css": [
+   80,
+   251,
+   504,
+   243
+  ],
+  "px": [
+   1008,
+   486
+  ]
+ },
+ "pr_movimentar": {
+  "rota": "/painel/produtos/<id>",
+  "caixa_css": [
+   80,
+   510,
+   504,
+   338
+  ],
+  "px": [
+   1008,
+   676
+  ]
+ },
+ "pr_transferir": {
+  "rota": "/painel/produtos/<id>",
+  "caixa_css": [
+   80,
+   864,
+   504,
+   257
+  ],
+  "px": [
+   1008,
+   514
+  ]
+ },
+ "pr_historico": {
+  "rota": "/painel/produtos/<id>",
+  "caixa_css": [
+   600,
+   627,
+   504,
+   187
+  ],
+  "px": [
+   1008,
+   374
+  ]
+ },
+ "vt_qr": {
+  "rota": "/painel/vitrine",
+  "caixa_css": [
+   40,
+   191,
+   1104,
+   242
+  ],
+  "px": [
+   2208,
+   484
+  ]
+ },
+ "vt_banners": {
+  "rota": "/painel/vitrine",
+  "caixa_css": [
+   40,
+   449,
+   544,
+   682
+  ],
+  "px": [
+   1088,
+   1364
+  ]
+ },
+ "vt_parceiros": {
+  "rota": "/painel/vitrine",
+  "caixa_css": [
+   600,
+   449,
+   544,
+   682
+  ],
+  "px": [
+   1088,
+   1364
+  ]
+ },
+ "cl_kpis": {
+  "rota": "/painel/assinaturas",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   115
+  ],
+  "px": [
+   2208,
+   230
+  ]
+ },
+ "cl_assinantes": {
+  "rota": "/painel/assinaturas",
+  "caixa_css": [
+   40,
+   254,
+   688,
+   299
+  ],
+  "px": [
+   1376,
+   598
+  ]
+ },
+ "cl_planos": {
+  "rota": "/painel/assinaturas",
+  "caixa_css": [
+   40,
+   569,
+   688,
+   230
+  ],
+  "px": [
+   1376,
+   460
+  ]
+ },
+ "cl_criar": {
+  "rota": "/painel/assinaturas",
+  "caixa_css": [
+   744,
+   551,
+   400,
+   591
+  ],
+  "px": [
+   800,
+   1182
+  ]
+ },
+ "pc_manicure": {
+  "rota": "/painel/pacotes",
+  "caixa_css": [
+   40,
+   115,
+   348,
+   164
+  ],
+  "px": [
+   696,
+   328
+  ]
+ },
+ "pc_cilios": {
+  "rota": "/painel/pacotes",
+  "caixa_css": [
+   400,
+   115,
+   348,
+   164
+  ],
+  "px": [
+   696,
+   328
+  ]
+ },
+ "pc_novo": {
+  "rota": "/painel/pacotes",
+  "caixa_css": [
+   764,
+   115,
+   380,
+   439
+  ],
+  "px": [
+   760,
+   878
+  ]
+ },
+ "in_k1": {
+  "rota": "/painel",
+  "caixa_css": [
+   40,
+   115,
+   267,
+   115
+  ],
+  "px": [
+   534,
+   230
+  ]
+ },
+ "in_k2": {
+  "rota": "/painel",
+  "caixa_css": [
+   319,
+   115,
+   267,
+   115
+  ],
+  "px": [
+   534,
+   230
+  ]
+ },
+ "in_k3": {
+  "rota": "/painel",
+  "caixa_css": [
+   598,
+   115,
+   267,
+   115
+  ],
+  "px": [
+   534,
+   230
+  ]
+ },
+ "in_k4": {
+  "rota": "/painel",
+  "caixa_css": [
+   877,
+   115,
+   267,
+   115
+  ],
+  "px": [
+   534,
+   230
+  ]
+ },
+ "in_grafico": {
+  "rota": "/painel",
+  "caixa_css": [
+   40,
+   246,
+   708,
+   265
+  ],
+  "px": [
+   1416,
+   530
+  ]
+ },
+ "in_proximos": {
+  "rota": "/painel",
+  "caixa_css": [
+   40,
+   527,
+   708,
+   341
+  ],
+  "px": [
+   1416,
+   682
+  ]
+ },
+ "in_avisos": {
+  "rota": "/painel",
+  "caixa_css": [
+   764,
+   392,
+   380,
+   302
+  ],
+  "px": [
+   760,
+   604
+  ]
+ },
+ "in_caixa": {
+  "rota": "/painel",
+  "caixa_css": [
+   764,
+   246,
+   380,
+   130
+  ],
+  "px": [
+   760,
+   260
+  ]
+ },
+ "in_aniver": {
+  "rota": "/painel",
+  "caixa_css": [
+   764,
+   710,
+   380,
+   102
+  ],
+  "px": [
+   760,
+   204
+  ]
+ },
+ "ag_grade": {
+  "rota": "/painel/agenda",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   760
+  ],
+  "px": [
+   2208,
+   1520
+  ]
+ },
+ "ag_bloq_novo": {
+  "rota": "/painel/agenda/bloqueios",
+  "caixa_css": [
+   144,
+   142,
+   380,
+   472
+  ],
+  "px": [
+   760,
+   944
+  ]
+ },
+ "ag_bloq_lista": {
+  "rota": "/painel/agenda/bloqueios",
+  "caixa_css": [
+   540,
+   142,
+   500,
+   472
+  ],
+  "px": [
+   1000,
+   944
+  ]
+ },
+ "ag_novo": {
+  "rota": "/painel/agenda/novo",
+  "caixa_css": [
+   256,
+   118,
+   672,
+   722
+  ],
+  "px": [
+   1344,
+   1444
+  ]
+ },
+ "lb_amanha": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   40,
+   159,
+   688,
+   289
+  ],
+  "px": [
+   1376,
+   578
+  ]
+ },
+ "lb_hoje": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   40,
+   463,
+   688,
+   358
+  ],
+  "px": [
+   1376,
+   716
+  ]
+ },
+ "lb_site": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   40,
+   837,
+   688,
+   381
+  ],
+  "px": [
+   1376,
+   762
+  ]
+ },
+ "lb_espera": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   40,
+   1234,
+   688,
+   175
+  ],
+  "px": [
+   1376,
+   350
+  ]
+ },
+ "lb_manut": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   40,
+   1728,
+   688,
+   404
+  ],
+  "px": [
+   1376,
+   808
+  ]
+ },
+ "lb_textos": {
+  "rota": "/painel/lembretes",
+  "caixa_css": [
+   744,
+   159,
+   400,
+   651
+  ],
+  "px": [
+   800,
+   1302
+  ]
+ },
+ "fc_alerta": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   142,
+   1104,
+   48
+  ],
+  "px": [
+   2208,
+   96
+  ]
+ },
+ "fc_kpis": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   206,
+   1104,
+   115
+  ],
+  "px": [
+   2208,
+   230
+  ]
+ },
+ "fc_hist": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   337,
+   708,
+   368
+  ],
+  "px": [
+   1416,
+   736
+  ]
+ },
+ "fc_fotos": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   1064,
+   708,
+   260
+  ],
+  "px": [
+   1416,
+   520
+  ]
+ },
+ "fc_formulas": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   1339,
+   708,
+   352
+  ],
+  "px": [
+   1416,
+   704
+  ]
+ },
+ "fc_anamnese": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   40,
+   1707,
+   708,
+   619
+  ],
+  "px": [
+   1416,
+   1238
+  ]
+ },
+ "fc_clube": {
+  "rota": "/painel/clientes/<id>",
+  "caixa_css": [
+   764,
+   1170,
+   380,
+   144
+  ],
+  "px": [
+   760,
+   288
+  ]
+ },
+ "cm_aviso": {
+  "rota": "/painel/comandas/<id>",
+  "caixa_css": [
+   80,
+   142,
+   1024,
+   110
+  ],
+  "px": [
+   2048,
+   220
+  ]
+ },
+ "cm_itens": {
+  "rota": "/painel/comandas/<id>",
+  "caixa_css": [
+   80,
+   268,
+   648,
+   146
+  ],
+  "px": [
+   1296,
+   292
+  ]
+ },
+ "cm_resumo": {
+  "rota": "/painel/comandas/<id>",
+  "caixa_css": [
+   744,
+   268,
+   360,
+   327
+  ],
+  "px": [
+   720,
+   654
+  ]
+ },
+ "fi_kpis": {
+  "rota": "/painel/financeiro",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   115
+  ],
+  "px": [
+   2208,
+   230
+  ]
+ },
+ "fi_contas": {
+  "rota": "/painel/financeiro",
+  "caixa_css": [
+   40,
+   246,
+   708,
+   219
+  ],
+  "px": [
+   1416,
+   438
+  ]
+ },
+ "fi_lancar": {
+  "rota": "/painel/financeiro",
+  "caixa_css": [
+   764,
+   246,
+   380,
+   408
+  ],
+  "px": [
+   760,
+   816
+  ]
+ },
+ "rl_kpis": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   131
+  ],
+  "px": [
+   2208,
+   262
+  ]
+ },
+ "rl_grafico": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   262,
+   1104,
+   265
+  ],
+  "px": [
+   2208,
+   530
+  ]
+ },
+ "rl_unidade": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   543,
+   1104,
+   158
+  ],
+  "px": [
+   2208,
+   316
+  ]
+ },
+ "rl_comissoes": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   717,
+   1104,
+   318
+  ],
+  "px": [
+   2208,
+   636
+  ]
+ },
+ "rl_margem": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   1051,
+   1104,
+   469
+  ],
+  "px": [
+   2208,
+   938
+  ]
+ },
+ "rl_servicos": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   40,
+   1536,
+   357,
+   378
+  ],
+  "px": [
+   714,
+   756
+  ]
+ },
+ "rl_produtos": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   413,
+   1536,
+   357,
+   378
+  ],
+  "px": [
+   714,
+   756
+  ]
+ },
+ "rl_pagamentos": {
+  "rota": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+  "caixa_css": [
+   787,
+   1536,
+   357,
+   378
+  ],
+  "px": [
+   714,
+   756
+  ]
+ },
+ "ct_kpis": {
+  "rota": "/painel/clientes",
+  "caixa_css": [
+   40,
+   115,
+   1104,
+   93
+  ],
+  "px": [
+   2208,
+   186
+  ]
+ },
+ "ct_lista": {
+  "rota": "/painel/clientes",
+  "caixa_css": [
+   40,
+   224,
+   1104,
+   652
+  ],
+  "px": [
+   2208,
+   1304
+  ]
+ },
+ "pl_solo": {
+  "rota": "/painel/plano",
+  "caixa_css": [
+   40,
+   414,
+   262,
+   684
+  ],
+  "px": [
+   524,
+   1368
+  ]
+ },
+ "pl_bairro": {
+  "rota": "/painel/plano",
+  "caixa_css": [
+   320,
+   414,
+   262,
+   684
+  ],
+  "px": [
+   524,
+   1368
+  ]
+ },
+ "pl_cidade": {
+  "rota": "/painel/plano",
+  "caixa_css": [
+   600,
+   414,
+   262,
+   684
+  ],
+  "px": [
+   524,
+   1368
+  ]
+ },
+ "pl_nacional": {
+  "rota": "/painel/plano",
+  "caixa_css": [
+   880,
+   414,
+   262,
+   684
+  ],
+  "px": [
+   524,
+   1368
+  ]
+ }
+}

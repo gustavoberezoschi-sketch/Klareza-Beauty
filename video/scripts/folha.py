@@ -1,7 +1,7 @@
 """Folha de contato: monta quadros em grade com o tempo em cada um."""
 import sys, glob
 from PIL import Image, ImageDraw
-fs = sorted(glob.glob('quadros/q_*.png')); out = sys.argv[1]; cols = int(sys.argv[2]) if len(sys.argv) > 2 else 7
+import os; fs = sorted(glob.glob(os.environ.get('Q', 'quadros/q_*.png'))); out = sys.argv[1]; cols = int(sys.argv[2]) if len(sys.argv) > 2 else 7
 w, h = 360, 640
 rows = (len(fs) + cols - 1) // cols
 s = Image.new('RGB', (cols * (w + 8), rows * (h + 36)), (40, 40, 40))

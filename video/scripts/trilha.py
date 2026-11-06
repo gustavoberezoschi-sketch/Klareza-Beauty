@@ -4,7 +4,9 @@ A levada começa no primeiro corte depois do gancho e a grade fica ancorada nele
 import json, wave
 import numpy as np
 SR = 48000
-E = json.load(open('audio/eventos.json'))
+import sys
+ENT = sys.argv[1] if len(sys.argv) > 1 else 'audio/eventos.json'; DIR = sys.argv[2] if len(sys.argv) > 2 else 'audio'
+E = json.load(open(ENT))
 DUR = E['duracao']; N = int(DUR * SR) + SR
 rng = np.random.default_rng(20261106)
 BPM = 120; BEAT = 60 / BPM; BAR = 4 * BEAT
@@ -73,6 +75,8 @@ for ev in E['eventos']:
     if ev['tipo'] == 'capitulo': add(sfx, whoosh(0.45) * 0.8, t - 0.45); add(sfx, tone(mid(77), 0.6, 0.003, 0.18, (1, .15)) * 0.18, t)
     if ev['tipo'] == 'toque':
         n = int(0.05 * SR); add(sfx, rng.standard_normal(n) * env(n, 0.0005, 0.006) * 0.5 + tone(1800, 0.05, 0.0005, 0.01, (1,)) * 0.2, t)
+    if ev['tipo'] == 'peca': add(sfx, whoosh(0.22) * 0.35, t - 0.12)
+    if ev['tipo'] == 'chamada': add(sfx, tone(mid(84), 0.18, 0.002, 0.05, (1, .3)) * 0.07, t)
     if ev['tipo'] == 'enviar': add(sfx, tone(mid(81), 0.25, 0.003, 0.08, (1, .2)) * 0.2, t); add(sfx, tone(mid(88), 0.4, 0.003, 0.12, (1, .2)) * 0.2, t + 0.09)
     if ev['tipo'] == 'assinatura':
         for k, m in enumerate([65, 69, 72, 77]): add(sfx, tone(mid(m), 2.2, 0.01, 0.9, (1, .3, .1)) * 0.12, t + 0.05 * k)
@@ -81,8 +85,8 @@ for ev in E['eventos']:
 fade = np.ones(N); i0 = int((DUR - 1.8) * SR); fade[i0:] = np.linspace(1, 0, N - i0) ** 2
 def salvar(nome, x):
     x = x[:int(DUR * SR)]; y = np.clip(x, -1, 1)
-    w = wave.open(f'audio/stem_{nome}.wav', 'w'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
+    w = wave.open(f'{DIR}/stem_{nome}.wav', 'w'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((y * 32767 * 0.9).astype(np.int16).tobytes()); w.close()
 salvar('bateria', drums * fade); salvar('baixo', bass * fade); salvar('pad', pad * fade); salvar('pluck', pluck * fade); salvar('efeitos', sfx)
-json.dump({'bpm': BPM, 'ancora': T0, 'batidas': beats}, open('audio/beats.json', 'w'))
+json.dump({'bpm': BPM, 'ancora': T0, 'batidas': beats}, open(f'{DIR}/beats.json', 'w'))
 print('ok', len(beats), 'batidas')

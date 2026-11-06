@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Klareza Beauty — todas as funções (v2)</title>
+<style>
+@font-face { font-family: Geist; src: url(../assets/fonts/Geist-latin.woff2) format("woff2"); font-weight: 100 900; }
+@font-face { font-family: Figtree; src: url(../assets/fonts/Figtree-latin.woff2) format("woff2"); font-weight: 300 900; }
+@font-face { font-family: "Instrument Serif"; src: url(../assets/fonts/InstrumentSerif-Italic-latin.woff2) format("woff2"); font-style: italic; font-weight: 400; }
+:root { --vinho: #7A2E52; --vinho-esc: #5E2140; --tinta: #0F0F0E; --suave: #F7F4F3; --rosa: #F6E3EC; --cinza: #6B6B66; --linha: #E7E6E1; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #222; }
+#quadro { position: relative; overflow: hidden; background: var(--suave); font-family: Figtree, sans-serif; color: var(--tinta); }
+.v #quadro { width: 1080px; height: 1920px; } .h #quadro { width: 1920px; height: 1080px; }
+.abs { position: absolute; }
+.k { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; color: var(--vinho); letter-spacing: -0.02em; }
+#fundo { inset: 0; }
+.bolha { position: absolute; border-radius: 50%; filter: blur(10px); }
+#marca-mini { display: flex; align-items: center; gap: 14px; }
+.v #marca-mini { left: 72px; top: 132px; } .h #marca-mini { left: 110px; top: 84px; }
+#marca-mini img { width: 44px; height: 44px; }
+.wordmark { font-family: Figtree; font-weight: 600; letter-spacing: -0.025em; }
+.wordmark b { color: var(--vinho); font-weight: 600; }
+#tag { height: 46px; padding: 0 20px; border-radius: 999px; background: #fff; border: 2px solid var(--linha); font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 10px; white-space: nowrap; color: var(--vinho-esc); }
+#tag::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--vinho); }
+.v #tag { right: 72px; top: 131px; } .h #tag { left: 110px; top: 156px; }
+#titulo { width: 936px; height: 200px; }
+.v #titulo { left: 72px; top: 222px; } .h #titulo { left: 110px; top: 236px; width: 700px; }
+.linha { overflow: hidden; height: 96px; }
+.linha span.in { display: inline-block; font-family: Geist; font-weight: 600; font-size: 86px; line-height: 96px; letter-spacing: -0.045em; white-space: nowrap; }
+.linha .k { font-size: 100px; }
+#sub { overflow: hidden; }
+.v #sub { left: 72px; top: 434px; width: 936px; height: 150px; } .h #sub { left: 110px; top: 470px; width: 700px; height: 330px; }
+#sub div { position: absolute; left: 0; top: 0; width: 100%; font-size: 37px; line-height: 48px; font-weight: 500; }
+#palco { width: 936px; height: 880px; perspective: 2000px; }
+.v #palco { left: 72px; top: 600px; } .h #palco { left: 880px; top: 100px; }
+.obj { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; will-change: transform; }
+.peca { border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 2px 0 rgba(15,15,14,.04), 0 34px 70px -34px rgba(94,33,64,.45); }
+.peca img { display: block; width: 100%; height: 100%; }
+.selo { position: absolute; z-index: 30; background: rgba(15,15,14,.86); color: #fff; font-size: 21px; font-weight: 600; padding: 7px 14px; border-radius: 999px; white-space: nowrap; }
+.chamada { position: absolute; z-index: 20; left: 0; top: 0; pointer-events: none; }
+.chamada .ponto { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--vinho); border: 4px solid #fff; box-shadow: 0 0 0 6px rgba(122,46,82,.22); }
+.chamada .fio { position: absolute; height: 3px; background: var(--vinho); transform-origin: 0 50%; }
+.chamada .rot { position: absolute; background: var(--vinho); color: #fff; font-weight: 700; font-size: 27px; padding: 10px 20px; border-radius: 14px; white-space: nowrap; box-shadow: 0 16px 30px -16px rgba(94,33,64,.7); }
+.celobj { width: 600px; height: 860px; border-radius: 74px; background: var(--tinta); padding: 12px; box-shadow: 0 50px 90px -40px rgba(15,15,14,.6); }
+.celobj .vidro { position: relative; width: 576px; height: 836px; overflow: hidden; border-radius: 62px; background: #fff; }
+.celobj .vidro img { position: absolute; left: 0; top: 0; width: 576px; }
+.monitor { width: 900px; padding: 16px; border-radius: 28px; background: var(--tinta); box-shadow: 0 50px 90px -40px rgba(15,15,14,.6); }
+.monitor img { display: block; width: 100%; border-radius: 12px; }
+.toque { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; z-index: 25; }
+.toque i { position: absolute; inset: 0; border-radius: 50%; background: rgba(122,46,82,.28); border: 5px solid var(--vinho); }
+.toque u { position: absolute; inset: -6px; border-radius: 50%; border: 4px solid var(--vinho); }
+.anel { position: absolute; border: 6px solid var(--vinho); border-radius: 18px; z-index: 22; }
+.nota { position: absolute; z-index: 400; left: 50%; bottom: 0px; width: 820px; margin-left: -410px; background: var(--tinta); color: #fff; border-radius: 30px; padding: 24px 34px; display: flex; align-items: baseline; justify-content: space-between; gap: 24px; white-space: nowrap; }
+.nota b { font-family: Geist; font-weight: 600; font-size: 46px; letter-spacing: -0.03em; }
+.nota span { font-family: Geist; font-weight: 600; font-size: 58px; letter-spacing: -0.04em; }
+.nota .k { color: #F2C4D6; font-size: 64px; }
+.fluxo { width: 820px; }
+.fluxo .passo { display: flex; align-items: center; gap: 22px; background: #fff; border-radius: 22px; padding: 22px 28px; margin-bottom: 16px; font-size: 36px; font-weight: 700; box-shadow: 0 20px 40px -28px rgba(94,33,64,.5); }
+.fluxo .passo i { flex: none; width: 54px; height: 54px; border-radius: 50%; background: var(--vinho); color: #fff; font-style: normal; font-family: Geist; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.fluxo .cab { font-size: 22px; font-weight: 700; color: var(--cinza); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 14px 6px; }
+.cartao { width: 840px; border-radius: 30px; background: #fff; padding: 40px 44px; box-shadow: 0 34px 70px -34px rgba(94,33,64,.45); }
+.cartao .rotulo { font-size: 22px; font-weight: 700; color: var(--cinza); text-transform: uppercase; letter-spacing: .08em; }
+.cartao .quem { margin-top: 16px; font-size: 34px; font-weight: 700; }
+.cartao .quem small { display: block; font-size: 26px; font-weight: 500; color: var(--cinza); margin-top: 4px; }
+.cartao .msg { margin-top: 24px; background: var(--rosa); border-radius: 28px 28px 28px 8px; padding: 26px 30px; font-size: 31px; line-height: 43px; min-height: 270px; white-space: pre-wrap; }
+.cartao .pe { margin-top: 26px; display: flex; align-items: center; justify-content: space-between; }
+.cartao .nota2 { font-size: 25px; color: var(--cinza); width: 470px; }
+.cartao .enviar { height: 80px; padding: 0 38px; border-radius: 999px; background: var(--vinho); color: #fff; font-size: 32px; font-weight: 700; display: flex; align-items: center; }
+.cartao .feito { margin-top: 16px; font-size: 30px; font-weight: 700; color: var(--vinho); height: 40px; }
+.aviso { display: flex; gap: 22px; align-items: flex-start; }
+.aviso .ic { flex: none; width: 76px; height: 76px; border-radius: 20px; background: var(--vinho); color: #fff; font-family: Figtree; font-weight: 700; font-size: 40px; display: flex; align-items: center; justify-content: center; }
+.aviso b { display: block; font-size: 32px; } .aviso p { font-size: 29px; color: #3b3b38; margin-top: 6px; line-height: 40px; }
+.rotulo-duo { position: absolute; z-index: 30; background: var(--vinho); color: #fff; font-size: 30px; font-weight: 700; padding: 12px 24px; border-radius: 16px; white-space: nowrap; }
+#secao { inset: 0; z-index: 60; display: none; background: var(--vinho); color: #fff; }
+#secao .t { position: absolute; font-family: Geist; font-weight: 600; letter-spacing: -0.045em; }
+.v #secao .t { left: 72px; top: 760px; font-size: 120px; line-height: 128px; } .h #secao .t { left: 110px; top: 360px; font-size: 140px; line-height: 150px; }
+#secao .k { color: #F2C4D6; font-size: 1.12em; }
+#condicao { font-size: 24px; line-height: 32px; background: #fff; border: 2px solid var(--linha); border-radius: 22px; padding: 12px 20px; }
+.v #condicao { left: 72px; top: 1490px; width: 936px; } .h #condicao { left: 110px; top: 820px; width: 700px; }
+#gancho .linha { height: 122px; }
+#gancho .linha span.in { font-size: 100px; line-height: 122px; }
+#gancho .linha .k { font-size: 116px; }
+.v #gancho { left: 72px; top: 700px; width: 936px; } .h #gancho { left: 110px; top: 330px; width: 1700px; }
+.h #gancho .linha span.in { font-size: 120px; } .h #gancho .linha { height: 140px; } .h #gancho .linha .k { font-size: 136px; }
+.risco { position: absolute; height: 10px; background: var(--vinho); border-radius: 5px; transform-origin: 0 50%; }
+#fim { inset: 0; background: #fff; display: none; z-index: 80; }
+#fim .bloco { position: absolute; left: 0; right: 0; text-align: center; }
+#fim .simb { width: 220px; height: 220px; }
+#fim .wm { font-size: 92px; } #fim .slogan { font-size: 40px; font-weight: 500; color: var(--cinza); }
+#fim .contato div { font-size: 46px; font-weight: 700; line-height: 64px; } #fim .rotta { font-size: 26px; color: var(--cinza); }
+#grao { left: 0; top: 0; opacity: .035; mix-blend-mode: multiply; pointer-events: none; image-rendering: pixelated; z-index: 90; }
+#ctrl { position: fixed; right: 10px; top: 10px; color: #fff; font: 14px system-ui; width: 300px; z-index: 999; }
+#ctrl input { width: 100%; }
+body.render #ctrl { display: none; }
+</style>
+</head>
+<body>
+<div id="quadro">
+  <div id="fundo" class="abs"><div class="bolha" id="b1"></div><div class="bolha" id="b2"></div></div>
+  <div id="marca-mini" class="abs"><img src="../assets/logo_klareza_beauty_original.svg" alt=""><span class="wordmark" style="font-size:30px">Klareza<b>Beauty</b></span></div>
+  <div id="tag" class="abs"></div>
+  <div id="titulo" class="abs"></div>
+  <div id="sub" class="abs"></div>
+  <div id="palco" class="abs"></div>
+  <div id="condicao" class="abs"></div>
+  <div id="gancho" class="abs"></div>
+  <div id="secao" class="abs"><div class="t"></div></div>
+  <div id="fim" class="abs">
+    <div class="bloco b-simb"><img class="simb" src="../assets/logo_klareza_beauty_original.svg" alt=""></div>
+    <div class="bloco wm wordmark">Klareza<b>Beauty</b></div>
+    <div class="bloco slogan">O salão organizado de verdade.</div>
+    <div class="bloco contato"><div>klareza-beauty.vercel.app</div><div>WhatsApp (41) 98709-0321</div></div>
+    <div class="bloco rotta">Um produto da Rotta Digital</div>
+  </div>
+  <canvas id="grao" class="abs" width="270" height="480"></canvas>
+</div>
+<div id="ctrl"><div id="tlabel">0.00</div><input id="slider" type="range" min="0" max="460" step="0.0333" value="0"><button id="play">play</button></div>
+<script src="tempos.js"></script>
+<script src="cenas.js"></script>
+<script>
+(() => {
+const C = window.CENAS, $ = (s) => document.querySelector(s);
+const Q = new URLSearchParams(location.search);
+const RENDER = Q.has('render'), H = Q.get('formato') === '16x9';
+document.body.classList.add(H ? 'h' : 'v'); if (RENDER) document.body.classList.add('render');
+const FW = H ? 1920 : 1080, FH = H ? 1080 : 1920;
+const SW = 936, SH = 880;
+// ---------- utilidades puras ----------
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const eOut = (x) => 1 - Math.pow(1 - clamp(x), 5);
+const eIn = (x) => Math.pow(clamp(x), 3);
+const eInOut = (x) => { x = clamp(x); return x < .5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2; };
+const mola = (x) => { x = clamp(x); return 1 - Math.exp(-6 * x) * Math.cos(12 * x); };
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, t0, d) => clamp((t - t0) / d);
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const marcar = (s) => s.replace(/\{(.+?)\}/g, '<span class="k">$1</span>');
+const el = (tag, cls, html) => { const d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; };
+const tr3 = (o) => `translate3d(${o.x}px,${o.y}px,${o.z || 0}px) rotateX(${o.rx || 0}deg) rotateY(${o.ry || 0}deg) rotateZ(${o.rz || 0}deg) scale(${o.s})`;
+
+// ---------- construção ----------
+const palco = $('#palco'), titulo = $('#titulo'), subBox = $('#sub');
+const imgs = [];
+const MSG = 'Oi, Helena! Passando para lembrar do seu horário no Studio Flor de Lótus amanhã às 09:30 ✨\nPedicure com Diana Souza\nConfirme sua presença aqui: (link)\nTe esperamos!';
+C.S.forEach((s, si) => {
+  s.i = si; s.fim = C.S[si + 1] ? C.S[si + 1].t : C.DURACAO;
+  if (s.tipo === 'fim') return;
+  s.root = el('div', 'abs'); s.root.style.inset = '0'; s.root.style.perspective = '2000px'; palco.appendChild(s.root);
+  if (s.titulo) { s.tEl = el('div', 'abs', s.titulo.map(l => `<div class="linha"><span class="in">${marcar(l)}</span></div>`).join('')); s.tEl.style.left = '0'; s.tEl.style.top = '0'; titulo.appendChild(s.tEl); }
+  s.subEls = (s.subs || []).map(([t, txt]) => { const d = el('div', null); d.textContent = txt; subBox.appendChild(d); return { t, d }; });
+  let rnd = mulberry32(si * 101 + 7);
+  (s.objs || []).forEach((o, oi) => {
+    o.rnd = [rnd(), rnd(), rnd()];
+    if (o.tipo === 'peca') {
+      o.d = el('div', 'obj peca'); const im = el('img'); im.src = o.src; o.d.appendChild(im); imgs.push(im); o.im = im;
+      o.d.appendChild(el('span', 'selo', o.real ? 'Tela do sistema · 06/11/2026' : 'Exemplo · dados fictícios'));
+    } else if (o.tipo === 'cel') {
+      o.d = el('div', 'obj celobj'); const v = el('div', 'vidro'); o.d.appendChild(v);
+      o.telaEls = o.telas.map(([t, src]) => { const im = el('img'); im.src = src; v.appendChild(im); imgs.push(im); return im; });
+      if (o.mesmaTela) o.telaEls.forEach((im, k) => { if (k) im.style.display = 'none'; });
+      const sel = el('span', 'selo', 'Exemplo · dados fictícios'); o.d.appendChild(sel); sel.style.right = '-14px'; sel.style.top = '60px';
+      o.tapEls = (o.taps || []).map(() => { const d = el('div', 'toque', '<u></u><i></i>'); v.appendChild(d); return d; });
+      o.hlEls = (o.hl || []).map(() => { const d = el('div', 'anel'); v.appendChild(d); return d; });
+    } else if (o.tipo === 'monitor') {
+      o.d = el('div', 'obj monitor'); const im = el('img'); im.src = o.src; o.d.appendChild(im); imgs.push(im);
+      const sel = el('span', 'selo', 'Exemplo · login da profissional'); o.d.appendChild(sel); sel.style.right = '30px'; sel.style.top = '30px';
+    } else if (o.tipo === 'duo') {
+      o.d = el('div', 'obj'); o.d.style.width = SW + 'px'; o.d.style.height = SH + 'px';
+      o.mon = el('div', 'monitor'); o.mon.style.position = 'absolute'; const im1 = el('img'); im1.src = o.painel; o.mon.appendChild(im1); imgs.push(im1);
+      const celSrc = o.cel; o.cel = el('div', 'celobj'); o.cel.style.position = 'absolute'; const v = el('div', 'vidro'); const im2 = el('img'); im2.src = celSrc; v.appendChild(im2); o.cel.appendChild(v); imgs.push(im2);
+      o.ra = el('div', 'rotulo-duo', 'Dona do salão'); o.rb = el('div', 'rotulo-duo', 'Cliente');
+      [o.mon, o.cel, o.ra, o.rb].forEach(x => o.d.appendChild(x));
+    } else if (o.tipo === 'whats') {
+      o.d = el('div', 'obj cartao', `<div class="rotulo">Exemplo · ilustração do envio</div><div class="quem">Helena Dias · amanhã, 09:30<small>Pedicure com Diana Souza</small></div><div class="msg"></div><div class="pe"><div class="nota2">O sistema prepara. Quem envia é você, pelo seu WhatsApp.</div><div class="enviar">Enviar ➤</div></div><div class="feito"></div>`);
+      o.tq = el('div', 'toque', '<u></u><i></i>'); o.d.appendChild(o.tq);
+    } else if (o.tipo === 'push') {
+      o.d = el('div', 'obj cartao', `<div class="rotulo">Exemplo · texto do aviso do sistema</div><div class="aviso" style="margin-top:22px"><div class="ic">S</div><div><b>Amanhã às 09:30 no Studio Flor de Lótus</b><p>Pedicure com Diana. Toque para confirmar ou remarcar.</p></div></div><div class="nota2" style="margin-top:26px;font-size:25px;color:#6B6B66">Enviado automaticamente na véspera para quem ativou as notificações na área da cliente.</div>`);
+    } else if (o.tipo === 'fluxo') {
+      o.d = el('div', 'obj fluxo', `<div class="cab">Como funciona</div>` + o.itens.map(([t, x], k) => `<div class="passo"><i>${k + 1}</i>${x}</div>`).join(''));
+      o.passos = [...o.d.querySelectorAll('.passo')];
+    }
+    o.chs = (o.call || []).map(() => { const d = el('div', 'chamada', '<div class="fio"></div><div class="ponto"></div><div class="rot"></div>'); return d; });
+    o.chs.forEach((d, k) => { d.querySelector('.rot').textContent = o.call[k][3]; });
+    s.root.appendChild(o.d); o.chs.forEach(d => s.root.appendChild(d));
+  });
+  if ((s.objs || []).some(o => o.modo === 'grade')) { const real = s.objs.some(o => o.real); s.seloPalco = el('span', 'selo', real ? 'Tela do sistema · preços de 06/11/2026' : 'Exemplo · dados fictícios'); s.seloPalco.style.right = '0px'; s.seloPalco.style.top = '-56px'; s.root.appendChild(s.seloPalco); }
+  s.notaEls = (s.notas || []).map(([a, b, [x, y]]) => { const d = el('div', 'nota', `<b>${marcar(x)}</b><span>${marcar(y)}</span>`); s.root.appendChild(d); return d; });
+});
+const gancho = $('#gancho');
+C.GANCHO.forEach(([t, txt]) => gancho.appendChild(el('div', 'linha', `<span class="in">${marcar(txt)}</span>`)));
+const riscos = [0, 1].map(() => { const r = el('div', 'risco'); gancho.appendChild(r); return r; });
+const grao = $('#grao'), g = grao.getContext('2d'), gdata = g.createImageData(270, 480);
+grao.style.width = FW + 'px'; grao.style.height = FH + 'px';
+const fimEl = $('#fim');
+(() => { const tops = H ? [150, 420, 540, 650, 860] : [560, 840, 960, 1120, 1400]; ['.b-simb', '.wm', '.slogan', '.contato', '.rotta'].forEach((c, i) => { fimEl.querySelector(c).style.top = tops[i] + 'px'; }); })();
+
+// ---------- geometria dos objetos ----------
+const natural = (o) => { const u = o.u || 2; return [o.im.naturalWidth / u, o.im.naturalHeight / u]; };
+function tamanhoLeque(o, s) { const [w, h] = natural(o); const k = Math.min(SW * 0.98 / w, SH * (s && s.notas ? 0.7 : 0.9) / h, 1.9); return [w, h, k]; }
+function estadoPeca(o, s, t) {
+  const [w, h] = natural(o);
+  let st;
+  if (o.modo === 'leque') {
+    const irmas = s.objs.filter(x => x.modo === 'leque' || x.tipo === 'whats' || x.tipo === 'fluxo' || x.tipo === 'monitor');
+    const idx = irmas.indexOf(o);
+    let d = 0; irmas.forEach((x, j) => { if (j > idx) d += eInOut(prog(t, x.tE, 0.7)); });
+    const sc = tamanhoLeque(o, s)[2];
+    const ent = mola(prog(t, o.tE, 0.9)), entE = eOut(prog(t, o.tE, 0.7));
+    const lado = (o.rnd[0] - 0.5) * 2;
+    st = { x: SW / 2 - w / 2, y: SH * (s.notas ? 0.42 : 0.53) - h / 2, s: sc, rx: 0, ry: 0, rz: 0, op: 1, z: 0 };
+    st.y += (1 - ent) * 560; st.rx = (1 - entE) * 38; st.rz = (1 - entE) * lado * 6; st.op = clamp(entE * 2);
+    // vai para trás quando chega a próxima
+    st.s *= 1 - Math.min(d, 3) * 0.09; st.y -= Math.min(d, 3) * (SH * 0.07) + d * 0; st.z = -d * 140; st.op *= Math.max(clamp(1 - Math.max(0, d - 1.4) * 0.8) * (1 - Math.min(d, 1) * 0.55), 0);
+    st.rx += Math.min(d, 1) * 8; st.dim = Math.min(d, 1);
+    st.frente = d < 0.35;
+    // respiração leve
+    st.ry = Math.sin((t - o.tE) * 0.6 + o.rnd[1] * 6) * 2.2 * (1 - Math.min(d, 1));
+  } else {
+    const [gx, gy, gw] = o.r; const sc = gw * SW / w;
+    const ent = mola(prog(t, o.tE, 1.0)), entE = eOut(prog(t, o.tE, 0.8));
+    const fx = (o.rnd[0] - 0.5) * 900, fy = 500 + o.rnd[1] * 300, fr = (o.rnd[2] - 0.5) * 40;
+    st = { x: gx * SW + (w * sc - w) / 2 + (1 - ent) * fx, y: gy * SH + (h * sc - h) / 2 + (1 - ent) * fy, s: sc, rx: (1 - entE) * 30, ry: 0, rz: (1 - entE) * fr, op: clamp(entE * 2), z: 0, frente: true };
+    let foco = 0; (o.foco || []).forEach(([a, b]) => { foco = Math.max(foco, eInOut(prog(t, a, 0.7)) * (1 - eInOut(prog(t, b - 0.5, 0.6)))); });
+    if (foco > 0) { const fs = Math.min(SW * 0.96 / w, SH * 0.86 / h, 1.75); st.x = lerp(st.x, SW / 2 - w / 2, foco); st.y = lerp(st.y, SH * 0.5 - h / 2, foco); st.s = lerp(st.s, fs, foco); st.z = foco * 300; st.focoK = foco; }
+    if (o.sai) { const p = eInOut(prog(t, o.sai, 0.6)); st.op *= 1 - p; st.y -= p * 200; }
+  }
+  return st;
+}
+const ret = (st, w, h) => ({ l: st.x + w / 2 - w * st.s / 2, t: st.y + h / 2 - h * st.s / 2, w: w * st.s, h: h * st.s });
+
+// ---------- seek ----------
+let ultimoT = 0;
+function seek(t) {
+  ultimoT = t; const fr = Math.round(t * 30);
+  // fundo vivo
+  const b1 = $('#b1'), b2 = $('#b2');
+  b1.style.cssText = `width:${FW * 0.9}px;height:${FW * 0.9}px;left:${FW * (0.45 + 0.08 * Math.sin(t * 0.13))}px;top:${FH * (-0.18 + 0.05 * Math.cos(t * 0.11))}px;background:radial-gradient(circle, rgba(231,163,195,.38), rgba(231,163,195,0) 65%)`;
+  b2.style.cssText = `width:${FW * 0.8}px;height:${FW * 0.8}px;left:${FW * (-0.35 + 0.06 * Math.cos(t * 0.09))}px;top:${FH * (0.62 + 0.04 * Math.sin(t * 0.12))}px;background:radial-gradient(circle, rgba(122,46,82,.13), rgba(122,46,82,0) 65%)`;
+  // gancho
+  const t1 = C.S[0].t;
+  gancho.style.display = t < t1 + 0.7 ? 'block' : 'none';
+  const lns = gancho.querySelectorAll('.linha');
+  lns.forEach((l, i) => { const t0 = C.GANCHO[i][0] - (i === 0 ? 0.3 : 0.08); const p = eOut(prog(t, t0, 0.5)), sai = eInOut(prog(t, t1 - 0.1 + i * 0.05, 0.5)); l.firstChild.style.transform = `translateY(${(1 - p) * 110 - sai * 110}%)`; });
+  const lh = H ? 140 : 122;
+  riscos.forEach((r, i) => { const w = lns[i].firstChild.offsetWidth; r.style.left = '0px'; r.style.top = (i * lh + lh * 0.52) + 'px'; r.style.width = (w - 16) + 'px'; const p = eOut(prog(t, C.GANCHO[2][0] + 0.2 + i * 0.15, 0.45)); r.style.transform = `scaleX(${p})`; r.style.opacity = 1 - prog(t, t1 - 0.1, 0.3); });
+  $('#marca-mini').style.opacity = eOut(prog(t, t1, 0.6));
+  // cena atual
+  let k = -1; C.S.forEach((s, i) => { if (t >= s.t) k = i; });
+  const cur = C.S[k];
+  // tag
+  const tag = $('#tag'); tag.textContent = cur && cur.tag ? cur.tag : ''; tag.style.display = cur && cur.tag ? 'flex' : 'none';
+  if (cur && cur.tag) { const prevTag = C.S[k - 1] && C.S[k - 1].tag; const p = prevTag === cur.tag ? 1 : eOut(prog(t, cur.t, 0.5)); tag.style.opacity = p; tag.style.transform = `translateY(${(1 - p) * -20}px)`; }
+  C.S.forEach((s, i) => {
+    if (s.tipo === 'fim') return;
+    const ativa = i === k || (i === k - 1 && t < C.S[k].t + 0.6);
+    s.root.style.display = ativa ? 'block' : 'none';
+    if (s.tEl) s.tEl.style.display = ativa ? 'block' : 'none';
+    s.subEls.forEach(x => x.d.style.display = 'none');
+    if (!ativa) return;
+    const saindo = i === k - 1;
+    // título
+    if (s.tEl) s.tEl.querySelectorAll('.linha span.in').forEach((sp, j) => {
+      const y = saindo ? -eInOut(prog(t, C.S[k].t, 0.35)) * 110 : (1 - eOut(prog(t, s.t + (s.secao ? 1.1 : 0) + j * 0.09, 0.55))) * 110;
+      sp.style.transform = `translateY(${y}%)`;
+    });
+    // subtítulo
+    if (!saindo) {
+      let si = -1; s.subEls.forEach((x, j) => { if (t >= x.t) si = j; });
+      s.subEls.forEach((x, j) => {
+        if (j === si) { const p = eOut(prog(t, x.t, 0.45)); x.d.style.display = 'block'; x.d.style.opacity = p; x.d.style.transform = `translateY(${(1 - p) * 40}px)`; }
+        else if (j === si - 1 && t < s.subEls[si].t + 0.3) { const p = eOut(prog(t, s.subEls[si].t, 0.3)); x.d.style.display = 'block'; x.d.style.opacity = 1 - p; x.d.style.transform = `translateY(${-p * 30}px)`; }
+      });
+    }
+    // saída da cena: tudo sobe e some
+    const sai = saindo ? eIn(prog(t, C.S[k].t - 0.05, 0.5)) : 0;
+    s.root.style.transform = `translateY(${-sai * 160}px)`; s.root.style.opacity = 1 - sai;
+    // objetos
+    (s.objs || []).forEach((o) => {
+      const vis = t >= o.tE - 0.05; o.d.style.display = vis ? 'block' : 'none'; o.chs.forEach(c => c.style.display = 'none');
+      if (!vis) return;
+      if (o.tipo === 'peca') {
+        const [w, h] = natural(o); const st = estadoPeca(o, s, t);
+        o.d.style.width = w + 'px'; o.d.style.height = h + 'px'; o.d.style.transform = tr3(st); o.d.style.opacity = st.op; o.d.style.zIndex = Math.round(100 + (st.z || 0) / 10);
+        o.d.style.filter = st.dim ? `brightness(${1 - st.dim * 0.12}) saturate(${1 - st.dim * 0.3})` : 'none';
+        const sel = o.d.querySelector('.selo'); sel.style.transform = `scale(${1 / st.s})`; sel.style.transformOrigin = '100% 0'; sel.style.right = (12 / st.s) + 'px'; sel.style.top = (12 / st.s) + 'px';
+        sel.style.opacity = o.modo === 'grade' ? 0 : (st.frente ? 1 : 0);
+        // chamadas
+        const R = ret(st, w, h);
+        const ocup = []; // rótulos já posicionados por lado (evita sobreposição)
+        const ordem = o.chs.map((c, j) => j).sort((a, b) => o.call[a][2] - o.call[b][2]);
+        ordem.forEach((j) => { const c = o.chs[j];
+          const [tc, fx, fy] = o.call[j]; if (!st.frente || t < tc - 0.02 || st.op < 0.5) return;
+          const p = mola(prog(t, tc, 0.7)), pe = eOut(prog(t, tc, 0.4));
+          c.style.display = 'block'; c.style.zIndex = 400;
+          const px = R.l + fx * R.w, py = R.t + fy * R.h;
+          const rot = c.querySelector('.rot'); const rw = rot.offsetWidth, rh = rot.offsetHeight;
+          const dir = fx > 0.55 ? -1 : 1;
+          let rx = dir > 0 ? px + 60 : px - 60 - rw; rx = clamp(rx, -40, SW - rw + 40); let ry = py - rh / 2 - 34;
+          for (let it = 0; it < 6; it++) { let mexeu = false; ocup.forEach(([x0, y0, x1, y1]) => { if (rx < x1 + 8 && rx + rw > x0 - 8 && ry < y1 + 8 && ry + rh > y0 - 8) { ry = y1 + 8; mexeu = true; } }); if (!mexeu) break; }
+          ry = clamp(ry, -30, SH - rh); ocup.push([rx, ry, rx + rw, ry + rh]);
+          rot.style.left = rx + 'px'; rot.style.top = ry + 'px'; rot.style.transform = `scale(${0.6 + 0.4 * p})`; rot.style.opacity = pe;
+          const ponto = c.querySelector('.ponto'); ponto.style.left = px + 'px'; ponto.style.top = py + 'px'; ponto.style.transform = `scale(${p})`;
+          const ax = dir > 0 ? rx : rx + rw, ay = ry + rh / 2; const L = Math.hypot(ax - px, ay - py), ang = Math.atan2(ay - py, ax - px);
+          const fio = c.querySelector('.fio'); fio.style.left = px + 'px'; fio.style.top = py + 'px'; fio.style.width = L + 'px'; fio.style.transform = `rotate(${ang}rad) scaleX(${pe})`;
+        });
+      } else if (o.tipo === 'cel' || o.tipo === 'monitor' || o.tipo === 'whats' || o.tipo === 'push' || o.tipo === 'fluxo') {
+        const w = o.d.offsetWidth, h = o.d.offsetHeight;
+        const ent = mola(prog(t, o.tE, 1.0)), entE = eOut(prog(t, o.tE, 0.7));
+        let irmas = s.objs.filter(x => x.modo === 'leque' || x.tipo === 'whats' || x.tipo === 'fluxo' || x.tipo === 'monitor');
+        let d = 0; const idx = irmas.indexOf(o); if (idx >= 0) irmas.forEach((x, j) => { if (j > idx) d += eInOut(prog(t, x.tE, 0.7)); });
+        let sc = Math.min(SW * 0.98 / w, SH * 0.97 / h, 1);
+        const st = { x: SW / 2 - w / 2, y: SH * 0.5 - h / 2, s: sc * (1 - Math.min(d, 2) * 0.1), rx: (1 - entE) * 30 + Math.min(d, 1) * 8, ry: (o.tipo === 'cel' ? -10 * (1 - entE) + Math.sin((t - o.tE) * 0.5) * 3 : 0), rz: (1 - entE) * (o.tipo === 'cel' ? -6 : 3), op: clamp(entE * 2) * clamp(1 - Math.max(0, d - 1.2)), z: -d * 140 };
+        st.y += (1 - ent) * 620 - Math.min(d, 2) * SH * 0.07;
+        if (o.sai) { const p = eInOut(prog(t, o.sai, 0.6)); st.x -= p * 260; st.s *= 1 - 0.25 * p; st.op *= 1 - 0.7 * p; st.z -= p * 200; }
+        o.d.style.transform = tr3(st); o.d.style.opacity = st.op; o.d.style.zIndex = Math.round(100 + st.z / 10 + (o.tipo === 'push' ? 50 : 0));
+        if (o.tipo === 'cel') {
+          const SC = 576 / 390; // px de tela por px CSS da captura
+          if (o.mesmaTela) {
+            let y = o.telas[0][2]; for (let j = 1; j < o.telas.length; j++) y = lerp(y, o.telas[j][2], eInOut(prog(t, o.telas[j][0], 1.1)));
+            const im = o.telaEls[0]; const maxY = im.naturalHeight / 2 - 836 / SC; im.style.transform = `translateY(${-clamp(y, 0, maxY) * SC}px)`; o.scrollY = clamp(y, 0, maxY);
+          } else {
+            let at = 0; o.telas.forEach((x, j) => { if (t >= x[0]) at = j; });
+            o.telaEls.forEach((im, j) => {
+              const u = o.telas[j][3] || 2; const sc2 = 576 / (im.naturalWidth / u); const y = o.telas[j][2];
+              let x = 0, show = false;
+              if (j === at) { show = true; x = j > 0 ? (1 - eOut(prog(t, o.telas[j][0], 0.5))) * 576 : 0; }
+              else if (j === at - 1 && t < o.telas[at][0] + 0.5) { show = true; x = -eOut(prog(t, o.telas[at][0], 0.5)) * 576 * 0.35; }
+              im.style.display = show ? 'block' : 'none'; im.style.zIndex = j === at ? 2 : 1;
+              im.style.width = '576px'; im.style.transform = `translate(${x}px, ${-y * sc2}px)`;
+            });
+            o.scrollY = o.telas[at][2]; o.sc2 = 576 / (o.telaEls[at].naturalWidth / (o.telas[at][3] || 2));
+          }
+          const scr = o.mesmaTela ? SC : o.sc2;
+          o.tapEls.forEach((d, j) => { const [a, x, y] = o.taps[j]; const vis = prog(t, a - 0.45, 0.25) * (1 - prog(t, a + 0.7, 0.3)); const pr = prog(t, a, 0.15), solta = prog(t, a + 0.15, 0.35);
+            d.style.left = (x * scr) + 'px'; d.style.top = ((y - o.scrollY) * scr + (1 - eOut(prog(t, a - 0.45, 0.45))) * 60) + 'px'; d.style.opacity = vis;
+            d.querySelector('i').style.transform = `scale(${1 - 0.25 * pr + 0.25 * solta})`; d.querySelector('u').style.transform = `scale(${1 + 0.9 * solta})`; d.querySelector('u').style.opacity = pr * (1 - solta); });
+          o.hlEls.forEach((d, j) => { const [a, b, r] = o.hl[j]; const vis = eOut(prog(t, a, 0.35)) * (1 - prog(t, b - 0.2, 0.2)); const pad = 8 + (1 - mola(prog(t, a, 0.6))) * 24;
+            d.style.left = (r[0] * scr - pad) + 'px'; d.style.top = ((r[1] - o.scrollY) * scr - pad) + 'px'; d.style.width = (r[2] * scr + 2 * pad) + 'px'; d.style.height = (r[3] * scr + 2 * pad) + 'px'; d.style.opacity = vis; });
+        }
+        if (o.tipo === 'whats') {
+          const n = Math.floor(clamp((t - o.tE - 0.3) * 70, 0, MSG.length)); o.d.querySelector('.msg').textContent = MSG.slice(0, n);
+          const te = o.envia, pr = prog(t, te, 0.18), solta = prog(t, te + 0.18, 0.25);
+          const b = o.d.querySelector('.enviar'); b.style.transform = `scale(${1 - 0.07 * pr + 0.07 * solta})`;
+          const f = o.d.querySelector('.feito'); f.textContent = t >= te + 0.15 ? '✓ Enviado por você' : ''; f.style.opacity = eOut(prog(t, te + 0.15, 0.4));
+          const bb = { l: b.offsetLeft + b.offsetWidth * 0.55, t: b.offsetTop + b.offsetHeight * 0.55 };
+          o.tq.style.left = bb.l + 'px'; o.tq.style.top = bb.t + 'px'; o.tq.style.opacity = prog(t, te - 0.6, 0.3) * (1 - prog(t, te + 0.9, 0.3));
+          o.tq.querySelector('i').style.transform = `scale(${1 - 0.25 * pr + 0.25 * solta})`; o.tq.querySelector('u').style.transform = `scale(${1 + 0.8 * solta})`; o.tq.querySelector('u').style.opacity = 1 - solta;
+        }
+        if (o.tipo === 'fluxo') o.passos.forEach((p, j) => { const a = o.itens[j][0]; const q = mola(prog(t, a, 0.7)), qe = eOut(prog(t, a, 0.5)); p.style.opacity = qe; p.style.transform = `translateX(${(1 - q) * 120}px)`; });
+      } else if (o.tipo === 'duo') {
+        o.d.style.transform = 'none'; o.d.style.width = SW + 'px'; o.d.style.height = SH + 'px';
+        const ea = mola(prog(t, o.tE, 1.0)), eb = mola(prog(t, o.tE + 0.35, 1.0));
+        const ms = 0.86, mw = 900 * ms; o.mon.style.transformOrigin = '0 0';
+        o.mon.style.transform = `translate(${(SW - mw) / 2 - 40 + (1 - ea) * -300}px, ${40 + (1 - ea) * 200}px) rotateY(${12 * (1 - ea) + 6}deg) scale(${ms})`; o.mon.style.opacity = clamp(ea * 2);
+        const cs = 0.62; o.cel.style.transformOrigin = '0 0';
+        o.cel.style.transform = `translate(${SW - 600 * cs - 10 + (1 - eb) * 300}px, ${SH - 860 * cs - 30 + (1 - eb) * 300}px) rotateZ(${-4 * (1 - eb) + 3}deg) scale(${cs})`; o.cel.style.opacity = clamp(eb * 2);
+        const pa = mola(prog(t, o.rotA, 0.6)), pb = mola(prog(t, o.rotB, 0.6));
+        o.ra.style.left = '0px'; o.ra.style.top = '0px'; o.ra.style.transform = `scale(${pa})`; o.ra.style.transformOrigin = '0 0';
+        o.rb.style.right = '20px'; o.rb.style.top = (SH - 860 * cs - 100) + 'px'; o.rb.style.transform = `scale(${pb})`; o.rb.style.transformOrigin = '100% 100%';
+      }
+    });
+    s.notaEls.forEach((d, j) => { const [a, b] = s.notas[j]; const v = eOut(prog(t, a, 0.45)) * (1 - eOut(prog(t, b - 0.3, 0.3))); d.style.display = v > 0 ? 'flex' : 'none'; d.style.opacity = v; d.style.transform = `translateY(${(1 - mola(prog(t, a, 0.7))) * 80}px)`; });
+  });
+  // seção (cortina vinho)
+  const sec = $('#secao'); const sc = C.S.find(s => s.secao && t >= s.t - 0.4 && t < s.t + 1.7);
+  if (sc) { sec.style.display = 'block'; const a = eOut(prog(t, sc.t - 0.4, 0.45)), b = eInOut(prog(t, sc.t + 1.15, 0.5)); sec.style.clipPath = `inset(${(1 - a) * 100}% 0 ${b * 100}% 0)`; const tt = sec.querySelector('.t'); tt.innerHTML = sc.secao.map(marcar).join('<br>'); tt.style.transform = `translateY(${(1 - eOut(prog(t, sc.t - 0.2, 0.6))) * 80}px)`; }
+  else sec.style.display = 'none';
+  // condição (planos)
+  const cond = $('#condicao'); const cp = C.S.find(s => s.condicao); const cv = cp ? eOut(prog(t, cp.subs[2][0], 0.5)) * (1 - prog(t, cp.fim - 0.2, 0.2)) : 0;
+  cond.style.display = cv > 0 ? 'block' : 'none'; cond.style.opacity = cv; if (cp) cond.textContent = cp.condicao;
+  // fechamento
+  const tf = C.S[C.S.length - 1].t;
+  if (t >= tf) {
+    fimEl.style.display = 'block'; const p = eOut(prog(t, tf, 0.6)); fimEl.style.clipPath = `circle(${p * 160}% at 50% 40%)`;
+    fimEl.querySelector('.simb').style.transform = `scale(${0.4 + 0.6 * mola(prog(t, tf + 0.1, 0.9))})`;
+    const r = (c, dd) => { const q = eOut(prog(t, tf + dd, 0.6)); const e = fimEl.querySelector(c); e.style.opacity = q; e.style.transform = `translateY(${(1 - q) * 40}px)`; };
+    r('.wm', 0.35); r('.slogan', 0.6); r('.contato', C.W(33, 'Conheça') - tf); r('.rotta', C.W(33, 'Conheça') - tf + 0.3);
+  } else fimEl.style.display = 'none';
+  // grão semeado por quadro
+  const rnd = mulberry32(fr * 7919 + 13); const dd = gdata.data;
+  for (let i = 0; i < dd.length; i += 4) { const v = 160 + rnd() * 95; dd[i] = dd[i + 1] = dd[i + 2] = v; dd[i + 3] = 255; }
+  g.putImageData(gdata, 0, 0);
+  $('#tlabel').textContent = t.toFixed(2);
+}
+window.seek = seek; window.DURACAO = C.DURACAO; window.FORMATO = [FW, FH];
+window.ready = (async () => {
+  await document.fonts.load('600 86px Geist'); await document.fonts.load('500 37px Figtree'); await document.fonts.load('700 36px Figtree'); await document.fonts.load('italic 400 100px "Instrument Serif"');
+  await Promise.all(imgs.map((im) => im.decode().catch(() => { throw new Error('imagem não carregou: ' + im.src); })));
+  if (!document.fonts.check('600 86px Geist') || !document.fonts.check('italic 400 100px "Instrument Serif"')) throw new Error('fonte não carregou');
+  seek(0); return true;
+})();
+if (!RENDER) {
+  const sl = $('#slider'); sl.max = C.DURACAO; sl.oninput = () => seek(+sl.value);
+  let tocando = false, base = 0, t0 = 0;
+  $('#play').onclick = () => { tocando = !tocando; base = performance.now(); t0 = ultimoT; if (tocando) requestAnimationFrame(loop); };
+  function loop(n) { if (!tocando) return; const t = t0 + (n - base) / 1000; seek(t); sl.value = t; requestAnimationFrame(loop); }
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+Agenda no caderno, caixa na planilha e cliente no WhatsApp?
+O Klareza Beauty organiza o salão inteiro. Primeiro, o que ele faz por você, dona do salão. Depois, o que a sua cliente vê.
+Tudo começa nas configurações. Você coloca o logo, a capa, a cor da sua marca e o Instagram. E define de quanto em quanto tempo os horários aparecem, com quantos dias de antecedência a cliente pode marcar e até quantas horas antes ela pode cancelar.
+Se você tem mais de uma unidade, cada uma tem endereço, horário, equipe, agenda e caixa próprios. Clientes, serviços e planos valem para todas.
+Nos serviços, você cadastra preço, duração, foto e quem faz. Um serviço pode ter variações, como clássico, híbrido ou volume russo, cada uma com preço e tempo próprios. E adicionais, como a remoção, que somam preço e tempo na agenda.
+Na manutenção, você diz depois de quantos dias a cliente deve voltar e cria faixas de preço. Por exemplo: até quinze dias, cem reais; até vinte e um dias, cento e trinta. O sistema calcula pelo último atendimento. Passou do prazo, o agendamento online pede uma aplicação nova.
+Você também informa o material que cada serviço gasta, como fios e cola. Assim, o sistema sabe quanto custa cada atendimento.
+Na equipe, cada profissional tem comissão de serviço e de produto. A auxiliar ganha a porcentagem dela no serviço em que ajudou. E cada uma pode ter o próprio login, vendo só a agenda, as comandas e as comissões dela.
+Em produtos, você controla preço, custo e o estoque de cada unidade, com aviso de estoque mínimo, entradas, contagem e transferência entre unidades.
+Na página do cliente, você baixa o QR code, coloca banners e cadastra parceiros com cupons de desconto: é o clube de vantagens.
+No clube de assinatura, você cria planos mensais, como escova ilimitada ou quatro usos por mês. Os serviços do plano saem sem cobrança na comanda. Com a conta de recebimento aprovada, a cliente assina e a mensalidade é cobrada todo mês.
+E nos pacotes, você vende, por exemplo, quatro manutenções de cílios com desconto. Cada sessão é abatida sozinha nas próximas comandas, com validade, se você quiser.
+Com tudo pronto, o seu dia começa no início: o faturamento do dia e do mês, os próximos atendimentos e os avisos de estoque baixo, contas vencendo, mensalidades atrasadas e aniversariantes.
+A agenda mostra uma coluna por profissional. Você clica num horário vazio para agendar, bloqueia almoço, folga, férias ou feriado, faz encaixe, remarca, marca falta e cancela. Dá até para agendar serviços ao mesmo tempo, com profissionais diferentes. E o que a cliente marca pelo site aparece na hora.
+Em lembretes, ficam prontas as mensagens de quem vem amanhã e hoje, a confirmação de quem agendou pelo site, quem está na hora da manutenção, quem está na lista de espera quando abre uma vaga, e os cuidados depois do atendimento. Você toca, o WhatsApp abre com o texto pronto, e você mesma envia. Sem custo por mensagem, e os textos você edita.
+Na hora do atendimento, a ficha da cliente mostra o histórico, quanto ela já gastou, de quanto em quanto tempo volta, o serviço preferido e as faltas.
+A ficha de anamnese registra alergias, como cola, esmalte ou henna, gestação, lentes de contato, condições de pele, medicamentos e procedimentos recentes, com o consentimento da cliente. Os pontos de atenção aparecem em destaque, na ficha e na comanda, antes de você começar.
+Nas fórmulas, você guarda a coloração de cada cliente: as gramas de cada tinta, o oxidante e o tempo de pausa. Na próxima visita, é só repetir.
+E as fotos de antes e depois ficam na ficha. Com a autorização da cliente, viram a galeria da página do salão.
+Ao iniciar o atendimento, a comanda abre. Você soma produtos, aplica desconto ou cashback, escolhe a forma de pagamento e manda o recibo pelo WhatsApp. Ao fechar, o estoque dá baixa.
+O caixa abre com o troco, registra sangria, suprimento e despesas, soma cada forma de pagamento e fecha conferindo o dinheiro da gaveta.
+No fim do mês, o financeiro mostra as contas a pagar, inclusive as que se repetem, e o resultado: entradas, menos comissões e despesas.
+Os relatórios trazem o faturamento por dia, o ticket médio, as comissões por profissional, os serviços e produtos mais vendidos, as formas de pagamento, quanto veio do agendamento online, as faltas e a margem de cada serviço, já descontando material e comissão.
+E em clientes, um filtro mostra quem sumiu há mais de quarenta e cinco dias, quem é assinante e quem tem cashback para usar.
