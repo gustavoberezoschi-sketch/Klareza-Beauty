@@ -1,0 +1,34 @@
+// Mede posições (px CSS) de alvos de toque nas telas de celular capturadas. Não confirma nada.
+const { chromium } = require('playwright');
+const fs = require('fs'); const BASE = 'http://localhost:3100';
+(async () => {
+  const b = await chromium.launch(); const m = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); const c = await m.newPage();
+  const box = async (loc) => { const q = await loc.first().boundingBox(); return q && [Math.round(q.x), Math.round(q.y), Math.round(q.width), Math.round(q.height)]; };
+  const out = {};
+  await c.goto(BASE + '/b/flor-de-lotus/agendar', { waitUntil: 'networkidle' });
+  const ok = c.getByRole('button', { name: 'Entendi' }); if (await ok.count()) await ok.first().click();
+  out.centro = await box(c.getByText('Centro', { exact: true }));
+  await c.getByText('Centro', { exact: true }).first().click(); await c.waitForTimeout(400);
+  out.carla = await box(c.getByText('Carla Mendes'));
+  await c.getByText('Carla Mendes').first().click(); await c.waitForTimeout(400);
+  out.extensao = await box(c.getByText('Extensão de cílios'));
+  await c.getByText('Extensão de cílios').first().click(); await c.waitForTimeout(400);
+  out.volume = await box(c.getByText('Volume russo')); out.rodape = await box(c.getByText('Confirmar'));
+  await c.goto(BASE + '/b/flor-de-lotus/agendar', { waitUntil: 'networkidle' });
+  await c.getByText('Centro', { exact: true }).first().click(); await c.getByText('Carla Mendes').first().click(); await c.getByText('Manicure', { exact: true }).first().click();
+  await c.getByRole('button', { name: 'Continuar' }).first().click(); await c.waitForTimeout(1500);
+  out.horario = await box(c.getByRole('button', { name: /^\d\d:\d\d$/ }).nth(2));
+  await c.getByRole('button', { name: /^\d\d:\d\d$/ }).nth(2).click(); await c.waitForTimeout(500);
+  out.seunome = await box(c.getByText('Seu nome'));
+  await c.goto(BASE + '/b/flor-de-lotus/entrar', { waitUntil: 'networkidle' });
+  await c.locator('input').first().fill('11987654321'); await c.locator('input[type=password]').fill('123456');
+  await c.getByRole('button', { name: /Entrar/ }).last().click(); await c.waitForLoadState('networkidle'); await c.waitForTimeout(800);
+  for (const [k, t] of [['seuplano', 'Seu plano'], ['vantagens', 'Clube de vantagens'], ['cashback', 'cashback'], ['indique', 'Indique uma amiga']]) out['conta_' + k] = await box(c.getByText(t));
+  out.conta_scroll = await c.evaluate(() => document.body.scrollHeight);
+  const ag = await c.$$eval('a', as => as.map(a => a.getAttribute('href')).find(h => /agendamento\//.test(h)));
+  await c.goto(BASE + ag, { waitUntil: 'networkidle' });
+  out.ag_confirmar = await box(c.getByText('Confirmar presença')); out.ag_ficha = await box(c.getByText('Ficha preenchida'));
+  await c.goto(BASE + '/b/flor-de-lotus/conta/vantagens', { waitUntil: 'networkidle' }); out.vant_cupom = await box(c.getByText('BELAFIT'));
+  fs.writeFileSync('assets/caixas_celular.json', JSON.stringify(out)); console.log(JSON.stringify(out));
+  await b.close();
+})();
