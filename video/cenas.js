@@ -102,7 +102,7 @@
   add({ t: W(7, 'E', 5), tipo: 'desk', img: D + 'painel_configuracoes.png', u: 2, cam: [[0, [70, 181, 1044, 848]], [W(7, 'regras'), [590, 341, 524, 285]], [W(7, 'sinal'), [590, 622, 524, 488]]],
     sub: 'Configurações: marca, regras, cashback, sinal e indicação.', subT: W(7, 'E', 5) });
   // Planos
-  add({ t: W(8, 'São'), tipo: 'desk', img: D + 'painel_plano.png', u: 2, cam: [[0, [30, 370, 1124, 740]], [W(8, 'Solo') - 0.3, [30, 404, 282, 704]], [W(8, 'Bairro') - 0.3, [310, 404, 282, 704]], [W(8, 'com') - 0.2, [310, 404, 844, 704]], [W(8, 'a') - 0.2, [310, 404, 282, 704]]], hl: [[W(8, 'Solo'), W(8, 'Do'), [40, 414, 262, 684]], [W(8, 'Bairro'), W(9, 'Klareza') - 0.2, [320, 414, 824, 684]]],
+  add({ t: W(8, 'São'), tipo: 'desk', img: D + 'painel_plano.png', u: 2, etiqueta: 'Tela do sistema · preços de 06/11/2026', etqBaixo: true, cam: [[0, [30, 370, 1124, 740]], [W(8, 'Solo') - 0.3, [30, 404, 282, 704]], [W(8, 'Bairro') - 0.3, [310, 404, 282, 704]], [W(8, 'com') - 0.2, [310, 404, 844, 704]], [W(8, 'a') - 0.2, [310, 404, 282, 704]]], hl: [[W(8, 'Solo'), W(8, 'Do'), [40, 414, 262, 684]], [W(8, 'Bairro'), W(9, 'Klareza') - 0.2, [320, 414, 824, 684]]],
     sub: 'Quatro planos, preços conferidos em 06/11/2026.', subT: W(8, 'São') });
   add({ t: W(9, 'Klareza') - 0.15, tipo: 'fim' });
 

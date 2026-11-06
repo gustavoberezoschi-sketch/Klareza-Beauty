@@ -32,6 +32,7 @@ html, body { background: #222; }
 .cel .vidro { position: relative; width: 560px; height: 740px; overflow: hidden; border-radius: 54px; background: #fff; }
 .cel img { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .etiqueta { position: absolute; right: 18px; top: 18px; z-index: 5; background: rgba(15,15,14,.86); color: #fff; font-size: 21px; font-weight: 600; padding: 7px 14px; border-radius: 999px; letter-spacing: .01em; }
+.etiqueta.baixo { top: auto; bottom: 18px; right: auto; left: 18px; }
 .cel .etiqueta { right: -150px; top: 30px; }
 .anel { position: absolute; border: 6px solid var(--vinho); border-radius: 16px; pointer-events: none; z-index: 4; }
 .toque { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; border-radius: 50%; z-index: 6; }
@@ -65,7 +66,7 @@ html, body { background: #222; }
 #fim .contato div { font-size: 46px; font-weight: 700; line-height: 64px; }
 #fim .contato small { display: block; font-size: 28px; color: var(--cinza); font-weight: 500; }
 #fim .rotta { position: absolute; left: 0; right: 0; top: 1430px; text-align: center; font-size: 26px; color: var(--cinza); }
-#grao { left: 0; top: 0; width: 1080px; height: 1920px; opacity: .1; mix-blend-mode: multiply; pointer-events: none; image-rendering: pixelated; }
+#grao { left: 0; top: 0; width: 1080px; height: 1920px; opacity: .04; mix-blend-mode: multiply; pointer-events: none; image-rendering: pixelated; }
 #ctrl { position: fixed; left: 1100px; top: 20px; color: #fff; font: 14px system-ui; width: 300px; }
 #ctrl input { width: 100%; }
 body.render #ctrl { display: none; }
@@ -115,7 +116,7 @@ const imgs = [];
 C.S.forEach((s, i) => {
   const el = document.createElement('div'); el.className = 'tomada'; el.style.display = 'none';
   if (s.tipo === 'desk') {
-    el.innerHTML = `<div class="tela"><img src="${s.img}"><span class="etiqueta">Exemplo · dados fictícios</span></div>`;
+    el.innerHTML = `<div class="tela"><img src="${s.img}"><span class="etiqueta${s.etqBaixo ? ' baixo' : ''}">${s.etiqueta || 'Exemplo · dados fictícios'}</span></div>`;
   } else if (s.tipo === 'cel') {
     el.innerHTML = `<div class="cel"><div class="vidro"><img src="${s.img}"></div><span class="etiqueta">Exemplo · dados fictícios</span></div>`;
   } else if (s.tipo === 'html' && s.html === 'whats') {
