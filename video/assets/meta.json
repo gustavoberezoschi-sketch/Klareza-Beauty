@@ -1,0 +1,1118 @@
+{
+ "gerado_em": "2026-11-06",
+ "nota": "Nenhum cookie, token, senha ou dado de sessao registrado. Capturas da instancia local usam somente o seed de demonstracao do repositorio.",
+ "itens": [
+  {
+   "arquivo": "landing/agenda.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/agenda.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/assinaturas.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/assinaturas.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/cel-agendar.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/cel-agendar.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    585,
+    1266
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/cel-conta.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/cel-conta.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    585,
+    1266
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/cel-plano.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/cel-plano.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    585,
+    1266
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/comandas.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/comandas.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/financeiro.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/financeiro.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/inicio.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/inicio.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/lembretes.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/lembretes.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "landing/relatorios.webp",
+   "origem": "site publico",
+   "url": "https://klareza-beauty.vercel.app/landing/relatorios.webp",
+   "data": "2026-11-06",
+   "seletor": null,
+   "viewport": null,
+   "escala": null,
+   "dimensoes_px": [
+    1600,
+    1000
+   ],
+   "uso": "Demonstracao oficial publicada (rodape: dados de demonstracao)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "logo_klareza_beauty_original.svg",
+   "origem": "site publico /icon.svg (identico a src/app/icon.svg)",
+   "url": "https://klareza-beauty.vercel.app/icon.svg",
+   "data": "2026-11-06",
+   "uso": "Simbolo oficial, sem redesenho",
+   "etiqueta": null
+  },
+  {
+   "arquivo": "fonts/Figtree-latin.woff2",
+   "origem": "site publico /_next/static/media (subset latino)",
+   "data": "2026-11-06",
+   "uso": "Fonte oficial",
+   "etiqueta": null
+  },
+  {
+   "arquivo": "fonts/Geist-latin.woff2",
+   "origem": "site publico /_next/static/media (subset latino)",
+   "data": "2026-11-06",
+   "uso": "Fonte oficial",
+   "etiqueta": null
+  },
+  {
+   "arquivo": "fonts/InstrumentSerif-Italic-latin.woff2",
+   "origem": "site publico /_next/static/media (subset latino)",
+   "data": "2026-11-06",
+   "uso": "Fonte oficial",
+   "etiqueta": null
+  },
+  {
+   "arquivo": "capturas/painel_inicio.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel",
+   "data": "2026-11-06T14:44:34.118Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 965
+   },
+   "dimensoes_px": [
+    2368,
+    1930
+   ],
+   "uso": "Início: faturamento, próximos atendimentos, avisos, aniversariantes",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_agenda.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/agenda",
+   "data": "2026-11-06T14:44:35.139Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1560
+   },
+   "dimensoes_px": [
+    2368,
+    3120
+   ],
+   "uso": "Agenda em grade por profissional, bloqueios",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_agenda_bloqueios.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/agenda/bloqueios",
+   "data": "2026-11-06T14:44:36.008Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 646
+   },
+   "dimensoes_px": [
+    2368,
+    1292
+   ],
+   "uso": "Folgas e bloqueios",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_agenda_novo.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/agenda/novo",
+   "data": "2026-11-06T14:44:36.829Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 872
+   },
+   "dimensoes_px": [
+    2368,
+    1744
+   ],
+   "uso": "Formulário de agendamento interno (encaixe), não enviado",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_lembretes.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/lembretes",
+   "data": "2026-11-06T14:44:37.842Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 2233
+   },
+   "dimensoes_px": [
+    2368,
+    4468
+   ],
+   "uso": "Lembretes: amanhã, hoje, site, manutenção, espera, cuidados",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_comandas.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/comandas",
+   "data": "2026-11-06T14:44:38.657Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 567
+   },
+   "dimensoes_px": [
+    2368,
+    1134
+   ],
+   "uso": "Comandas fechadas do dia",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_caixa.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/caixa",
+   "data": "2026-11-06T14:44:39.425Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 285
+   },
+   "dimensoes_px": [
+    2368,
+    570
+   ],
+   "uso": "Caixa por unidade",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_clientes.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/clientes",
+   "data": "2026-11-06T14:44:40.382Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 908
+   },
+   "dimensoes_px": [
+    2368,
+    1816
+   ],
+   "uso": "Clientes: lista, filtros, cashback",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_assinaturas.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/assinaturas",
+   "data": "2026-11-06T14:44:41.285Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1174
+   },
+   "dimensoes_px": [
+    2368,
+    2348
+   ],
+   "uso": "Clube de assinatura",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_pacotes.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/pacotes",
+   "data": "2026-11-06T14:44:42.077Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 586
+   },
+   "dimensoes_px": [
+    2368,
+    1172
+   ],
+   "uso": "Pacotes de sessões",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_vitrine.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/vitrine",
+   "data": "2026-11-06T14:44:42.964Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1163
+   },
+   "dimensoes_px": [
+    2368,
+    2326
+   ],
+   "uso": "Página do cliente: QR code, banners, parceiros",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_servicos.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/servicos",
+   "data": "2026-11-06T14:44:43.901Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1246
+   },
+   "dimensoes_px": [
+    2368,
+    2492
+   ],
+   "uso": "Serviços",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_produtos.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/produtos",
+   "data": "2026-11-06T14:44:44.778Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 875
+   },
+   "dimensoes_px": [
+    2368,
+    1750
+   ],
+   "uso": "Produtos e estoque por unidade",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_equipe.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/equipe",
+   "data": "2026-11-06T14:44:45.604Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 339
+   },
+   "dimensoes_px": [
+    2368,
+    678
+   ],
+   "uso": "Equipe e comissões",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_financeiro.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/financeiro",
+   "data": "2026-11-06T14:44:46.437Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 686
+   },
+   "dimensoes_px": [
+    2368,
+    1372
+   ],
+   "uso": "Financeiro",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_pagamentos.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/pagamentos",
+   "data": "2026-11-06T14:44:47.216Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 249
+   },
+   "dimensoes_px": [
+    2368,
+    498
+   ],
+   "uso": "Pagamentos online (estado na demo local)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_unidades.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/unidades",
+   "data": "2026-11-06T14:44:47.999Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 325
+   },
+   "dimensoes_px": [
+    2368,
+    650
+   ],
+   "uso": "Unidades",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_relatorios.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/relatorios?de=2026-10-08&ate=2026-11-06",
+   "data": "2026-11-06T14:44:49.048Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1946
+   },
+   "dimensoes_px": [
+    2368,
+    3892
+   ],
+   "uso": "Relatórios 30 dias",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_configuracoes.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/configuracoes",
+   "data": "2026-11-06T14:44:49.979Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1357
+   },
+   "dimensoes_px": [
+    2368,
+    2714
+   ],
+   "uso": "Configurações: regras, cashback, sinal, indicação",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_plano.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/plano",
+   "data": "2026-11-06T14:44:50.878Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1133
+   },
+   "dimensoes_px": [
+    2368,
+    2266
+   ],
+   "uso": "Meu plano: matriz dos 4 planos",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_comanda_detalhe.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/comandas/cmw5328z200ed7dsm6tcadq9c",
+   "data": "2026-11-06T14:44:51.870Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 627
+   },
+   "dimensoes_px": [
+    2368,
+    1254
+   ],
+   "uso": "Comanda fechada (detalhe)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_servico_manutencao.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/servicos/cmw53281j00397dsmf3vsqt3j",
+   "data": "2026-11-06T14:44:52.943Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1543
+   },
+   "dimensoes_px": [
+    2368,
+    3086
+   ],
+   "uso": "Serviço: Manutenção de cílios (variações, adicionais, manutenção, material, cuidados)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_servico_extensao.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/servicos/cmw5327xc000r7dsm96pjuaku",
+   "data": "2026-11-06T14:44:53.895Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1635
+   },
+   "dimensoes_px": [
+    2368,
+    3270
+   ],
+   "uso": "Serviço: Extensão de cílios (variações, adicionais, manutenção, material, cuidados)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_servico_alongamento.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/servicos/cmw5327xc000w7dsmvicb3hni",
+   "data": "2026-11-06T14:44:54.853Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1585
+   },
+   "dimensoes_px": [
+    2368,
+    3170
+   ],
+   "uso": "Serviço: Alongamento de unhas em gel (variações, adicionais, manutenção, material, cuidados)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_cliente_ficha.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/clientes/cmw5327xc00187dsmgjret8bx",
+   "data": "2026-11-06T14:44:56.061Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 2358
+   },
+   "dimensoes_px": [
+    2368,
+    4716
+   ],
+   "uso": "Ficha do cliente (fictícia)",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_equipe_detalhe.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/equipe/cmw53280j001j7dsmh75o7kn4",
+   "data": "2026-11-06T14:44:57.068Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 739
+   },
+   "dimensoes_px": [
+    2368,
+    1478
+   ],
+   "uso": "Profissional: comissões e acesso",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_produto_detalhe.png",
+   "origem": "instancia local de demonstracao (seed do repositorio, dados ficticios)",
+   "url": "/painel/produtos/cmw5327xc00147dsmvgz01lrv",
+   "data": "2026-11-06T14:44:58.221Z",
+   "seletor": "main",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "caixa_css": {
+    "x": 256,
+    "y": 0,
+    "w": 1184,
+    "h": 1152
+   },
+   "dimensoes_px": [
+    2368,
+    2304
+   ],
+   "uso": "Produto: estoque por unidade, entradas, histórico",
+   "etiqueta": "Exemplo"
+  },
+  {
+   "arquivo": "capturas/painel_inicio_com_menu.png",
+   "url": "/painel",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    2880,
+    2000
+   ],
+   "uso": "Contexto com menu completo",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao"
+  },
+  {
+   "arquivo": "capturas/profissional_painel.png",
+   "url": "/painel/agenda",
+   "viewport": {
+    "width": 1440,
+    "height": 1000
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    2880,
+    2000
+   ],
+   "uso": "Acesso restrito da profissional",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao"
+  },
+  {
+   "arquivo": "capturas/cel_pagina_salao.png",
+   "url": "/b/flor-de-lotus",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Página pública do salão",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao",
+   "dimensoes_px": [
+    780,
+    6388
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_agendar_inicio.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Agendamento: etapas",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_agendar_1_profissional.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    780,
+    1688
+   ],
+   "uso": "Etapa profissional",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:25.062Z"
+  },
+  {
+   "arquivo": "capturas/cel_agendar_2_servicos.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    780,
+    1688
+   ],
+   "uso": "Etapa serviços",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:25.580Z"
+  },
+  {
+   "arquivo": "capturas/cel_agendar_3_variacao.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    780,
+    1688
+   ],
+   "uso": "Variações/adicionais",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:26.116Z"
+  },
+  {
+   "arquivo": "capturas/cel_agendar_4_escolhido.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "dimensoes_px": [
+    780,
+    1688
+   ],
+   "uso": "Variação escolhida, total no rodapé",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:26.618Z"
+  },
+  {
+   "arquivo": "capturas/cel_agendar_5_horario.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Etapa horário (sem confirmar)",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:42.512Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_agendar_6_horario_escolhido.png",
+   "url": "/b/flor-de-lotus/agendar",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Horário escolhido, sem confirmar",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:43.146Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_inicio.png",
+   "url": "/b/flor-de-lotus/conta",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: início",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:45.386Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_conta.png",
+   "url": "/b/flor-de-lotus/conta",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/conta",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:46.617Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_conta_agendamentos.png",
+   "url": "/b/flor-de-lotus/conta/agendamentos",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/conta/agendamentos",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:47.792Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_conta_vantagens.png",
+   "url": "/b/flor-de-lotus/conta/vantagens",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/conta/vantagens",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:48.938Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_conta_plano.png",
+   "url": "/b/flor-de-lotus/conta/plano",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/conta/plano",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:50.090Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_conta_perfil.png",
+   "url": "/b/flor-de-lotus/conta/perfil",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/conta/perfil",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:51.252Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  },
+  {
+   "arquivo": "capturas/cel_conta_agendamento_afebfaedbef.png",
+   "url": "/b/flor-de-lotus/agendamento/a056f531-e9bf-4807-aedb-2e820998f175",
+   "viewport": {
+    "width": 390,
+    "height": 844
+   },
+   "escala": 2,
+   "uso": "Área do cliente: /b/flor-de-lotus/agendamento/a056f531-e9bf-4807-aedb-2e820998f175",
+   "etiqueta": "Exemplo",
+   "origem": "instancia local de demonstracao (seed, dados ficticios)",
+   "data": "2026-11-06T14:45:52.365Z",
+   "dimensoes_px": [
+    780,
+    1688
+   ]
+  }
+ ]
+}
